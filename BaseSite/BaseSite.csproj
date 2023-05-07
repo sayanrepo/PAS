@@ -434,6 +434,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="bin\" />
+    <Folder Include="Diagrams\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -488,7 +489,6 @@
     <Content Include="GuideBook\themes\middle-east\Vazir.ttf" />
     <Content Include="GuideBook\themes\middle-east\Vazir.woff" />
     <Content Include="GuideBook\themes\middle-east\Vazir.woff2" />
-    <Content Include="Diagrams\CodeMap_DBModel.dgml" />
     <None Include="Properties\PublishProfiles\panta.pubxml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\AboutUs.cshtml" />
