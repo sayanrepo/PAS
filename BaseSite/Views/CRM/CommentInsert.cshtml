@@ -1,0 +1,30 @@
+﻿@model BaseSite.Models.DBModel.CRM_Comments
+
+<div style="padding-top:5px;">
+    <h4><b>ثبت یادداشت جدید:</b></h4>
+    <div class="form-horizontal">
+        @*<div class="form-group">
+                <label class="control-label col-md-2" for="Name">نام </label>
+                <div class="col-md-10">
+                    <input type="text" name="name" class="form-control" />
+                </div>
+            </div>*@
+        @Html.HiddenFor(m => m.ParentId)
+        <input type="hidden" name="ttid" value="@Model.TrunkTableId" />
+        <input type="hidden" name="tid" value="@Model.TrunkId" />
+
+        <div class="form-group">
+            <label class="control-label col-md-2" for="Name">متن یادداشت</label>
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Comment, new { @id = "myComment", @class = "form-control", @rows = 5 })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="text-center">
+                <input id="submitcomment" type="button" value="ثبت" class="btn btn-success" data-ttid="@Model.TrunkTableId" data-tid="@Model.TrunkId" data-parentid="@Model.ParentId" />
+            </div>
+        </div>
+    </div>
+</div>
+

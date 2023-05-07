@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="sayan, SAYAN, sayantech, SAYANTECH, sayan-tech, SAYAN-TECH, software, SOFTWARE, سایان, سایان تک, گروه نرم افزاری, شرکت سایان, گروه نرم افزاری سایان, نرم افزار, کامپیوتر, اتوماسیون">
+
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/AweSome/font-awesome.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/MyStyle/Main.css")" rel="stylesheet">
+    <link href="~/Contents/css/DatePicker/PersianDatePicker.min.css" rel="stylesheet" />
+    <script src="~/Contents/js/DatePicker/PersianDatePicker.min.js"></script>
+
+    <title>@ViewBag.Title</title>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="container-fluid">
+        <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+        <script src="@Url.Content("~/Contents/js/bootstrap.js")"></script>
+        <div class="row">
+            <div class="jumbotron text-center MLoginjumbotron">
+                <h1>اتوماسیون فروش و تولید پنتا</h1>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-xs-12">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" style="position: absolute; right: 0; bottom: 0; left: 0;">
+        <div class="row">
+            <div class="col-md-12 col-xs-12" id="footer">
+                <div class="col-md-8"><p>© کلیه حقوق وب سایت متعلق به شرکت <strong>پنتا</strong> می باشد </p></div>
+                <div class="col-md-4 text-left"><p><a style="font-size:12px; font-weight:bolder;" href="http://www.sayan-tech.com" target="_blank">طراحی و پیاده سازی اتوماسیون</a>: SAYAN-TECH</p></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<style type="text/css">
+
+    html, body 
+    {
+        height: 100%;
+        margin-top: 0;
+        background-image: url(/Images/Elevator.jpg);
+        background-size: cover; 
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+</style>

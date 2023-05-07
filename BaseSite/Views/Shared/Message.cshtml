@@ -1,0 +1,16 @@
+﻿@using System.Globalization
+@{
+    ViewBag.Title = "پیغام";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+
+<div class="row text-center">
+    @if (ViewBag.Msg == null)
+    {
+        <p class="text-danger">تبادل اطلاعات دچار مشکل شده است</p>
+    }
+    else
+    {
+        <p class="text-primary">@ViewBag.Msg</p>
+    }
+</div>

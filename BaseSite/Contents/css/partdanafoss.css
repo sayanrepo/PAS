@@ -1,0 +1,141 @@
+﻿.partbody
+{
+    margin-bottom:70px;
+     /*background-image: url("../../Images/pdf/noise.png");
+     background-repeat:no-repeat;
+     background-size:cover;
+     background-position:0 0;*/
+
+background-attachment: scroll;
+background-clip: border-box;
+background-color: rgb(238, 239, 241);
+background-image: none;
+background-origin: padding-box;
+background-position: 0% 0%;
+background-position-x: 0%;
+background-position-y: 0%;
+background-repeat: repeat;
+background-size: auto auto;
+color: rgb(77, 77, 77);
+/*direction: ltr;*/
+/*font-family: yekan;*/
+font-feature-settings: normal;
+font-kerning: auto;
+font-language-override: normal;
+font-size: 10.6667px;
+font-size-adjust: none;
+font-stretch: normal;
+font-style: normal;
+font-synthesis: weight style;
+font-variant: normal;
+font-variant-alternates: normal;
+font-variant-caps: normal;
+font-variant-east-asian: normal;
+font-variant-ligatures: normal;
+font-variant-numeric: normal;
+font-variant-position: normal;
+font-weight: 400;
+line-height: 22px;
+/*margin-bottom: 0px;
+margin-left: 0px;
+margin-right: 0px;
+margin-top: 0px;
+padding-bottom: 0px;
+padding-left: 0px;
+padding-right: 0px;
+padding-top: 0px;*/
+
+}
+
+.partsliderdiv {
+    padding: 0;
+}
+
+
+
+#container {
+   height: 100%;
+   overflow-y: auto;
+   background: none;
+}
+
+#line1 {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 5px;
+    background-color: none;
+    margin: 0px;
+}
+
+.smallerDivs {
+    height: 170px;
+    width: 130px;
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    /*border:solid 1px;
+    border-radius:5px;*/
+    background-color:white;
+    text-align:center;
+}
+
+.parttools
+{
+    padding:10px;
+    /*margin-top:5px;*/
+    /*background-color: rgb(217, 201, 139);*/
+}
+.parttoolsdiv {
+    height:80px;
+    padding:18px;
+    /*margin:5px;*/
+    text-align: center;
+    /*background-color: rgb(234, 66, 66);*//* rgb(217, 201, 139);*/
+    /*border-right:solid 1px;*/
+    /*border-radius:30px;*/
+}
+.parttoolslink
+{
+    font-size:3vmin;
+    text-decoration: none;
+    color: rgb(71,71,71);
+}
+    .parttoolslink:hover {
+        text-decoration: none;
+    }
+
+
+.partfooter {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: rgb(104, 19, 68);
+}
+.partfooterdiv {
+    text-align: center;
+    padding-top:5px;
+    padding-bottom:5px;
+    padding-left: 0;
+    padding-right:0;
+}
+.partfooterlink {
+    text-decoration: none;
+    color: white;
+    font-size:3vmin;
+}
+
+    .partfooterlink:hover {
+        text-decoration: none;
+    }
+
+
+    .partcategory{
+        /*border: solid 1px;
+        border-radius:5px;*/
+        /*background-color:white;*/
+        text-align:center;
+        /*margin-bottom:10px;*/
+        /*margin-top:10px;*/
+        padding:10px;
+    }

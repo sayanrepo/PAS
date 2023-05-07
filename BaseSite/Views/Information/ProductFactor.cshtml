@@ -1,0 +1,217 @@
+﻿@using System.Globalization
+@{
+    ViewBag.Title = "ضرایب کارکرد";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    <div id="DivDetail">
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="col-xs-12 text-center text-danger" style="padding-bottom:20px;">@ViewBag.ErrorMsg</div>
+        }
+        <div class="col-xs-6" id="DivPanelModel">
+            <p class="TopText">ارزش ریالی ضریب کارکرد</p>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Add))
+            {
+                <div class="row col-xs-12 nopadding AddingPanel">
+                    <form method="post" action="@Url.Action("AddProductFactorCost", "Information")" id="formItemAdd" class="formAdd">
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control ListName text-center" id="shApplyDate" name="shApplyDate" placeholder="تاریخ اعمال" required
+                                   onclick="PersianDatePicker.Show(this,'@today');"
+                                   oninvalid="this.setCustomValidity('لطفا تاریخ را وارد نمایید')"
+                                   oninput="setCustomValidity('')" />
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                        </div>
+                        <div class="col-xs-9">
+                            <div class="input-group">
+                                <input type="text" class="form-control text-center MyControl autoNumber" id="cost" name="cost" placeholder="ارزش ریالی" />
+                                <span class="input-group-addon MySpan EndText">ریال</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed setting-items">
+                    @if (ViewBag.PFCost != null)
+                    {
+                        foreach (var item in ViewBag.PFCost)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="row" style="padding-top:10px;">
+                                        <div class="col-xs-5 text-right">@item.ShApplyDate</div>
+                                        <div class="col-xs-5 text-right"><span class="autoNumber">@item.Cost</span>&nbsp;  ریال</div>
+                                        <div class="col-xs-2 text-left" style="padding-right:0;">
+                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Delete))
+                                            {
+                                                <a data-toggle="modal" href="#ProductFactorCostDeleteModal" name="ProductFactorCostDelete" data-shdate="@item.ShApplyDate">حذف</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-xs-6" id="DivSurfaceMetal">
+            <p class="TopText">کاهش ضریب در تولید تیراژی</p>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Add))
+            {
+                <div class="row col-xs-12 nopadding AddingPanel">
+                    <form method="post" action="@Url.Action("AddCollectiveProducePercent", "Information")" id="formItemAdd" class="formAdd">
+                        <div class="col-xs-9">
+                            <input type="text" class="form-control ListName text-center" id="shApplyDate" name="shApplyDate" placeholder="تاریخ اعمال" required
+                                   onclick="PersianDatePicker.Show(this,'@today');"
+                                   oninvalid="this.setCustomValidity('لطفا تاریخ را وارد نمایید')"
+                                   oninput="setCustomValidity('')" />
+                        </div>
+                        <div class="col-xs-3">
+                            <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                        </div>
+                        <div class="col-xs-9">
+                            <div class="input-group">
+                                <input type="text" class="form-control text-center MyControl autoNumber" id="percent" name="percent" placeholder="درصد کاهش" />
+                                <span class="input-group-addon MySpan EndText">درصد</span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            }
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed setting-items">
+                    @if (ViewBag.CPPercent != null)
+                    {
+                        foreach (var item in ViewBag.CPPercent)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="row" style="padding-top:10px;">
+                                        <div class="col-xs-5 text-right">@item.ShApplyDate</div>
+                                        <div class="col-xs-5 text-right"><span class="autoNumber">@item.Amount</span>&nbsp;  درصد</div>
+                                        <div class="col-xs-2 text-left" style="padding-right:0;">
+                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Delete))
+                                            {
+                                                <a data-toggle="modal" href="#CollectiveProducePercentDeleteModal" name="CollectiveProducePercentDelete" data-shdate="@item.ShApplyDate">حذف</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ProductFactorCostDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف ارزش ریالی</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف ارزش ریالی مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeleteProductFactorCost", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="shDate" name="shDate" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="CollectiveProducePercentDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف درصد کاهش</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف درصد کاهش مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeleteCollectiveProducePercent", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="shDate" name="shDate" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*#################################END Delete Modal #################################################*@
+
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("Li#PrimaryInfo").css("background-color", "#524d4d");
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+
+        //تغییر رنگ بکگراند شهرها و اشخاص
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[5];
+        if (LinkHref == "Index" || LinkHref == null || LinkHref == "") {
+            $("a[ID='ProductFactor']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+
+        ////////////////////// ProductFactorCost //////////////////
+        $("a[name=ProductFactorCostDelete]").click(function () {
+            var prefix = $(this).data("shdate");
+            if (prefix != null && prefix != "") {
+                $('#ProductFactorCostDeleteModal #shDate').val(prefix);
+            }
+        });
+
+        ////////////////// CollectiveProducePercent ////////////////
+        $("a[name=CollectiveProducePercentDelete]").click(function () {
+            var prefix = $(this).data("shdate");
+            if (prefix != null && prefix != "") {
+                $('#CollectiveProducePercentDeleteModal #shDate').val(prefix);
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+
+

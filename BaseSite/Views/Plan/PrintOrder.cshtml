@@ -1,0 +1,491 @@
+﻿@{
+    Layout = null;
+    ViewBag.title = "کارت مشخصات سفارش";
+}
+@model BaseSite.Models.DBModel.Order_Order
+
+<!DOCTYPE html>
+
+<link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+<link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+<script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+<script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+<link href="@Url.Content("~/Contents/css/MyStyle/PrintPA4.css")" rel="stylesheet">
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.title</title>
+</head>
+<body>
+    <div class="container-fluid" id="divPrint">
+        <div class="row box" id="header">
+            <div class="col-xs-3 text-right">
+                <p><b>شماره سند: </b><b>@Model.DocNumber</b></p>
+            </div>
+            <div class="col-xs-6 text-center" style="font-size:large;">
+                <u><b>@ViewBag.title</b></u>
+            </div>
+            <div class="col-xs-3 text-left">
+                <p><b>درخواست تولید: </b>@Model.ShDateDelivery</p>
+            </div>
+            <div class="col-xs-4 text-right">
+                <p><b>جهت پروژه: </b>@Model.ProjectName</p>
+            </div>
+            <div class="col-xs-4 text-center">
+                <p><b>مشتری: </b>@Model.Account_Users.FullName</p>
+            </div>
+            <div class="col-xs-4 text-left">
+                <p><b>تاریخ تحویل: </b>@Model.ShDateFactor</p>
+            </div>
+            <div class="col-xs-6 text-right">
+                <p><b>نوع بسته بندی: </b>@Model.Tb_PackTypes.Name</p>
+            </div>
+            <div class="col-xs-6 text-left">
+                <p><b>نوع تابلو: </b>@Model.Tb_ElevatorBoards.Name</p>
+            </div>
+            <div class="col-xs-9 text-right">
+                <p><b>محل ارسال: </b>@Model.DeliveryAddress</p>
+            </div>
+            <div class="col-xs-3 text-left">
+                <p><b>تاریخ چاپ: </b>@(new PersianDateTime(DateTime.Now).ToString(PersianDateTimeFormat.Date))</p>
+            </div>
+        </div>
+
+        @if (Model.Order_Cabin.Count > 0 && Model.Order_Cabin.ElementAt(0).Tb_CabinPanels.Id > 0)
+        {
+            for (int i = 0; i < Model.Order_Cabin.Count; i++)
+            {
+                if (Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                {
+                    <div class="row">
+                        <div style="width: 100%; display: table;">
+                            <div style="display: table-row">
+                                <div class="box" style="width: 30px; display: table-cell;padding:3px;">
+                                    <div><p> پنل <p /><p> شاسی </p><p> داخل </p> <p> کابین</p></div>
+                                </div>
+                                <div class="row box" style="display: table-cell;">
+                                    <div class="col-xs-7 text-right">
+                                        <p><b>مدل پنل: </b>@Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Name</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right">
+                                        <p><b>نحوه نصب: </b>@Model.Order_Cabin.ElementAt(i).Tb_InstallationTypes.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد: </b>@Model.Order_Cabin.ElementAt(i).Count</p>
+                                    </div>
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>پوش باتون: </b>@Model.Order_Cabin.ElementAt(i).Tb_PushButtons.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>شروع از: </b> @Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Order_ProductStatus.Name </p>
+                                    </div>
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>نمایشگر: </b>@Model.Order_Cabin.ElementAt(i).Tb_Monitors.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>فلزرویه: </b>@Model.Order_Cabin.ElementAt(i).Tb_CabinSurfaceMetals.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد طبقات: </b>@Model.Order_Cabin.ElementAt(i).FloorCount</p>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;">@Model.Order_Cabin.ElementAt(i).FloorNames</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>طبقات زیرین: </b>@Model.Order_Cabin.ElementAt(i).UGFloorCount</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>کد بلندگو: </b>@Model.Order_Cabin.ElementAt(i).Tb_Speakers.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>کد لامپ اضطراری: </b>@Model.Order_Cabin.ElementAt(i).EmergencyLigh.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).PhoneCallButton, new { @Name = "Order_Cabin[" + i.ToString() + "].PhoneCallButton" }) کلیدآیفون
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-1 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DO, new { @Name = "Order_Cabin[" + i.ToString() + "].DO" }) DO
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-1 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DC, new { @Name = "Order_Cabin[" + i.ToString() + "].DC" }) DC
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن برش لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;">@Model.Order_Cabin.ElementAt(i).LaserCuttingText</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن حک لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;">@Model.Order_Cabin.ElementAt(i).LaserEngravingText</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p style="line-height:20px;"><b>توضیحات: </b>@Model.Order_Cabin.ElementAt(i).Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div style="width: 100%; display: table;">
+                    <div style="display: table-row">
+                        <div class="box" style="width: 30px; display: table-cell;padding:3px;">
+                            <div><p> پنل <p /><p> شاسی </p><p> داخل </p> <p> کابین</p></div>
+                        </div>
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-7 text-right">
+                                <p><b>مدل پنل: </b></p>
+                            </div>
+                            <div class="col-xs-3 text-right">
+                                <p><b>نحوه نصب: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b></p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>پوش باتون: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>شروع از: </b></p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>نمایشگر: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>فلزرویه: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد طبقات: </b></p>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;"></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>طبقات زیرین: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>کد بلندگو: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>کد لامپ اضطراری: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <label>
+                                    <input type="checkbox" /> کلیدآیفون
+                                </label>
+                            </div>
+                            <div class="col-xs-1 text-right">
+                                <label>
+                                    <input type="checkbox" /> DO
+                                </label>
+                            </div>
+                            <div class="col-xs-1 text-right">
+                                <label>
+                                    <input type="checkbox" /> DC
+                                </label>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن برش لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;"></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن حک لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;"></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height:20px;"><b>توضیحات: </b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Order_Hall.Count > 0 && Model.Order_Hall.ElementAt(0).Tb_HallPanels.Id > 0)
+        {
+            for (int i = 0; i < Model.Order_Hall.Count; i++)
+            {
+                if (Model.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                {
+                    <div class="row">
+                        <div style="width: 100%; display: table;">
+                            <div style="display: table-row">
+                                <div class="box" style="width: 30px; display: table-cell;padding:2px;">
+                                    <div><p> پنل <p /><p> شاسی </p><p> طبقات </p></div>
+                                </div>
+                                <div class="row box" style="display: table-cell;">
+                                    <div class="col-xs-10 text-right">
+                                        <p><b>مدل پنل: </b>@Model.Order_Hall.ElementAt(i).Tb_HallPanels.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد: </b>@Model.Order_Hall.ElementAt(i).Count</p>
+                                    </div>
+                                    @*<div class="col-xs-4 text-right">
+                                            <p><b>آسانسور: </b>@Model.Order_Hall.ElementAt(i).Tb_ElevatorCounts.Name</p>
+                                        </div>
+                                        <div class="col-xs-4 text-right">
+                                            <p><b>تعداد شاسی: </b>@Model.Order_Hall.ElementAt(i).Tb_HallPushButtonCounts.Name</p>
+                                        </div>*@
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>پوش باتون: </b>@Model.Order_Hall.ElementAt(i).Tb_PushButtons.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>شروع از: </b>@Model.Order_Hall.ElementAt(i).Tb_HallPanels.Order_ProductStatus.Name </p>
+                                    </div>
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>نمایشگر: </b>@Model.Order_Hall.ElementAt(i).Tb_Monitors.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>فلزرویه: </b>@Model.Order_Hall.ElementAt(i).Tb_HallSurfaceMetals.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد طبقات: </b>@Model.Order_Hall.ElementAt(i).FloorCount</p>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;">@Model.Order_Hall.ElementAt(i).FloorNames</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>طبقات زیرین: </b>@Model.Order_Hall.ElementAt(i).UGFloorCount</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p style="line-height:20px;"><b>توضیحات: </b>@Model.Order_Hall.ElementAt(i).Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div style="width: 100%; display: table;">
+                    <div style="display: table-row">
+                        <div class="box" style="width: 30px; display: table-cell;padding:2px;">
+                            <div><p> پنل <p /><p> شاسی </p><p> طبقات </p></div>
+                        </div>
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-10 text-right">
+                                <p><b>مدل پنل: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b></p>
+                            </div>
+                            @*<div class="col-xs-4 text-right">
+                                    <p><b>آسانسور: </b></p>
+                                </div>
+                                <div class="col-xs-4 text-right">
+                                    <p><b>تعداد شاسی: </b></p>
+                                </div>*@
+                            <div class="col-xs-8 text-right">
+                                <p><b>پوش باتون: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>شروع از: </b></p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>نمایشگر: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>فلزرویه: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد طبقات: </b></p>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;"></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>طبقات زیرین: </b></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height:20px;"><b>توضیحات: </b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Order_DoorTop.Count > 0 && Model.Order_DoorTop.ElementAt(0).Tb_DoorTopPanels.Id > 0)
+        {
+            for (int i = 0; i < Model.Order_DoorTop.Count; i++)
+            {
+                if (Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                {
+                    <div class="row">
+                        <div style="width: 100%; display: table;">
+                            <div style="display: table-row">
+                                <div class="box" style="width: 30px; display: table-cell;padding:1px;">
+                                    <div><p> پنل <p /><p> سردرب </p></div>
+                                </div>
+                                <div class="row box" style="display: table-cell;">
+                                    <div class="col-xs-10 text-right">
+                                        <p><b>مدل پنل: </b>@Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد: </b>@Model.Order_DoorTop.ElementAt(i).Count</p>
+                                    </div>
+                                    <div class="col-xs-10 text-right">
+                                        <p><b>فلزرویه: </b>@Model.Order_DoorTop.ElementAt(i).Tb_SurfaceMetals.FullName</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>شروع از: </b> @Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Order_ProductStatus.Name </p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p><b>نمایشگر: </b>@Model.Order_DoorTop.ElementAt(i).Tb_Monitors.Name</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p style="line-height:20px;"><b>توضیحات: </b>@Model.Order_DoorTop.ElementAt(i).Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div style="width: 100%; display: table;">
+                    <div style="display: table-row">
+                        <div class="box" style="width: 30px; display: table-cell;padding:1px;">
+                            <div><p> پنل <p /><p> سردرب </p></div>
+                        </div>
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-10 text-right">
+                                <p><b>مدل پنل: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b></p>
+                            </div>
+                            <div class="col-xs-10 text-right">
+                                <p><b>فلزرویه: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>شروع از: </b></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p><b>نمایشگر: </b></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height:20px;"><b>توضیحات: </b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row" style="margin-top:20px;">
+            <div style="width: 50%; display: table;">
+                <div style="display: table-row">
+                    <div class="text-center" style="display: table-cell;">
+                        <p><b> ملحقات اضافی</b></p>
+                    </div>
+                </div>
+                <div style="display: table-row">
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> شرح کالا</b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="width:20px;display: table-cell;">
+                        <p><b> تعداد</b></p>
+                    </div>
+                </div>
+
+                @for (int i = 0; i < Model.Order_Cabin.Count; i++)
+                {
+                    if (Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                    {
+                        for (int j = 0; j < Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                        {
+                            if (Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                            {
+                                <div style="display: table-row">
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p> @Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                    </div>
+                                    <div class="box text-center" style="width:20px;display: table-cell;">
+                                        <p> @Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+                @for (int i = 0; i < Model.Order_Hall.Count; i++)
+                {
+                    if (Model.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                    {
+                        for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                        {
+                            if (Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                            {
+                                <div style="display: table-row">
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p> @Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                    </div>
+                                    <div class="box text-center" style="width:20px;display: table-cell;">
+                                        <p> @Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+                @for (int i = 0; i < Model.Order_DoorTop.Count; i++)
+                {
+                    if (Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                    {
+                        for (int j = 0; j < Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                        {
+                            if (Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                            {
+                                <div style="display: table-row">
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p> @Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                    </div>
+                                    <div class="box text-center" style="width:20px;display: table-cell;">
+                                        <p> @Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#divPrint').printThis({
+                importCSS: true,
+                importStyle: true,
+                printContainer: true,
+                copyTagClasses: true
+            });
+        });
+    </script>
+
+</body>
+</html>
+
+<style type="text/css">
+    input[type=checkbox] {
+        /* Double-sized Checkboxes */
+        -ms-transform: scale(1.5); /* IE */
+        -moz-transform: scale(1.5); /* FF */
+        -webkit-transform: scale(1.5); /* Safari and Chrome */
+        -o-transform: scale(1.5); /* Opera */
+        padding: 10px;
+    }
+</style>

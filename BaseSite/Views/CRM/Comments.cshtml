@@ -1,0 +1,16 @@
+﻿@model List<BaseSite.Models.DBModel.CRM_Comments>
+
+<div id="comments">
+    <div class="row">
+        <div id="CommentList" class="col-md-8 col-md-offset-2">
+            @foreach (var item in Model)
+            {
+                @Html.Partial("~/Views/CRM/Comment.cshtml", item, new ViewDataDictionary())
+            }
+        </div>
+        <div id="CommentList" class="col-md-8 col-md-offset-2">
+            @Html.Partial("~/Views/CRM/CommentInsert.cshtml", new BaseSite.Models.DBModel.CRM_Comments() { TrunkTableId = (short)ViewData["ttid"], TrunkId = (int)ViewData["tid"] })
+        </div>
+    </div>
+</div>
+

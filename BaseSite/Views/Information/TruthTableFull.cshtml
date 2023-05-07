@@ -1,0 +1,220 @@
+﻿@model List<BaseSite.Models.DBModel.Tb_Truth>
+@{
+    ViewBag.Title = "جدول سازگاری";
+}
+
+<!DOCTYPE html>
+
+<html style="height: 100%; width: 100%; overflow: auto;">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="sayan, SAYAN, sayantech, SAYANTECH, sayan-tech, SAYAN-TECH, software, SOFTWARE, سایان, سایان تک, گروه نرم افزاری, شرکت سایان, گروه نرم افزاری سایان, نرم افزار, کامپیوتر, اتوماسیون">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/AweSome/font-awesome.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/jqueryui/jquery-ui.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/MyStyle/Main.css")" rel="stylesheet">
+
+    <link href="~/Contents/css/DatePicker/PersianDatePicker.min.css" rel="stylesheet" />
+    <script src="~/Contents/js/DatePicker/PersianDatePicker.min.js"></script>
+
+    <title>@ViewBag.Title</title>
+</head>
+
+<body style="background-color: white; height: 100%; width: 100%; overflow:auto;">
+    <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+    <script src="@Url.Content("~/Contents/jqueryui/jquery-ui.js")"></script>
+    <script src="@Url.Content("~/Contents/js/bootstrap.js")"></script>
+    <script src="@Url.Content("~/Contents/js/FarsiType.js")"></script>
+
+    <div style="height: 100%; width: 100%;">
+        <div style="overflow:scroll; height:100%;" id="scrollDiv">
+            @if (ViewBag.PrimaryTable != null && ViewBag.SecondaryTable != null)
+            {
+                Dictionary<int, BaseSite.Models.CacheItem> pTable = ViewBag.PrimaryTable;
+                Dictionary<int, BaseSite.Models.CacheItem> sTable = ViewBag.SecondaryTable;
+
+                <table class="table table-bordered" id="fixHeaderTable">
+                    <thead class="firstrow">
+                        <tr>
+                            <th class="text-center firstcell">پنل / جزء</th>
+                            @foreach (int sid in sTable.Keys)
+                            {
+                                <th class="text-center">@sTable[sid].Name</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < pTable.Keys.Count; i++)
+                        {
+                            int pid = pTable.Keys.ElementAt(i);
+                            <tr>
+                                <th class="text-center firstcolumn">@pTable[pid].Name</th>
+                                @foreach (int sid in sTable.Keys)
+                                {
+                                    <td class="text-center">
+                                        @if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 1))
+                                        {
+                                            <select class="selectcolor" style="background-color: rgba(7, 194, 31, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
+                                                <option value="1" data-rgb="rgba(7, 194, 31, 0.75)" selected>سازگار</option>
+                                                <option value="0.75" data-rgb="rgba(18, 190, 179, 0.75)">نامناسب</option>
+                                                <option value="0.5" data-rgb="rgba(216, 185, 12, 0.75)">مشروط</option>
+                                                <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
+                                            </select>
+                                        }
+                                        else if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 0.75))
+                                        {
+                                            <select class="selectcolor" style="background-color: rgba(18, 190, 179, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
+                                                <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>
+                                                <option value="0.75" data-rgb="rgba(18, 190, 179, 0.75)" selected>نامناسب</option>
+                                                <option value="0.5" data-rgb="rgba(216, 185, 12, 0.75)">مشروط</option>
+                                                <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
+                                            </select>
+                                        }
+                                        else if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 0.5))
+                                        {
+                                            <select class="selectcolor" style="background-color: rgba(216, 185, 12, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
+                                                <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>
+                                                <option value="0.75" data-rgb="rgba(18, 190, 179, 0.75)">نامناسب</option>
+                                                <option value="0.5" data-rgb="rgba(216, 185, 12, 0.75)" selected>مشروط</option>
+                                                <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
+                                            </select>
+                                        }
+                                        else
+                                        {
+                                            <select class="selectcolor" style="background-color: rgba(217, 12, 12, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
+                                                <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>
+                                                <option value="0.75" data-rgb="rgba(18, 190, 179, 0.75)">نامناسب</option>
+                                                <option value="0.5" data-rgb="rgba(216, 185, 12, 0.75)">مشروط</option>
+                                                <option value="0" data-rgb="rgba(217, 12, 12, 0.75)" selected>ناسازگار</option>
+                                            </select>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</body>
+</html>
+
+<style type="text/css">
+    .table-striped > tbody > tr:nth-child(2n+1) > td, .table-striped > tbody > tr:nth-child(2n+1) > th {
+        background-color: #e8e5e5;
+    }
+
+    #fixHeaderTable .firstrow {
+        position: fixed;
+        top: 0px;
+        right: 0px;
+        z-index: 1000;
+        background-color: #88bfa1;
+    }
+
+    #fixHeaderTable .firstcell {
+        z-index: 1000+1;
+    }
+    
+     #fixHeaderTable .firstcolumn {
+        position: fixed;
+        right: 0px;
+        z-index: 1000-1;
+        background-color: #88bfa1;
+    }
+
+    #fixHeaderTable {
+        margin-top: 80px;
+        margin-right: 150px;
+    }
+
+    #fixHeaderTable th, #fixHeaderTable td {
+        width: 100px;
+        min-width: 100px;
+        max-width: 100px;
+        height: 80px;
+        min-height: 80px;
+        max-height: 80px;
+    }
+
+    #fixHeaderTable .firstcolumn, #fixHeaderTable .firstcell {
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+    }
+</style>
+
+@*############################################ JAVA Script #################################################*@
+<script type="text/javascript">
+    var HScrolStart;
+
+    $(document).ready(function () {
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+        $("a[ID='TruthTable']").css("background-color", "rgba(0, 0, 0, 0.19)");
+
+        var SuccessEdit = '@ViewBag.SuccessEdit';
+        if (SuccessEdit != "" && SuccessEdit != null) {
+            $("#SuccessedEdit").css("display", "block");
+        }
+
+        $('#fixHeaderTable').css({
+            'margin-top': $("#fixHeaderTable thead").height() + 'px'
+        });
+
+        $("#fixHeaderTable> tbody> tr> th.firstcolumn").each(function (index) {
+            $(this).data('baseTop', $(this).offset().top);
+        });
+
+        HScrolStart = $("#scrollDiv").scrollLeft();
+    });
+
+    $(".selectcolor").change(function () {
+        var optionSelected = $("option:selected", this);
+        var colorSelected = optionSelected.data("rgb");
+        var self = $(this);
+        $(this).css('background-color', '#ffffff').delay(500);
+
+        var _ptid = $(this).data("ptid");
+        var _pid = $(this).data("pid");
+        var _stid = $(this).data("stid");
+        var _sid = $(this).data("sid");
+
+        $.ajax({
+            url: "@Url.Action("TruthTableEdit", "Information")",
+            type: "Post",
+            dataType: "json",
+            data: { primaryTableId: _ptid, secondaryTableId: _stid, primaryId: _pid, secondaryId: _sid, value: optionSelected.val() },
+            success: function (data) {
+                //tr.find('#Name').text(data.Name);
+                self.css('background-color', colorSelected);
+            }
+        });
+    });
+
+    $("#scrollDiv").scroll(function () {
+        var x = $("#scrollDiv").scrollLeft();
+        var y = $("#scrollDiv").scrollTop();
+
+        x = x - HScrolStart;
+        if (x > 0) x *= -1; //for IE
+
+        $('#fixHeaderTable thead').css({
+            'right': x + 'px'
+        });
+
+        $("tbody> tr> th.firstcolumn").each(function (index) {
+            $(this).css({
+                'top': (-y + $(this).data('baseTop')) + 'px',
+            });
+        });
+    });
+</script>

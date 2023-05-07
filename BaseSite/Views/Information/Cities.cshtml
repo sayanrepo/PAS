@@ -1,0 +1,408 @@
+﻿@{
+    ViewBag.Title = "اطلاعات پایه";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+}
+
+<div class="row">
+    <div id="DivDetail">
+        <div class="col-xs-4" id="DivCountry">
+            <p class="TopText">کشور</p>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Add))
+            {
+                <div class="row col-xs-12 nopadding">
+                    <form method="post" action="@Url.Action("CityAdd", "Information")" id="FormCountryAdd" class="formAdd">
+                        <div class="col-xs-8">
+                            <input type="text" class="form-control alert-dismissible" id="CountryName" name="CountryName" placeholder="نام کشور">
+                        </div>
+                        <div class="col-xs-4">
+                            <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                        </div>
+                    </form>
+                </div>
+            }
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblCountry">
+                    @foreach (var item in ViewBag.Country)
+                    {
+                        <tr>
+                            <td id="@string.Format("Country{0}", item.Id)"><a class="CountryName" href="@Url.Action("Cities", "Information", new { Countryid = item.Id })">@item.Name</a></td>
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Edit))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#CountryEditeModal" id="@string.Format("CounEdite{0}", item.Id)">ویرایش</a>
+                                </td>
+                            }
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Delete))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#CountryDeleteModal" id="@string.Format("CounDel{0}", item.Id)">حذف</a>
+                                </td>
+                            }
+                            <td style="display:none;">@item.Id</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-xs-4" id="DivProvince">
+            <p class="TopText">استان</p>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Add))
+            {
+                <div class="row col-xs-12 nopadding">
+                    <form method="post" action="@Url.Action("CityAdd", "Information")" id="FormProvinceAdd" class="formAdd">
+                        <div class="col-xs-8">
+                            <input type="text" style="display:none;" id="Countryid" name="Countryid" value="@ViewBag.CountryID">
+                            <input type="text" class="form-control alert-dismissible" id="ProvinceName" name="ProvinceName" placeholder="نام استان">
+                        </div>
+                        <div class="col-xs-4">
+                            <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                        </div>
+                    </form>
+                </div>
+            }
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblProvince">
+                    @foreach (var item in ViewBag.Province)
+                    {
+                        <tr>
+                            <td id="@string.Format("Province{0}", item.Id)"><a class="ProvinceName" href="@Url.Action("Cities", "Information", new { Countryid = ViewBag.CountryID, Provinceid = item.Id })"> @item.Name</a></td>
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Edit))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#ProvinceEditeModal" id="@string.Format("ProEdite{0}", item.Id)">ویرایش</a>
+                                </td>
+                            }
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Delete))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#ProvinceDeleteModal" id="@string.Format("ProDel{0}", item.Id)">حذف</a>
+                                </td>
+                            }
+                            <td style="display:none;">@item.Id</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-xs-4" id="DivCity">
+            <p class="TopText">شهر</p>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Add))
+            {
+                <div class="row col-xs-12 nopadding">
+                    <form method="post" action="@Url.Action("CityAdd", "Information")" id="FormCityAdd" class="formAdd">
+                        <div class="col-xs-8">
+                            <input type="text" style="display:none;" id="Countryid" name="Countryid" value="@ViewBag.CountryID">
+                            <input type="text" style="display:none;" id="Provinceid" name="Provinceid" value="@ViewBag.ProvinceID">
+                            <input type="text" class="form-control alert-dismissible" id="CityName" name="CityName" placeholder="نام شهر">
+                        </div>
+                        <div class="col-xs-4">
+                            <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                        </div>
+                    </form>
+                </div>
+            }
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblCity">
+                    @foreach (var item in ViewBag.City)
+                    {
+                        <tr>
+                            <td id="@string.Format("City{0}", item.Id)"><a class="CityName" href="#">@item.Name</a></td>
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Edit))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#CityEditeModal" id="@string.Format("CityEdite{0}", item.Id)">ویرایش</a>
+                                </td>
+                            }
+                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cities_Delete))
+                            {
+                                <td>
+                                    <a data-toggle="modal" href="#CityDeleteModal" id="@string.Format("CityDel{0}", item.Id)">حذف</a>
+                                </td>
+                            }
+                            <td style="display:none;">@item.Id</td>
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@*############################################# MODALS PART ####################################################*@
+@*##############################################################################################################*@
+@*####################################Start Country Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="CountryDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف کشور</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف کشور مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("CityDelete", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END Country Delete Modal #################################################*@
+
+@*#################################Start Country Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="CountryEditeModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام کشور</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("CityEdit", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                            <input type="text" class="form-control" id="CountryName" name="CountryName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END Country Delete Modal ###################################################*@
+
+
+@*####################################Start Province Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ProvinceDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف استان</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف استان مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("CityDelete", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                        <input type="text" style="display:none;" id="Provinceid" name="Provinceid" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END Province Delete Modal #################################################*@
+
+@*#################################Start Province Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ProvinceEditeModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام استان</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("CityEdit", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                            <input type="text" style="display:none;" id="Provinceid" name="Provinceid" />
+                            <input type="text" class="form-control" id="ProvinceName" name="ProvinceName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END Province Delete Modal ###################################################*@
+
+
+@*####################################Start City Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="CityDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف شهر</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف شهر مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("CityDelete", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                        <input type="text" style="display:none;" id="Provinceid" name="Provinceid" />
+                        <input type="text" style="display:none;" id="Cityid" name="Cityid" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END City Delete Modal #################################################*@
+
+@*#################################Start City Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="CityEditeModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام شهر</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("CityEdit", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="Countryid" name="Countryid" />
+                            <input type="text" style="display:none;" id="Provinceid" name="Provinceid" />
+                            <input type="text" style="display:none;" id="Cityid" name="Cityid" />
+                            <input type="text" class="form-control" id="CityName" name="CityName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END City Delete Modal ###################################################*@
+
+
+
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+@*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("Li#PrimaryInfo").css("background-color", "#524d4d");
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+        var CountryID = '@ViewBag.CountryID';
+        var ProvinceID = '@ViewBag.ProvinceID';
+
+        $("table#tblCountry tr td#Country" + CountryID).css('background-color', 'rgba(189, 182, 182, 0.78)');
+        $("table#tblProvince tr td#Province" + ProvinceID).css('background-color', 'rgba(189, 182, 182, 0.78)');
+
+        //تغییر رنگ بکگراند شهرها و اشخاص
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[4];
+        if (LinkHref == "Cities" || LinkHref == null || LinkHref == "") {
+            $("a[ID='Cities']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+
+        $("a[id^='CounDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            $('#CountryDeleteModal #Countryid').val(id);
+        });
+        $("a[ID^='CounEdite']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#CountryEditeModal #Countryid').val(id);
+            $('#CountryEditeModal #CountryName').val(name);
+        });
+
+        $("a[id^='ProDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            $('#ProvinceDeleteModal #Countryid').val(CountryID);
+            $('#ProvinceDeleteModal #Provinceid').val(id);
+        });
+        $("a[ID^='ProEdite']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#ProvinceEditeModal #Countryid').val(CountryID);
+            $('#ProvinceEditeModal #Provinceid').val(id);
+            $('#ProvinceEditeModal #ProvinceName').val(name);
+        });
+
+        $("a[id^='CityDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            $('#CityDeleteModal #Countryid').val(CountryID);
+            $('#CityDeleteModal #Provinceid').val(ProvinceID);
+            $('#CityDeleteModal #Cityid').val(id);
+        });
+        $("a[ID^='CityEdite']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#CityEditeModal #Countryid').val(CountryID);
+            $('#CityEditeModal #Provinceid').val(ProvinceID);
+            $('#CityEditeModal #Cityid').val(id);
+            $('#CityEditeModal #CityName').val(name);
+        });
+
+
+        //Forms(Country,Province,City)
+        $("#FormCountryAdd").submit(function (e) {
+            var Country = $("#CountryName").val();
+            if(Country == "" || Country == null)
+            {
+                $("#FormCountryAdd #CountryName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+        $("#CountryName").click(function () {
+            $("#FormCountryAdd #CountryName").css("background-color", "white");
+        });
+
+        //Province
+        $("#FormProvinceAdd").submit(function (e) {
+            var Country = $("#ProvinceName").val();
+            if (Country == "" || Country == null) {
+                $("#FormProvinceAdd #ProvinceName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+
+        $("#ProvinceName").click(function () {
+            $("#FormProvinceAdd #ProvinceName").css("background-color", "white");
+        });
+
+        //City
+        $("#FormCityAdd").submit(function (e) {
+            var Country = $("#CityName").val();
+            if (Country == "" || Country == null) {
+                $("#FormCityAdd #CityName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+
+        $("#CityName").click(function () {
+            $("#FormCityAdd #CityName").css("background-color", "white");
+        });
+    });
+</script>

@@ -1,0 +1,45 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Report_Report>
+@{
+    ViewBag.Title = "لیست گزارشات";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("ReportDescription", header: "عنوان گزارش", format: item => item.ReportDescription),
+            grid.Column("ReportTypeName", header: "نوع گزارش", format: item => item.ReportTypeName),
+            grid.Column(header: "مشاهده",
+            format: @<text>
+                    <a data-value="@item.ReportId" href="@item.ReportURL"><i class="fa fa-list fa-lg" title="مشاهده"></i></a>
+            </text>)
+     ))
+        </div>
+    </div>
+</div>

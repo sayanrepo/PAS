@@ -1,0 +1,99 @@
+﻿@using System.Globalization
+@model BaseSite.Models.DBModel.Report_Report
+@{
+    ViewBag.Title = Model.ReportDescription;
+    if(Model.ReportName== "RCustomerBill")
+    {
+        Layout = "~/Views/Shared/LayoutMain.cshtml";
+    }
+    else
+    {
+        Layout = "~/Views/Shared/LayoutReport.cshtml";
+    }
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+@*##################### Search Div #############################*@
+<div class="row">
+    <div class="col-xs-2">
+        @if (Model.ReportName != "RCustomerBill")
+        {
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <a class="btn btn-success" href="@Url.Action("ReportList", "Report")">بازگشت به لیست گزارشات</a>
+                </div>
+            </div>
+        }
+        <div class="row" style="margin-top:10px;">
+            <div class="col-xs-12" id="DivSearch">
+                <form method="post" action="@Url.Action("ReportTemplate")">
+                    <input type="hidden" name="ReportName" value="@Model.ReportName" />
+                    <input type="hidden" name="ReportDescription" value="@Model.ReportDescription" />
+                    <input type="hidden" name="Width" value="@Model.Width" />
+                    <input type="hidden" name="Height" value="@Model.Height" />
+                    <div class="row">
+                        <div class="col-xs-12 formdiv">
+                            @if (Model.ReportName == "RCustomerBill")
+                            {
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">مشتری</span>
+                                    @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                    <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.ReportArg1"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                                </div>
+                                @Html.Hidden("customerId", Model.ReportArg1, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                            }
+                            @if (Model.ReportName == "RStatistic2")
+                            {
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">جزء</span>
+                                    <select class="form-control text-center text-left" id="CustomerId" name="CustomerId">
+                                        <option value="0" @(Model.ReportArg1 == 0 ? "selected" : "")>پنل داخل کابین</option>
+                                        <option value="1" @(Model.ReportArg1 == 1 ? "selected" : "")>پنل طبقات</option>
+                                        <option value="2" @(Model.ReportArg1 == 2 ? "selected" : "")>پنل سردرب</option>
+                                        <option value="3" @(Model.ReportArg1 == 3 ? "selected" : "")>نمایشگر</option>
+                                        <option value="4" @(Model.ReportArg1 == 4 ? "selected" : "")>پوش باتون</option>
+                                        <option value="5" @(Model.ReportArg1 == 5 ? "selected" : "")>ملحقات</option>
+                                    </select>
+                                </div>
+                            }
+                        </div>
+                        <div class="col-xs-12 formdiv">
+                            <div class="input-group">
+                                <span class="input-group-addon">از</span>
+                                <input type="text" name="reportShDateFrom" class="form-control text-center text-left" dir="ltr"
+                                       value="@Model.ReportShDateFrom"
+                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 formdiv">
+                            <div class="input-group">
+                                <span class="input-group-addon">تا</span>
+                                <input type="text" name="reportShDateTo" class="form-control text-center text-left" dir="ltr"
+                                       value="@Model.ReportShDateTo"
+                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 text-center">
+                            <button class="btn btn-sm btn-primary">جستجو</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-10 text-center">
+        <iframe id="frmReport" src="@Model.ReportURL" frameborder="0" style="@String.Format("width:{0}%; height: {1}px;", Model.Width, Model.Height) background-color:white;" scrolling="no"></iframe>
+    </div>
+</div>

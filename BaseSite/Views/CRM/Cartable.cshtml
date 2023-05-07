@@ -1,0 +1,114 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.CRM_Activity>
+@{
+    ViewBag.Title = "کارتابل من";
+    Layout = "~/Views/Shared/LayoutCRM.cshtml";
+    List<BaseSite.Models.DBModel.CRM_Activity> todayActs = Model.Where(m => m.EndTime >= DateTime.Now).ToList();
+    List<BaseSite.Models.DBModel.CRM_Activity> remainActs = Model.Where(m => m.EndTime < DateTime.Now).ToList();
+    
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    WebGrid grid2 = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(@todayActs, autoSortAndPage: true, rowCount: todayActs.Count);
+    grid2.Bind(@remainActs, autoSortAndPage: true, rowCount: remainActs.Count);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <h3><mark><strong>فعالیت های امروز</strong></mark></h3>
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            //grid.Column("ShStartDate", header: "تاریخ", format: item => item.ShDateOrder),
+            grid.Column("ShStartTime", header: "زمان شروع", format: @<span>@string.Format("{1}  {0}", item.ShStartDate, item.StartTime.ToString("HH:mm"))</span>),
+            //grid.Column("Account_Users.FullName", header: "ثبت کننده", format: item => item.Account_Users.FullName),
+            grid.Column("Account_Users1.FullName", header: "محول شده به", format: item => item.Account_Users1.FullName),
+            grid.Column("Account_Users2.FullName", header: "مشتری", format: item => item.Account_Users2.FullName),
+            grid.Column("Subject", header: "عنوان", format: item => item.Subject),
+            grid.Column("InOut", header: "ورودی/خروجی", format: @<span>@string.Format("{0}", item.InOut ? "ورودی" : "خروجی")</span>),
+            grid.Column("CRM_ActivityType.Name", header: "نوع", format: item => item.CRM_ActivityType.Name),
+            grid.Column("CRM_ActivityState.Name", header: "وضعیت", format: item => item.CRM_ActivityState.Name),
+            grid.Column("CRM_Priority.Name", header: "اولویت", format: item => item.CRM_Priority.Name),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                {
+                    <a data-value="@item.Id" href="@Url.Action("ActivityDetail", new { activityId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+            ))
+        </div>
+    </div>
+</div>
+
+<div class="row DivList">
+    <h3><mark><strong>فعالیت های باقی مانده از قبل</strong></mark></h3>
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid2.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid2.Columns(
+            grid2.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid2.TotalRowCount / grid2.PageCount) / grid2.RowsPerPage) * grid2.RowsPerPage * grid2.PageIndex),
+            //grid2.Column("ShStartDate", header: "تاریخ", format: item => item.ShDateOrder),
+            grid2.Column("ShStartTime", header: "زمان شروع", format: @<span>@string.Format("{1}  {0}", item.ShStartDate, item.StartTime.ToString("HH:mm"))</span>),
+            //grid2.Column("Account_Users.FullName", header: "ثبت کننده", format: item => item.Account_Users.FullName),
+            grid2.Column("Account_Users1.FullName", header: "محول شده به", format: item => item.Account_Users1.FullName),
+            grid2.Column("Account_Users2.FullName", header: "مشتری", format: item => item.Account_Users2.FullName),
+            grid2.Column("Subject", header: "عنوان", format: item => item.Subject),
+            grid2.Column("InOut", header: "ورودی/خروجی", format: @<span>@string.Format("{0}", item.InOut ? "ورودی" : "خروجی")</span>),
+            grid2.Column("CRM_ActivityType.Name", header: "نوع", format: item => item.CRM_ActivityType.Name),
+            grid2.Column("CRM_ActivityState.Name", header: "وضعیت", format: item => item.CRM_ActivityState.Name),
+            grid2.Column("CRM_Priority.Name", header: "اولویت", format: item => item.CRM_Priority.Name),
+            grid2.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                {
+                    <a data-value="@item.Id" href="@Url.Action("ActivityDetail", new { activityId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+            ))
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("a[ID='Cartable']").css("background-color", "rgba(0, 0, 0, 0.19)");
+    });
+</script>

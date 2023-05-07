@@ -1,0 +1,133 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Delivery_Delivery>
+@{
+    ViewBag.Title = "لیست تحویل";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    <div class="alert alert-success alert-dismissible" role="alert" style="display:none;" id="SuccessedEdit">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong><i class="fa fa-hand-peace-o fa-2x"></i></strong> ویرایش اطلاعات با موفقیت انجام شد .
+    </div>
+</div>
+@*##################### Search Div #############################*@
+<div class="row">
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Search))
+    {
+        <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+            <form method="post" action="@Url.Action("SearchDelivery")">
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">مشتری</span>
+                            @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                            <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@((int?)ViewBag.customerId)"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                        </div>
+                        @Html.Hidden("customerId", (int?)ViewBag.customerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تاریخ ثبت از</span>
+                            <input type="text" name="deliveryDateFrom" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.deliveryDateFrom"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تا</span>
+                            <input type="text" name="deliveryDateTo" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.deliveryDateTo"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="Mobile1">وضعیت</span>
+                            <select id="deliveryStatusId" name="deliveryStatusId" class="form-control text-center text-left">
+                                <option selected> </option>
+                                @foreach (var item in BaseSite.Models.Cache.Delivery_DeliveryStatus)
+                                {
+                                    if (item.Key == ViewBag.deliveryStatus)
+                                    {
+                                        <option value="@item.Key" selected="selected">@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">شماره سند</span>
+                            <input type="text" name="docNumber" class="form-control text-center text-left" value="@ViewBag.docNumber" />
+                        </div>
+                    </div>
+
+                    <div class="col-xs-1 col-md-1 col-md-offset-2 col-xs-offset-2"> <button class="btn btn-sm btn-primary">جستجو</button> </div>
+                </div>
+
+            </form>
+        </div>
+    }
+</div>
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("DocNumber", header: "شماره سند", format: item => item.DocNumber),
+            grid.Column("ShDate", header: "تاریخ", format: item => item.ShDate),
+            grid.Column("item.Order_Order", header: "نوع", format: item => item.Order_Order != null ? "سفارش" : item.Sale_Sale != null ? "فروش کالا" : "-"),
+            grid.Column("Account_Users.FullName", header: "مشتری", format: item => item.Order_Order != null ? item.Order_Order.Account_Users.FullName : item.Sale_Sale != null ? item.Sale_Sale.Account_Users.FullName : "-"),
+            grid.Column("Order_Order.ProjectName", header: "نام پروژه", format: item => item.Order_Order != null ? item.Order_Order.ProjectName : "-"),
+            grid.Column("Delivery_Status.Name", header: "وضعیت", format: item => item.Delivery_Status.Name),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Detail))
+                {
+                    <a data-value="@item.Id" href="@Url.Action("DeliveryDetail", new { DeliveryId = item.Id })">@(item.Order_Order != null ? item.Order_Order.FactorNumber : item.Sale_Sale != null ? item.Sale_Sale.FactorNumber : "-")</a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#">@(item.Order_Order != null ? item.Order_Order.FactorNumber : item.Sale_Sale != null ? item.Sale_Sale.FactorNumber : "-")</a>
+                }
+                </text>)
+             ))
+        </div>
+    </div>
+</div>

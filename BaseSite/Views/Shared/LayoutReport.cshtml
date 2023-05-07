@@ -1,0 +1,191 @@
+﻿@WebReportGlobals.Scripts()
+@WebReportGlobals.Styles()
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/AweSome/font-awesome.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/jqueryui/jquery-ui.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/MyStyle/Main.css")" rel="stylesheet">
+
+    <link href="~/Contents/css/DatePicker/PersianDatePicker.min.css" rel="stylesheet" />
+    <script src="~/Contents/js/DatePicker/PersianDatePicker.min.js"></script>
+
+    <title>@ViewBag.Title</title>
+</head>
+
+<body style="padding:5px;">
+    <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+    <script src="@Url.Content("~/Contents/jqueryui/jquery-ui.js")"></script>
+    <script src="@Url.Content("~/Contents/js/bootstrap.js")"></script>
+    <script src="@Url.Content("~/Contents/js/FarsiType.js")"></script>
+
+    <div class="container-fluid">
+        @RenderBody()
+    </div>
+</body>
+</html>
+
+@*#################################PersonInfo Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="PersonInfoModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-6 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">مشخصات</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:2px; padding:5px;">
+                        <div style="width: 100%; display: table;" id="PersonTable">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*################################END Modal ###################################################*@
+
+<script src="@Url.Content("~/Contents/js/autoNumeric.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#Customer").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteUsers","Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CustomerId").val(ui.item.id);
+                $("#personLink").data("userid", ui.item.id);
+            },
+            minLength: 1
+        });
+    })
+
+    $(function () {
+        $('.autoNumber').autoNumeric(
+             'init', {
+                 aSep: ',',
+                 aSign: '',
+                 lZero: 'deny',
+                 vMin: '-999999999999999',
+                 vMax: '999999999999999',
+                 //vMin: '-999999999999999.00',
+                 //vMax: '999999999999999.00',
+             });
+    });
+    $(function () {
+        $('.autoIntNumber').autoNumeric(
+             'init', {
+                 aSep: ',',
+                 aSign: '',
+                 vMin: '00',
+                 vMax: '999999999999999',
+             });
+    });
+    $(function () {
+        $('.autoPercent').autoNumeric(
+             'init', {
+                 aSign: '',
+                 vMin: '00.00',
+                 vMax: '100.00',
+             });
+    });
+    $(function () {
+        $('.autoInt').autoNumeric(
+             'init', {
+                 aSign: '',
+                 vMin: '00',
+                 vMax: '1000',
+             });
+    });
+    $(function () {
+        $('.autoYear').autoNumeric(
+             'init', {
+                 aSign: '',
+                 dGroup: '4',
+                 vMin: '0000',
+                 vMax: '2000',
+
+             });
+    });
+
+    $('form').submit(function () {
+        var form = $(this);
+        $('input').each(function (i) {
+            var self = $(this);
+            try {
+                var v = self.autoNumeric('get');
+                self.autoNumeric('destroy');
+                self.val(v);
+            } catch (err) {
+                console.log("Not an autonumeric field: " + self.attr("name"));
+            }
+        });
+        return true;
+    });
+
+    function addCommas(x) {
+        var parts = x.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    }
+
+    $('#PersonInfoModal').on('show.bs.modal', function (event) {
+        var clickedLink = $(event.relatedTarget); // Button that triggered the modal
+        var vuserId = clickedLink.data("userid"); // Extract info from data-* attributes
+
+        var modal = $(this);
+        //modal.find('.modal-title').text('جزئیات کارکرد (' + vuserFullName + ')');
+
+        $.ajax({
+            url: "@Url.Action("GetPersonInfo", "Order")",
+            type: "GET",
+        dataType: "json",
+        data: { userId: vuserId},
+        success: function (data) {
+            contentHtml = "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>نام: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.FullName + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>شماره تماس: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Phone1 + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>فکس: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Fax + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>مدیرعامل: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Responsible1 + "&nbsp;&nbsp;(" + data.ResponsiblePhone1 + ")</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>آدرس محل سکونت /دفتر مرکزی: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Address1 + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>آدرس محل کار /کارخانه: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Address2 + "</b></p></div>" +
+                                "</div>";
+            $('#PersonTable').html(contentHtml);
+        }
+    })
+    })
+</script>

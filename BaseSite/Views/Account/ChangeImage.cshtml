@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "ChangePassword";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+
+<div class="row">
+    @using (Html.BeginForm("ChangeImage", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="panel-group">
+            <div class="panel panel-success">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">تغییر عکس پروفایل</div>
+                    </div>
+                </div>
+                <div class="panel-body CabinPanelDiv">
+                    <div class="row">
+                        <div class="col-md-6 col-xs-12 text-center">
+                            <div class="thumbnail">
+                                <img src="@Url.Content("~/Images/System/" + ViewBag.Image)" style="width:80%;" alt="...">
+                                <div class="caption">
+                                    <h3>عکس فعلی</h3>
+                                    <p>عکس پروفایل شما در حال حاضر این عکس می باشد</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12 text-center">
+
+                            <div class="row">
+                                <div class="col-md-6 col-xs-12">
+                                    <label>آپلود عکس جدید: </label>
+                                </div>
+                                <div class="col-md-6 col-xs-12">
+                                    <input id="files" name="files" type="file" />
+                                </div>
+                            </div>
+                            <output id="result" />
+                            <div id="uploadDiv" class="row text-center" style="display:none;"><img src="@Url.Content("~/Images/System/small_loading.gif")" />در حال بارگذاری، لطفا شکیبا باشید ...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+        </div>
+    }
+</div>
+
+<script>
+    window.onload = function () {
+
+        //Check File API support
+        if (window.File && window.FileList && window.FileReader) {
+            var filesInput = document.getElementById("files");
+
+            filesInput.addEventListener("change", function (event) {
+                $("#uploadDiv").show();
+
+                var files = event.target.files; //FileList object
+                var output = document.getElementById("result");
+                while (output.hasChildNodes()) {
+                    output.removeChild(output.firstChild);
+                }
+
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+
+                    //Only pics
+                    if (!file.type.match('image'))
+                        continue;
+
+                    var picReader = new FileReader();
+
+                    picReader.addEventListener("load", function (event) {
+
+                        var picFile = event.target;
+
+                        var div = document.createElement("div");
+                        div.className = 'col-md-12 col-sm-12 col-xs-12';
+
+                        div.innerHTML = "<div class='thumbnail'><img src='" + picFile.result + "'" +
+                                "title='" + picFile.name + "'/></div>";
+
+                        output.insertBefore(div, null);
+
+                    });
+
+                    //Read the image
+                    picReader.readAsDataURL(file);
+                }
+                $("#uploadDiv").hide();
+            });
+        }
+        else {
+            console.log("Your browser does not support File API");
+        }
+    }
+
+    $('form').submit(function () {
+        $("#uploadDiv").show();
+        var form = $(this);
+        var elements = form.elements;
+        for (var i = 0, len = elements.length; i < len; ++i) {
+            elements[i].readOnly = true;
+        }
+        return true;
+    });
+</script>

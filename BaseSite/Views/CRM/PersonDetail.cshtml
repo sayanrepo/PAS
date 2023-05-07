@@ -1,0 +1,599 @@
+﻿@model BaseSite.Models.DBModel.Account_Users
+@{
+    ViewBag.Title = Model.Id == 0 ? "افزودن شخص جدید" : "ویرایش اطلاعات شخص";
+    Layout = "~/Views/Shared/LayoutCRM.cshtml";
+    List<BaseSite.Models.DBModel.CRM_Comments> comments = BaseSite.Models.CRM.CommentManager.CRM_Comments_Get((short)BaseSite.Models.DB_Table.Account_Users, Model.Id);
+}
+
+<div class="row">
+    <div class="col-xs-12">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">مشخصات</a></li>
+            @if (Model.Id > 0)
+            {
+                <li role="presentation">
+                    <a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">
+                        یادداشت ها
+                        @if (comments.Count > 0)
+                        {<span class="badge badge-count">@comments.Count</span>}
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#orderhistory" aria-controls="orderhistory" role="tab" data-toggle="tab">
+                        تاریخچه سفارشات
+                    </a>
+                </li>
+            }
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="home">
+                @using (Html.BeginForm("PersonDetail", "Crm", FormMethod.Post, new { @Id = "EditForm" }))
+                {
+                    <div class="row">
+                        <div class="col-md-4 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PPersonType">نوع شخص</span>
+                                @Html.DropDownListFor(m => m.PersonTypeId, new SelectList(BaseSite.Models.Cache.Account_PersonTypes, "Key", "Value"), new { @Class = "form-control" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PName">نام</span>
+                                @Html.TextBoxFor(m => m.Id, new { Style = "display:none;", @Id = "id" })
+                                @Html.TextBoxFor(m => m.Name, new { @Class = "form-control", @Id = "inputName", required = "required", @Lang = "fa-IR" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PFamily">نام خانوادگی</span>
+                                @Html.TextBoxFor(m => m.LastName, new { @Class = "form-control", @Id = "inputFamily", @Lang = "fa-IR" })
+                            </div>
+                            @*<div class="input-group">
+                                    <span class="input-group-addon" id="PFatherName">نام پدر</span>
+                                    @Html.TextBoxFor(m => m.FatherName, new { @Class = "form-control" })
+                                </div>*@
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PNationalCode">شماره ملی/ثبت</span>
+                                @Html.TextBoxFor(m => m.NationalNumber, new { @Class = "form-control text-center text-left" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PEconomicalNumber">شماره شناسنامه/اقتصادی</span>
+                                @Html.TextBoxFor(m => m.EconomicalNumber, new { @Class = "form-control text-center text-left" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="Comment">توضیحات</span>
+                                @Html.TextAreaFor(m => m.Comment, new { @rows = 4, @Class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon" id="Phone1">تلفن 1 </span>
+                                @Html.TextBoxFor(m => m.Phone1, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="Phone2">تلفن 2</span>
+                                @Html.TextBoxFor(m => m.Phone2, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="Mobile1">موبایل 1</span>
+                                @Html.TextBoxFor(m => m.Mobile1, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="Mobile2">موبایل 2</span>
+                                @Html.TextBoxFor(m => m.Mobile2, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PFax">فکس</span>
+                                @Html.TextBoxFor(m => m.Fax, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-xs-12">
+                            <div class="row">
+                                @if (Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_AssignAccess))
+                                {
+                                    <div class="col-md-6 col-xs-12">
+                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalAccess">سطح دسترسی</button>
+                                    </div>
+                                }
+                                @if (Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_AssignUserName))
+                                {
+                                    <div class="col-md-6 col-xs-12">
+                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalUserName">اختصاص نام کاربری</button>
+                                    </div>
+                                }
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PRelation">نوع همکاری</span>
+                                @Html.DropDownListFor(m => m.PartnerTypeId, new SelectList(BaseSite.Models.Cache.Account_PartnerTypes, "Key", "Value"), new { @Class = "form-control" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PPersonType">بخش</span>
+                                <select class="form-control" id="DepartmentId" name="DepartmentId">
+                                    @if (Model.DepartmentId == 1)
+                                    {
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                        {
+                                            <option value="0">نامعلوم</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                        {
+                                            <option value="1" selected="selected">فروش</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                        {
+                                            <option value="2">تولید</option>
+                                        }
+                                    }
+                                    else if (Model.DepartmentId == 2)
+                                    {
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                        {
+                                            <option value="0">نامعلوم</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                        {
+                                            <option value="1">فروش</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                        {
+                                            <option value="2" selected="selected">تولید</option>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                        {
+                                            <option value="0" selected="selected">نامعلوم</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                        {
+                                            <option value="1">فروش</option>
+                                        }
+                                        if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                        {
+                                            <option value="2">تولید</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PEmail">ایمیل</span>
+                                @Html.TextBoxFor(m => m.Email, new { @Class = "form-control text-center text-left", @id = "email", PlaceHolder = "لطفا ایمیل را وارد فرمائید" })
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="PSite">سایت</span>
+                                @Html.TextBoxFor(m => m.Website, new { @Class = "form-control text-center text-left", PlaceHolder = "لطفا آدرس سایت را وارد فرمائید" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-xs-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">افراد مرتبط</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="ManagerName">نام مدیر عامل</span>
+                                                @Html.TextBoxFor(m => m.Responsible1, new { @Class = "form-control", @Lang = "fa-IR" })
+                                            </div>
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="ManagerPhone">شماره تماس مدیرعامل</span>
+                                                @Html.TextBoxFor(m => m.ResponsiblePhone1, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="OrderName">نام مسئول سفارشات</span>
+                                                @Html.TextBoxFor(m => m.Responsible2, new { @Class = "form-control", @Lang = "fa-IR" })
+                                            </div>
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="OrderPhone">شماره تماس سفارشات</span>
+                                                @Html.TextBoxFor(m => m.ResponsiblePhone2, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="TechnicalName">نام مسئول فنی</span>
+                                                @Html.TextBoxFor(m => m.Responsible3, new { @Class = "form-control", @Lang = "fa-IR" })
+                                            </div>
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="TechnicalPhone">شماره تماس مسئول فنی</span>
+                                                @Html.TextBoxFor(m => m.ResponsiblePhone3, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-xs-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">آدرس منزل / دفتر مرکزی</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">کشور</span>
+                                                <select id="HCountry" class="form-control" data-childid="HProvince" onchange="changeCountry(this)">
+                                                    <option value="">-انتخاب کشور-</option>
+                                                    @foreach (var item in BaseSite.Models.Information.InformationManager.Location_Country_Get())
+                                                    {
+                                                        if (Model.Location_Cities != null && Model.Location_Cities.Location_Provinces.CountryId == item.Id)
+                                                        {
+                                                            <option value="@item.Id" selected>@item.Name</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@item.Id">@item.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">استان</span>
+                                                <select id="HProvince" class="form-control" data-childid="HCity" onchange="changeProvince(this)">
+                                                    <option value="">-انتخاب استان-</option>
+                                                    @if (Model.Location_Cities != null)
+                                                    {
+                                                        foreach (var item in BaseSite.Models.Information.InformationManager.Location_Province_Get(Model.Location_Cities.Location_Provinces.CountryId))
+                                                        {
+                                                            if (item.Id == Model.Location_Cities.ProvinceId)
+                                                            {
+                                                                <option value="@item.Id" selected>@item.Name</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Id">@item.Name</option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">شهر</span>
+                                                <select id="HCity" name="HCity" class="form-control">
+                                                    <option value="">-انتخاب شهر-</option>
+                                                    @if (Model.Location_Cities != null)
+                                                    {
+                                                        foreach (var item in BaseSite.Models.Information.InformationManager.Location_City_Get(Model.Location_Cities.ProvinceId))
+                                                        {
+                                                            if (item.Id == Model.Location_Cities.Id)
+                                                            {
+                                                                <option value="@item.Id" selected>@item.Name</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Id">@item.Name</option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="PAddress">آدرس</span>
+                                                @Html.TextAreaFor(m => m.Address1, new { @rows = 5, @Class = "form-control", @Lang = "fa-IR" })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="PPostalCode1">کدپستی</span>
+                                                @Html.TextBoxFor(m => m.PostalCode1, new { @Class = "form-control text-center text-left" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xs-12">
+                            <div class="panel panel-info">
+                                <div class="panel-heading">آدرس محل کار / کارخانه</div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">کشور</span>
+                                                <select id="ComCountry" class="form-control" data-childid="ComProvince" onchange="changeCountry(this)">
+                                                    <option value="">-انتخاب کشور-</option>
+                                                    @foreach (var item in BaseSite.Models.Information.InformationManager.Location_Country_Get())
+                                                    {
+                                                        if (Model.Location_Cities1 != null && Model.Location_Cities1.Location_Provinces.CountryId == item.Id)
+                                                        {
+                                                            <option value="@item.Id" selected>@item.Name</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@item.Id">@item.Name</option>
+                                                        }
+                                                    }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">استان</span>
+                                                <select id="ComProvince" class="form-control" data-childid="ComCity" onchange="changeProvince(this)">
+                                                    <option value="">-انتخاب استان-</option>
+                                                    @if (Model.Location_Cities1 != null)
+                                                    {
+                                                        foreach (var item in BaseSite.Models.Information.InformationManager.Location_Province_Get(Model.Location_Cities1.Location_Provinces.CountryId))
+                                                        {
+                                                            if (item.Id == Model.Location_Cities1.ProvinceId)
+                                                            {
+                                                                <option value="@item.Id" selected>@item.Name</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Id">@item.Name</option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon">شهر</span>
+                                                <select id="ComCity" name="ComCity" class="form-control">
+                                                    <option value="">-انتخاب شهر-</option>
+                                                    @if (Model.Location_Cities1 != null)
+                                                    {
+                                                        foreach (var item in BaseSite.Models.Information.InformationManager.Location_City_Get(Model.Location_Cities1.ProvinceId))
+                                                        {
+                                                            if (item.Id == Model.Location_Cities1.Id)
+                                                            {
+                                                                <option value="@item.Id" selected>@item.Name</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Id">@item.Name</option>
+                                                            }
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="PComAddress">آدرس</span>
+                                                @Html.TextAreaFor(m => m.Address2, new { @rows = 5, @Class = "form-control", @Lang = "fa-IR" })
+                                            </div>
+                                        </div>
+                                        <div class="col-xs-12" style="padding:1px;">
+                                            <div class="input-group">
+                                                <span class="input-group-addon" id="PPostalCode2">کدپستی</span>
+                                                @Html.TextBoxFor(m => m.PostalCode2, new { @Class = "form-control text-center text-left" })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        @if ((Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Edit)) ||
+                    (Model.Id == 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Add))
+                    )
+                        {
+                            <button type="submit" class="btn btn-warning col-md-offset-5 col-xs-offset-5">ثبت اطلاعات</button>
+                        }
+                    </div>
+                }
+            </div>
+            @if (Model.Id > 0)
+            {
+                <div role="tabpanel" class="tab-pane" id="comments">
+                    @Html.Partial("~/Views/CRM/Comments.cshtml", comments, new ViewDataDictionary() { { "ttid", (short)BaseSite.Models.DB_Table.Account_Users }, { "tid", Model.Id } })
+                </div>
+                <div role="tabpanel" class="tab-pane" id="orderhistory">
+                    @Html.Partial("~/Views/CRM/OrderHistory.cshtml", Model, new ViewDataDictionary() { })
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+
+<script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+<script type="text/javascript">
+    //برای تغییر کشور  ،استان و شهر
+    function changeCountry(ecountry) {
+        var value = $(ecountry).val();
+        if (value == "" || value == null) {
+            var eprovince = $('#' + $(ecountry).data('childid'));
+            $(eprovince).empty();
+            var ecity = $('#' + $(eprovince).data('childid'));
+            $(ecity).empty();
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("ProvinceGet", "order")',
+                type: 'GET',
+                dataType: 'text json',
+                data: { countryid: value },
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                success: function (result) {
+                    var eprovince = $('#' + $(ecountry).data('childid'));
+                    $(eprovince).empty();
+                    $.each(result, function (index, item) {
+                        $(eprovince).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                    $(eprovince).change();
+                },
+                error: function (data) {
+                    var eprovince = $('#' + $(ecountry).data('childid'));
+                    $(eprovince).empty();
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $.each(data, function (index, item) {
+                        $(eprovince).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                    $(eprovince).change();
+                }
+
+            });
+        }
+    };
+
+    function changeProvince(eprovince) {
+        var value = $(eprovince).val();
+        if (value == "" || value == null) {
+            var ecity = $('#' + $(eprovince).data('childid'));
+            $(ecity).empty();
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("CityGet", "order")',
+                type: 'GET',
+                dataType: 'text json',
+                data: { provinceid: value },
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                success: function (result) {
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $.each(result, function (index, item) {
+                        $(ecity).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                },
+                error: function (data) {
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $.each(data, function (index, item) {
+                        $(ecity).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                }
+            });
+        }
+    };
+
+
+    $(document).ready(function () {
+        $("a[ID='Persons']").css("background-color", "rgba(0, 0, 0, 0.19)");
+
+        //چک کردن ایمیل
+        $("#email").change(function (e) {
+            var VAL = this.value;
+            var email = new RegExp('[-0-9a-zA-Z.+_]+@@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{2,4}');
+            if (!email.test(VAL)) {
+                $(this).css('color', 'red');
+                $(this).css('font-weight', 'Bold');
+                $(this).css('text-align', 'center');
+                $(this).val('ایمیل وارد شده معتبر نمیباشد');
+            }
+        });
+
+        $("#email").click(function (e) {
+            var VAL = $(this).val();
+            if (VAL == "ایمیل وارد شده معتبر نمیباشد") {
+                $(this).css('color', 'black');
+                $(this).css('font-weight', 'normal');
+                $(this).css('text-align', 'center');
+            }
+
+        });
+        $("#inputName").click(function () {
+            var value = $(this).val();
+            if (value == "لطفا نام را وارد کنید") {
+                $("#inputName").css('color', 'black');
+                $("#inputName").css('font-weight', 'normal');
+                $("#inputName").css('text-align', 'center');
+                $("#inputName").val("");
+            }
+        });
+
+        $("#inputFamily").click(function () {
+            var value = $(this).val();
+            if (value == "لطفا نام خانوادگی را وارد کنید") {
+                $("#inputFamily").css('color', 'black');
+                $("#inputFamily").css('font-weight', 'normal');
+                $("#inputFamily").css('text-align', 'center');
+                $("#inputFamily").val("");
+            }
+        });
+
+        $('#AddForm').submit(function (e) {
+            var result = true;
+            if ($("#inputName").val() == "") {
+                //$("#inputName").css('background-color', '#eebfb8');
+                $("#inputName").css('color', 'red');
+                $("#inputName").css('font-weight', 'Bold');
+                $("#inputName").css('text-align', 'center');
+                $("#inputName").val('لطفا نام را وارد کنید');
+                result = false;
+            }
+            if ($("#inputFamily").val() == "") {
+                //$("#inputName").css('background-color', '#eebfb8');
+                $("#inputFamily").css('color', 'red');
+                $("#inputFamily").css('font-weight', 'Bold');
+                $("#inputFamily").css('text-align', 'center');
+                $("#inputFamily").val('لطفا نام خانوادگی را وارد کنید');
+                result = false;
+            }
+            if (result == false)
+                return false;
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    function Success() {
+        //$('#Name').val('');
+        //$('#Text').val('');
+    }
+
+    function NestedComment(ParentID) {
+        $.ajax({
+            url: "InsertComment",
+            data:
+                {
+                    ParentID: ParentID,
+                    ttid : @((short)BaseSite.Models.DB_Table.Account_Users),
+                    tid : @Model.Id
+                    },
+            type: "Get"
+        }).done(function (result) {
+            $('#Comment_' + ParentID).append(result);
+        });
+    }
+
+
+    $('#submitcomment').click(function () {
+        $.ajax({
+            url: "InsertComment",
+            data:
+                {
+                    ParentID: $(this).data("parentId"),
+                    ttid : $(this).data("ttid"),
+                    tid : $(this).data("tid"),
+                    Comment: $("#myComment").val()
+                    },
+            type: "POST",
+            dataType: "html",
+            success: function (data) {
+                //var result = $('<div />').append(data).find('#showresults').html();
+                $('#CommentList').append(data);
+                alert("یادداشت با موفقیت ثبت شد.");
+                $("#myComment").val("");
+            },
+            error: function (xhr, status) {
+                alert("ثبت نظر با مشکل مواجه شد!");
+            },
+            complete: function (xhr, status) {
+                //$('#showresults').slideDown('slow')
+            }
+        });
+    });
+</script>

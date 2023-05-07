@@ -1,0 +1,70 @@
+﻿@{
+    ViewBag.Title = "جدول سازگاری";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+}
+
+@*##################### Search Div #############################*@
+<div class="row">
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_TruthTable))
+    {
+        <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+            <form method="post" action="@Url.Action("TruthTable")" target="_blank">
+                <div class="row">
+                    <div class="col-md-5 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">نوع پنل</span>
+                            <select class="form-control text-center text-left" id="primaryTableId" name="primaryTableId">
+                                <option value="@((int)BaseSite.Models.DB_Table.Tb_CabinPanels)" @(ViewBag.PrimaryTableId == (int)BaseSite.Models.DB_Table.Tb_CabinPanels ? "selected" : "")>داخل کابین</option>
+                                <option value="@((int)BaseSite.Models.DB_Table.Tb_HallPanels)" @(ViewBag.PrimaryTableId == (int)BaseSite.Models.DB_Table.Tb_HallPanels ? "selected" : "")>طبقات</option>
+                                <option value="@((int)BaseSite.Models.DB_Table.Tb_DoorTopPanels)" @(ViewBag.PrimaryTableId == (int)BaseSite.Models.DB_Table.Tb_DoorTopPanels ? "selected" : "")>سردرب</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">جزء</span>
+                            <select class="form-control text-center text-left" id="secondaryTableId" name="secondaryTableId">
+                                <option value="@((int)BaseSite.Models.DB_Table.Tb_PushButtons)" @(ViewBag.SecondaryTableId == (int)BaseSite.Models.DB_Table.Tb_PushButtons ? "selected" : "")>پوش باتون</option>
+                                <option value="@((int)BaseSite.Models.DB_Table.Tb_Monitors)" @(ViewBag.SecondaryTableId == (int)BaseSite.Models.DB_Table.Tb_Monitors ? "selected" : "")>نمایشگر</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-1 col-md-offset-1 col-xs-2 col-xs-offset-5 formdiv" style="padding-top:3px; margin-bottom:5px;">
+                        <button class="btn btn-sm btn-primary">نمایش</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-10 col-md-offset-1 col-xs-12" style="padding-top:20px; line-height:30px; font-size:13px;">
+            <ul>
+                <li class="text-right">
+                    جداول سازگاری، سازگاری هر یک از مدلهای پنل را با اجزای موجود نشان می دهند.
+                </li>
+                <li class="text-right">
+                    با انتخاب نوع پنل و نوع جزء و کلیک روی دکمه نمایش، جدول سازگاری پنل و جزء انتخاب شده نمایش داده می شود.
+                </li>
+                <li class="text-right">
+                    سازگاری هر پنل و جزء می تواند یکی از سه وضعیت زیر باشد:
+                    <ul>
+                        <li class="text-right">
+                            <b style="color: rgba(7, 194, 31, 1.0);">سازگار: </b>پنل و جزء باهم سازگاری دارند و آن جزء می تواند روی پنل موردنظر نصب شود.
+                        </li>
+                        <li class="text-right">
+                            <b style="color: rgba(217, 12, 12, 1.0); ">ناسازگار: </b>پنل و جزء باهم سازگاری ندارند و آن جزء نمی تواند روی پنل موردنظر نصب شود.
+                        </li>
+                        <li class="text-right">
+                            <b style="color: rgba(216, 185, 12, 1.0); ">مشروط: </b>پنل و جزء با رعایت شرایطی باهم سازگاری دارند و آن جزء می تواند تنها با رعایت آن شرایط روی پنل موردنظر نصب شود.
+                        </li>
+                        <li class="text-right">
+                            <b style="color: rgba(18, 190, 179, 1.0); ">نامناسب: </b>پنل و جزء باهم سازگاری دارند و آن جزء می تواند روی پنل موردنظر نصب شود. ولی انتخاب آن جزء برای پنل موردنظر منطقی نیست؛ مانند انتخاب پوش باتون گران قیمت برای پنل ارزان قیمت.
+                        </li>
+                    </ul>
+                </li>
+                <li class="text-right">
+                    با تغییر وضعیت سازگاری، رنگ زمینه آن سفید شده و پس از ثبت موفق در سرور، رنگ زمینه با توجه به گزینه انتخاب شده به یکی از چهار رنگ سبز، قرمز، زرد و آبی تغییر می کند. بنابراین اگر بعد از تغییر وضعیت سازگاری، رنگ پس زمینه سفید باقی ماند به این معناست که تغییر وضعیت به درستی در سرور ثبت نشده است و در این صورت باید مجددا تلاش کنید.
+                </li>
+            </ul>
+        </div>
+    }
+</div>

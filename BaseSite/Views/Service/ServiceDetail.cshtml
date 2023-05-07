@@ -1,0 +1,223 @@
+﻿@model BaseSite.Models.DBModel.Service_Service
+@using System.Globalization
+@{
+    ViewBag.Title = "ثبت خدمات";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+    //var name = this.ViewContext.ViewData.ModelMetadata.PropertyName;
+    //var value = Model.HasValue ? toPersianDate(Model.Value) : string.Empty;
+}
+
+<div class="row">
+    @using (Html.BeginForm("ServiceDetail", "Service", FormMethod.Post))
+    {
+        <div class="panel-group">
+
+            @*#################################### TopPart ####################################*@
+            <div class="panel panel-success" style="margin-bottom:10px;">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">خدمات</div>
+                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Print))
+                        {
+                            <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                <a href="@Url.Action("Print", "Service", new { doc = "service", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فاکتور"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="panel-body TopPart" style="padding-bottom:15px;">
+                    <input type="hidden" value="@Model.Id" name="Id" />
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                @Html.TextBoxFor(m => m.DocNumber, new { @Class = "form-control text-center MyControl", @Id = "DocNumber", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">وضعیت</span>
+                                @*@Html.DropDownListFor(m => m.StatusId, BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })*@
+                                @Html.DropDownListFor(m => m.StatusId, (ViewBag.OrderStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })
+                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_ChangeStatus))
+                                {
+                                    <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="OrderType">نوع سفارش</span>
+                                @Html.DropDownListFor(m => m.OrderTypeId, BaseSite.Models.Cache.Order_OrderTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.OrderTypeId) }), new { @Class = "form-control MyControl", @Id = "OrderType", aria_describedby = "OrderType" })
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">تاریخ سفارش</span>
+                                <input type="text" id="ShDateOrder" name="ShDateOrder" class="form-control text-center MyControl" value="@Model.ShDateOrder"
+                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="FactorDate">تاریخ تحویل</span>
+                                <input type="text" id="ShDateFactor" name="ShDateFactor" class="form-control text-center MyControl" value="@Model.ShDateFactor"
+                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="AmountSummary" style="padding-bottom:5px;">
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="SumCabinPenel">خدمات</span>
+                                <input type="text" class="form-control text-center MyControl autoNumber" name="ServiceCost" aria-describedby="ServiceCost" value="@Model.ServiceCost" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">کرایه حمل</span>
+                                @Html.TextBoxFor(m => m.DeliveryCost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "DeliveryCost", @ariadescribedby = "DeliveryCost" })
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">عوارض</span>
+                                @Html.TextBoxFor(m => m.Tax, new { @Class = "form-control text-center MyControl", @Id = "Tax" })
+                                <span class="input-group-addon MySpan EndText">درصد</span>
+                                <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCostTax" value="@Model.SumCostTax" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">تخفیف</span>
+                                @Html.TextBoxFor(m => m.Discount, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Discount" })
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">جمع کل</span>
+                                @Html.TextBoxFor(m => m.Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Cost", @disabled = "disabled" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding-bottom:5px;">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">مشتری</span>
+                                @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.CustomerId"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                            </div>
+                            @Html.HiddenFor(m => m.CustomerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">سفارش دهنده</span>
+                                @Html.TextBoxFor(m => m.ClienteleName, new { @Class = "form-control text-center MyControl", @Id = "ClienteleName", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">محل ارسال</span>
+                                @Html.TextBoxFor(m => m.DeliveryAddress, new { @Class = "form-control text-center MyControl", @Id = "DeliveryAddress", @Lang = "fa-IR" })
+                            </div>
+                        </div><br /><br />
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">شرح خدمات</span>
+                                @Html.TextBoxFor(m => m.Comment, new { @Class = "form-control text-center MyControl", @Id = "Comment", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                        @*<div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                            <span class="input-group-addon MySpan" id="Fax">فاکس</span>
+                            <input type="text" class="form-control text-center MyControl" disabled="disabled" aria-describedby="Fax" value="@Model.Account_Users.Fax" />
+                            </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        //*################################## Submit Button ###################################
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Add)) ||
+            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Edit)))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+            }
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Delete))
+            {
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#ServiceDeleteModal" style="margin-right:10px;">حذف پیش فاکتور</button>
+            }
+        </div>
+        //*###################################### end of body ###############################*
+    }
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Delete))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="ServiceDeleteModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">حذف خدمات</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>آیا از حذف خدمات مطمئن هستید؟</p>
+                        <form method="post" action="@Url.Action("ServiceDelete", "Service", new { serviceId = Model.Id })" class="formDelete">
+                            <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                <button type="submit" class="btn btn-danger btndelete">حذف</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_ChangeStatus))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">تغییر وضعیت خدمات</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="@Url.Action("ServiceChangeStatus", "Service", new { serviceId = Model.Id })" class="formDelete">
+                            <div>
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">وضعیت جدید</span>
+                                    @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Order_OrderStatus.Where(m => m.Key == (byte)BaseSite.Models.OrderStatus.PishFactor || m.Key == (byte)BaseSite.Models.OrderStatus.TahvilShode || m.Key == (byte)BaseSite.Models.OrderStatus.Raked).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <p style="display:inline-block;">آیا از تغییر وضعیت خدمات مطمئن هستید؟</p>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
+                                <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

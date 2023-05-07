@@ -1,0 +1,163 @@
+﻿@{
+    Layout = null;
+    ViewBag.title = "رسید دریافت";
+    ViewBag.index = 0;
+    ViewBag.sum = 0;
+}
+@model BaseSite.Models.DBModel.Payment_Payment
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.title</title>
+</head>
+<body>
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+    <script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+    <link href="@Url.Content("~/Contents/css/MyStyle/PrintLA5.css")" rel="stylesheet">
+
+    <div class="container-fluid" id="divPrint">
+        <div class="row">
+            <div class="col-xs-1" style="width:20px; padding-top:50px;">
+                @if (ViewBag.Accounting)
+                {
+                    <div class="rotate" style="float:left;">نسخه حسابداری</div>
+                }
+                else
+                {
+                    <div class="rotate" style="float:left;">نسخه مشتری</div>
+                }
+            </div>
+            <div class="col-xs-11">
+                <div class="row box" id="header">
+                    <div class="col-xs-3 text-right">
+                        <p><b>تاریخ: </b>@(new PersianDateTime(DateTime.Now).ToString(PersianDateTimeFormat.DateShortTime))</p>
+                    </div>
+                    <div class="col-xs-6 text-center" style="font-size:large;">
+                        <u><b>@ViewBag.title</b></u>
+                    </div>
+                    <div class="col-xs-3 text-left">
+                        <p><b>شماره سند: </b>@Model.DocNumber</p>
+                    </div>
+                </div>
+
+                <div class="row box" style="margin-top:2px; padding-top:10px;">
+                    <div class=" col-xs-8 text-right">
+                        <p><b> مبلغ به حروف:  @NumberToWordsLib.HumanReadableInteger.NumberToText(Model.Amount, NumberToWordsLib.Language.Persian) ریال</b></p>
+                    </div>
+                    <div class="col-xs-4 text-left">
+                        <p><b>به عدد </b><span style="border:solid 1px; padding:2px; margin:2px;">@string.Format("{0:n0}", Model.Amount)</span>ریال</p>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-top:2px;">
+                    <div style="width: 100%; display: table;">
+                        <div style="display: table-row">
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b>ردیف</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> نحوه وصول</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> شماره چک/حواله</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> سررسید چک</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> نام بانک</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> شعبه</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> شماره حساب</b></p>
+                            </div>
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> مبلغ</b></p>
+                            </div>
+                            @*<div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> نام پروژه</b></p>
+                            </div>*@
+                            <div class="box bg-info text-center" style="display: table-cell;">
+                                <p><b> توضیحات</b></p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="box text-center" style="display: table-cell;">
+                                <p><b>@(++ViewBag.index)</b></p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.Payment_Types.Name</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.ShomareSanad</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.ShDateSarresid</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.Payment_Banks.Name</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.BankBranchCode</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.ShomareHesab</p>
+                            </div>
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", Model.Amount)</p>
+                            </div>
+                            @*<div class="box text-center" style="display: table-cell;">
+                                <p>@Model.ProjectName</p>
+                            </div>*@
+                            <div class="box text-center" style="display: table-cell;">
+                                <p>@Model.Comment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row box" style="margin-top:2px; padding:10px;">
+                    <div class="col-xs-12 text-right">
+                        <p>
+                            @string.Format("طی موارد مشروحه فوق از شرکت/آقای/خانم \t\t {0} \t\t  به اینجانب \t\t {1} \t\t تحویل گردید.",
+                        Model.Account_Users.FullName,
+                        (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).FullName)
+                        </p>
+                    </div>
+                    <br /><br />
+                    <div class="col-xs-6 text-right">
+                        @if (ViewBag.Accounting)
+                        {
+                            <p><b>امضای تحویل دهنده: </b></p>
+                        }
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p><b>امضای تحویل گیرنده: </b></p>
+                    </div>
+                    <br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#divPrint').printThis({
+                importCSS: true,
+                importStyle: true,
+                printContainer: true,
+                copyTagClasses: true
+            });
+        });
+    </script>
+
+</body>
+</html>
+

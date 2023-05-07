@@ -1,0 +1,149 @@
+﻿@import url("Fonts.css");
+
+@media print {
+    @page {
+        size: A5;
+    }
+
+    #divPrint {
+        width:190mm;
+        height:128mm;
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+
+        /*background-image: url('../../Images/pishfactor.png');
+        background-size: auto;
+        background-repeat: no-repeat;
+        background-position: center center;*/
+
+        position: absolute;
+        right: -188mm;
+        transform: rotate(90deg);
+        transform-origin: left top;
+        -moz-transform: rotate(90deg);
+        -moz-transform-origin: left top;
+        -webkit-transform: rotate(90deg);
+        -webkit-transform-origin: left top;
+    }
+
+    .bg-text
+    {
+        color: #f7d9b5 !important;
+    }
+
+    .box {
+        border: 2px solid;
+        padding: 1px;
+    }
+
+    .boxThin {
+        border: 1px solid;
+        padding: 1px;
+    }
+
+    .box > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 8px;
+    }
+
+    .boxThin > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 8px;
+    }
+
+    .boxBottom {
+        border-bottom: 1px solid;
+        padding: 1px 1px 0px 1px;
+    }
+
+    .boxBottom > div {
+        padding: 1px;
+    }
+
+    .rotate {
+        writing-mode: vertical-lr;
+        /* FF3.5+ */
+        /*-moz-transform: rotate(-90.0deg);*/
+        /* Opera 10.5 */
+        /*-o-transform: rotate(-90.0deg);*/
+        /* Saf3.1+, Chrome */
+        /*-webkit-transform: rotate(-90.0deg);*/
+        /* IE6,IE7 */
+        /*filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=0.083);*/
+        /* IE8 */
+        /*-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)";*/
+        /* Standard */
+        /*transform: rotate(-90.0deg);*/
+    }
+}
+
+@media not print {
+
+    #divPrint {
+        width: 190mm;
+        height: 128mm;
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+        /*background-image: url('../../Images/pishfactor.png');
+        background-size: auto;
+        background-repeat: no-repeat;
+        background-position: center center;*/
+        /*position: absolute;
+        right: -188mm;
+        transform: rotate(90deg);
+        transform-origin: left top;
+        -moz-transform: rotate(90deg);
+        -moz-transform-origin: left top;
+        -webkit-transform: rotate(90deg);
+        -webkit-transform-origin: left top;*/
+    }
+
+    .bg-text {
+        color: #f7d9b5 !important;
+    }
+
+    .box {
+        border: 2px solid;
+        padding: 1px;
+    }
+
+    .boxThin {
+        border: 1px solid;
+        padding: 1px;
+    }
+
+    .box > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 8px;
+    }
+
+    .boxThin > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 8px;
+    }
+
+    .boxBottom {
+        border-bottom: 1px solid;
+        padding: 1px 1px 0px 1px;
+    }
+
+        .boxBottom > div {
+            padding: 1px;
+        }
+
+    .rotate {
+        writing-mode: vertical-lr;
+        /* FF3.5+ */
+        /*-moz-transform: rotate(-90.0deg);*/
+        /* Opera 10.5 */
+        /*-o-transform: rotate(-90.0deg);*/
+        /* Saf3.1+, Chrome */
+        /*-webkit-transform: rotate(-90.0deg);*/
+        /* IE6,IE7 */
+        /*filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=0.083);*/
+        /* IE8 */
+        /*-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)";*/
+        /* Standard */
+        /*transform: rotate(-90.0deg);*/
+    }
+}

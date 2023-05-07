@@ -1,0 +1,110 @@
+﻿@{
+    Layout = null;
+    ViewBag.title = "فرم تحویل کالا";
+}
+@model BaseSite.Models.DBModel.Delivery_Delivery
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.title</title>
+</head>
+<body>
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+    <script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+    <link href="@Url.Content("~/Contents/css/MyStyle/PrintLA5.css")" rel="stylesheet">
+
+    <div class="container-fluid" id="divPrint">
+        <div class="row box" id="header">
+            <div class="col-xs-3 text-right">
+                <p><b>شماره حواله خروج: </b>@Model.DocNumber</p>
+            </div>
+            <div class="col-xs-6 text-center">
+                <p><b style="font-size:22px; line-height:26px;">@string.Format("{0}{1}", (Model.Sale_Sale != null && Model.Sale_Sale.GiveBack) ? "برگشت از فروش - " : "", Model.RecieverName)</b></p>
+            </div>
+            <div class="col-xs-3 text-left">
+                <p><b>تاریخ: </b>@Model.ShDate</p>
+            </div>
+        </div>
+        <div class="row box" style="background-color:lightgray; padding-top:3px;">
+            <div class="col-xs-4 text-right">
+                <p><b>شماره سند: </b>@(Model.Order_Order != null ? Model.Order_Order.DocNumber : Model.Sale_Sale.DocNumber)</p>
+            </div>
+            <div class="col-xs-4 text-center">
+                <p><b>نام پروژه: </b>@(Model.Order_Order != null ? Model.Order_Order.ProjectName : "-")</p>
+            </div>
+            <div class="col-xs-4 text-left">
+                <p>@(Model.Order_Order != null ? Model.Order_Order.FactorNumber : Model.Sale_Sale.FactorNumber)</p>
+            </div>
+        </div>
+        <div class="row box" style="min-height:300px;">
+            <div class="col-md-12 col-sm-12 col-xs-12" style="display: table;line-height:14px;">
+                <div style="display: table-row">
+                    <div class="boxThin text-center" style="display: table-cell;">
+                        <p><b>شرح کالا</b></p>
+                    </div>
+                    <div class="boxThin text-center" style="display: table-cell;">
+                        <p><b>تعداد</b></p>
+                    </div>
+                    <div class="boxThin text-center" style="display: table-cell;">
+                        <p><b>توضیحات</b></p>
+                    </div>
+                </div>
+                @for (int i = 0; i < Model.Items.Count; i++)
+                {
+                    if (Model.Items.ElementAt(i).Checked)
+                    {
+                        <div style="display: table-row">
+                            <div class="boxThin text-right" style="display: table-cell;">
+                                <p> @Model.Items.ElementAt(i).Name</p>
+                            </div>
+                            <div class="boxThin text-center" style="display: table-cell;">
+                                <p> @Model.Items.ElementAt(i).Count</p>
+                            </div>
+                            <div class="boxThin text-center" style="display: table-cell;">
+                                <p> @Model.Items.ElementAt(i).Comment</p>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="col-xs-12 text-right" style="margin-top:15px;">
+                <p><b>آدرس محل ارسال: </b></p>
+            </div>
+            <div class="col-xs-12 text-center">
+                <p style="font-size:22px; line-height:26px;"><b>@Model.DestinationAddress</b></p>
+            </div>
+            <div class="col-xs-6 text-center">
+                <p style="font-size:22px; line-height:26px;"><b>تلفن: </b>@Model.RecieverPhone</p>
+            </div>
+            <div class="col-xs-6 text-center">
+                <p style="font-size:22px; line-height:26px;"><b>موبایل: </b>@Model.RecieverMobile</p>
+            </div>
+        </div>
+        <div class="row box" style="margin-top:10px;">
+            <div class="col-xs-12 text-right">
+                <p><b>فرستنده: </b><b style="font-size:20px;line-height:24px;">تهران- بلوار آفریقا- بلوار ناهید شرقی- پلاک 14- طبقه چهارم- واحد14 (شرکت پنتا)</b></p>
+            </div>
+            <div class="col-xs-12 text-center">
+                <p style="font-size:18px; line-height:22px;"><b>تلفن: </b>26208257 - 26208251</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#divPrint').printThis({
+                importCSS: true,
+                importStyle: true,
+                printContainer: true,
+                copyTagClasses: true
+            });
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1388 @@
+﻿@model BaseSite.Models.DBModel.Order_Order
+@using System.Globalization
+@{
+    ViewBag.Title = "ثبت سفارش";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    List<BaseSite.Models.DBModel.CRM_Comments> comments = BaseSite.Models.CRM.CommentManager.CRM_Comments_Get((short)BaseSite.Models.DB_Table.Order_Order, Model.Id);
+    List<BaseSite.Models.DBModel.Log_Logs> logList = BaseSite.Models.Log.LogManager.Log_Logs_Search(Model.DocNumber,(int) BaseSite.Models.DB_Table.Order_Order, null, null, null);
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+
+    var tempAttachments = "";
+    var tempAdditions = "";
+    var tempDeductions = "";
+    for (int k = 0; k < BaseSite.Models.Cache.Order_Attachments.Count; k++)
+    {
+        tempAttachments += ("<option " + (k > 0 ? "" : "selected='selected'") + " value='" + BaseSite.Models.Cache.Order_Attachments.ElementAt(k).Key + "'" + " title='" + string.Format("{0:n0}", BaseSite.Models.Cache.Order_Attachments.ElementAt(k).Value.Cost) + "'>" + BaseSite.Models.Cache.Order_Attachments.ElementAt(k).Value.Name + "</option>");
+    }
+    for (int k = 0; k < BaseSite.Models.Cache.Order_Additions.Count; k++)
+    {
+        tempAdditions += ("<option " + (k > 0 ? "" : "selected='selected'") + " value='" + BaseSite.Models.Cache.Order_Additions.ElementAt(k).Key + "'>" + BaseSite.Models.Cache.Order_Additions.ElementAt(k).Value + "</option>");
+    }
+    for (int k = 0; k < BaseSite.Models.Cache.Order_Deductions.Count; k++)
+    {
+        tempDeductions += ("<option " + (k > 0 ? "" : "selected='selected'") + " value='" + BaseSite.Models.Cache.Order_Deductions.ElementAt(k).Key + "'>" + BaseSite.Models.Cache.Order_Deductions.ElementAt(k).Value + "</option>");
+    }
+}
+
+<div class="row">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">سفارش</a></li>
+        @if (Model.Id > 0)
+        {
+            <li role="presentation">
+                <a href="#comments" aria-controls="comments" role="tab" data-toggle="tab">
+                    یادداشت ها
+                    @if (comments.Count > 0)
+                    {<span class="badge badge-count">@comments.Count</span>}
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#history" aria-controls="history" role="tab" data-toggle="tab">
+                    تاریخچه فعالیتها
+                </a>
+            </li>
+        }
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="home">
+            <div id="dvContents">
+                @using (Html.BeginForm("OrderDetail", "Order", FormMethod.Post))
+                {
+                    <div class="panel-group">
+
+                        @*#################################### TopPart ####################################*@
+                        <div class="panel panel-success">
+                            <div class="panel-heading MyHeader">
+                                <div class="row">
+                                    <div class="col-sm-1 col-md-1 text-right">
+                                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_Print))
+                                        {
+                                            <a href="@Url.Action("Print", "Plan", new { doc = "order", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات سفارش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                        }
+                                    </div>
+                                    <div class="col-sm-offset-4 col-md-offset-4 col-sm-2 col-md-2 text-center">سفارش</div>
+                                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Print))
+                                    {
+                                        <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                            <a href="@Url.Action("Print", "Order", new { doc = "bill", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ صورتحساب فروش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                            <a href="@Url.Action("Print", "Order", new { doc = "order", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فاکتور"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="panel-body TopPart">
+                                <input type="hidden" value="@Model.Id" name="Id" />
+                                <div class="row">
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">شماره سند</span>
+                                            @Html.TextBoxFor(m => m.DocNumber, new { @Class = "form-control text-center MyControl", @Id = "DocNumber", disabled = "disabled" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">وضعیت</span>
+                                            @Html.DropDownListFor(m => m.StatusId, (ViewBag.OrderStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })
+                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_ChangeStatus))
+                                            {
+                                                <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="OrderType">نوع معامله</span>
+                                            @Html.DropDownListFor(m => m.TradeTypeId, BaseSite.Models.Cache.Order_TradeTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.TradeTypeId) }), new { @Class = "form-control MyControl", @Id = "TradeType", aria_describedby = "TradeType" })
+                                        </div>
+                                    </div>
+                                    <div style="display:none;">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="OrderType">نوع سفارش</span>
+                                            @Html.DropDownListFor(m => m.OrderTypeId, BaseSite.Models.Cache.Order_OrderTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.OrderTypeId) }), new { @Class = "form-control MyControl", @Id = "OrderType", aria_describedby = "OrderType" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">تاریخ سفارش</span>
+                                            <input type="text" id="ShDateOrder" name="ShDateOrder" class="form-control text-center MyControl" value="@Model.ShDateOrder"
+                                                   @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="FactorDate">تاریخ تحویل</span>
+                                            <input type="text" id="ShDateFactor" name="ShDateFactor" class="form-control text-center MyControl" value="@Model.ShDateFactor"
+                                                   @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:15px;">
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">مشتری</span>
+                                            @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                            <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.CustomerId"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                                        </div>
+                                        @Html.HiddenFor(m => m.CustomerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">نام پروژه</span>
+                                            @Html.TextBoxFor(m => m.ProjectName, new { @Class = "form-control text-center MyControl", @Id = "ProjectName", @Lang = "fa-IR" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">سفارش دهنده</span>
+                                            @Html.TextBoxFor(m => m.ClienteleName, new { @Class = "form-control text-center MyControl", @Id = "ClienteleName", @Lang = "fa-IR" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">نوع تابلو</span>
+                                            @Html.DropDownListFor(m => m.ElevatorBoardId, BaseSite.Models.Cache.ElevatorBoards.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.ElevatorBoardId) }), new { @Class = "form-control MyControl", @Id = "ElevatorBoard", aria_describedby = "ElevatorBoard" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">محل ارسال</span>
+                                            @Html.TextBoxFor(m => m.DeliveryAddress, new { @Class = "form-control text-center MyControl", @Id = "DeliveryAddress", @Lang = "fa-IR" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">نوع بسته بندی</span>
+                                            <select name="PackTypeId" class="form-control MyControl">
+                                                @foreach (var item in BaseSite.Models.Cache.PackTypes)
+                                                {
+                                                    if (item.Key == Model.PackTypeId)
+                                                    {
+                                                        <option selected="selected" value="@item.Key">@item.Value</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item.Key">@item.Value</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    @*<div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                        <span class="input-group-addon MySpan" id="Fax">فاکس</span>
+                                        <input type="text" class="form-control text-center MyControl" disabled="disabled" aria-describedby="Fax" value="@Model.Account_Users.Fax" />
+                                        </div>
+                                        </div>*@
+                                </div>
+                                <div class="row" id="AmountSummary">
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="SumCabinPenel">پنل کابین</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCabinPenel" value="@Model.SumCostPanel" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="SumFloorPanel">پنل طبقات</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumFloorPanel" value="@Model.SumCostHall" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="SumDoorTopPanel">پنل سردرب</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumDoorTopPanel" value="@Model.SumCostDoorTop" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">کرایه حمل</span>
+                                            @Html.TextBoxFor(m => m.DeliveryCost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "DeliveryCost", @ariadescribedby = "DeliveryCost" })
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">عوارض</span>
+                                            @Html.TextBoxFor(m => m.Tax, new { @Class = "form-control text-center MyControl", @Id = "Tax" })
+                                            <span class="input-group-addon MySpan EndText">درصد</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCostTax" value="@Model.SumCostTax" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="PFatherName">ملحقات</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="PFatherName" value="@Model.SumCostAttachment" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="PName">اضافات</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="PName" value="@Model.SumCostAddition" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="PName">کسورات</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="PName" value="@Model.SumCostDeduction" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="PName">تخفیف درصدی</span>
+                                            @Html.TextBoxFor(m => m.DiscountRate, new { @Class = "form-control text-center MyControl", @Id = "DiscountRate", @ariadescribedby = "DiscountRate" })
+                                            <span class="input-group-addon MySpan EndText">درصد</span>
+                                            <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCostDiscountRate" value="@Model.SumCostDiscountRate" />
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">جمع کل</span>
+                                            @Html.TextBoxFor(m => m.Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Cost", @disabled = "disabled" })
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @*#################################### CabinPanelDiv ####################################*@
+                        @for (int i = 0; i < Model.Order_Cabin.Count; i++)
+                        {
+                            <div class="panel panel-info">
+                                <div class="panel-heading MyHeader">
+                                    <div class="row">
+                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل شاسی داخل کابین</div>
+                                        <div class="col-xs-5 col-md-5 text-left">
+                                            @string.Format("{0:n0}", Model.Order_Cabin.ElementAt(i).Count > 0 ? (Model.Order_Cabin.ElementAt(i).Cost / Model.Order_Cabin.ElementAt(i).Count) : 0) &nbsp; ريال
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body CabinPanelDiv">
+                                    <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Id" name=@string.Format("Order_Cabin[{0}].Id", i) />
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">مدل پنل</span>
+                                                @Html.TextBox("CabinPanel", (string)(ViewBag.CabinPanelName), new { @Class = "form-control MyControl", @Id = "CabinPanel" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).CabinPanelId, new { @Class = "form-control MyControl", @Id = "CabinPanelId", @Name = "Order_Cabin[" + i.ToString() + "].CabinPanelId", required = "required" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">پوش باتون</span>
+                                                @Html.TextBox("CabinPushButton", (string)(ViewBag.CabinPushButtonName), new { @Class = "form-control MyControl", @Id = "CabinPushButton" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).PushButtonId, new { @Class = "form-control MyControl", @Id = "CabinPushButtonId", @Name = "Order_Cabin[" + i.ToString() + "].PushButtonId", required = "required" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">نمایشگر</span>
+                                                @Html.TextBox("CabinMonitor", (string)(ViewBag.CabinMonitorName), new { @Class = "form-control MyControl", @Id = "CabinMonitor" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).MonitorId, new { @Class = "form-control MyControl", @Id = "CabinMonitorId", @Name = "Order_Cabin[" + i.ToString() + "].MonitorId", required = "required" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="row">
+                                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon MySpan">تعداد</span>
+                                                        @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Count, new { @Class = "form-control text-center MyControl", @Id = "Count", @Name = "Order_Cabin[" + i.ToString() + "].Count" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon MySpan">تعداد طبقات</span>
+                                                        @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).FloorCount, new { @Class = "form-control text-center MyControl", @Id = "FloorCount", @Name = "Order_Cabin[" + i.ToString() + "].FloorCount", onchange = "copyFloors('FloorCount')" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon MySpan">تعداد طبقات زیرین</span>
+                                                        @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).UGFloorCount, new { @Class = "form-control text-center MyControl", @Id = "UGFloorCount", aria_describedby = "UnderFloors", @Name = "Order_Cabin[" + i.ToString() + "].UGFloorCount", onchange = "copyFloors('UGFloorCount')" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات</span>
+                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).FloorNames, new { @Class = "form-control text-center MyControl", @Id = "FloorCount", @Name = "Order_Cabin[" + i.ToString() + "].FloorNames", Style = "direction:ltr;", onchange = "copyFloors('FloorNames')" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات زیرین</span>
+                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).UGFloorNames, new { @Class = "form-control text-center MyControl", @Id = "FloorCount", @Name = "Order_Cabin[" + i.ToString() + "].UGFloorNames", Style = "direction:ltr;", onchange = "copyFloors('UGFloorNames')" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="col-md-4 col-xs-4">
+                                                <div class="input-group">
+                                                    <label>
+                                                        @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).PhoneCallButton, new { @Name = "Order_Cabin[" + i.ToString() + "].PhoneCallButton" }) کلیدآیفون
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-xs-4">
+                                                <div class="input-group">
+                                                    <label>
+                                                        @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DO, new { @Name = "Order_Cabin[" + i.ToString() + "].DO" }) DO
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4 col-xs-4">
+                                                <div class="input-group">
+                                                    <label>
+                                                        @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DC, new { @Name = "Order_Cabin[" + i.ToString() + "].DC" }) DC
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">نحوه نصب</span>
+                                                @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).InstallationTypeId, BaseSite.Models.Cache.InstallationTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).InstallationTypeId) }), new { @Class = "form-control MyControl", @Id = "CabinInstallationType", @Name = "Order_Cabin[" + i.ToString() + "].InstallationTypeId" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">فلزرویه</span>
+                                                @Html.TextBox("CabinSurfaceMetal", (string)(ViewBag.CabinSurfaceMetalName), new { @Class = "form-control MyControl", @Id = "CabinSurfaceMetal", @Lang = "fa-IR" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).SurfaceMetalId, new { @Class = "form-control MyControl", @Id = "CabinSurfaceMetalId", @Name = "Order_Cabin[" + i.ToString() + "].SurfaceMetalId", required = "required" })
+                                        </div>
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">فلزرویه2</span>
+                                                @Html.TextBox("CabinSurfaceMetal2", (string)(ViewBag.CabinSurfaceMetalName2), new { @Class = "form-control MyControl", @Id = "CabinSurfaceMetal2", @Lang = "fa-IR" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).SurfaceMetalId2, new { @Class = "form-control MyControl", @Id = "CabinSurfaceMetalId2", @Name = "Order_Cabin[" + i.ToString() + "].SurfaceMetalId2", required = "required" })
+                                        </div>
+
+                                        <div class="col-md-10 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="PName">متن برش لیزری</span>
+                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).LaserCuttingText, new { @Class = "form-control text-center MyControl", @Id = "LaserCuttingText", @Name = "Order_Cabin[" + i.ToString() + "].LaserCuttingText", Style = "direction:ltr;" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="MicroPhoneCode">کد بلندگو</span>
+                                                @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).SpeakerId, BaseSite.Models.Cache.Speakers.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).SpeakerId) }), new { @Class = "form-control MyControl", @Id = "CabinSpeaker", @Name = "Order_Cabin[" + i.ToString() + "].SpeakerId" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-10 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="PName">متن حک لیزری</span>
+                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).LaserEngravingText, new { @Class = "form-control text-center MyControl", @Id = "LaserEngravingText", @Name = "Order_Cabin[" + i.ToString() + "].LaserEngravingText", Style = "direction:ltr;" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="EmergencyLightId">کد لامپ اضطراری</span>
+                                                @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).EmergencyLightId, BaseSite.Models.Cache.EmergencyLights.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).EmergencyLightId) }), new { @Class = "form-control MyControl", @Id = "CabinEmergencyLight", @Name = "Order_Cabin[" + i.ToString() + "].EmergencyLightId" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-10 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">توضیحات</span>
+                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Comment, new { @Class = "form-control text-center MyControl", @Id = "Comment", @Name = "Order_Cabin[" + i.ToString() + "].Comment", @Lang = "fa-IR" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                            <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseCabin{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                        </div>
+                                    </div>
+                                    <div class="@string.Format("{0}", (Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count > 0 || Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count > 0) ? "collapse in" : "collapse")" id="@string.Format("collapseCabin{0}", i)">
+                                        <div class="well" style="padding-top:0;">
+                                            <div class="row">
+                                                <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("CabinAttachment{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("CabinAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('Cabin',@i)" data-count="@Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    ملحقات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-3 col-sm-3 col-xs-3" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                            <div class="col-md-4 col-sm-4 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Id", i,j) />
+                                                            <div class="row">
+                                                                <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                    @*@Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = string.Format("{0} ({1:n0})", x.Value.Name, x.Value.Cost), Selected = (x.Key == Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })*@
+
+                                                                    <select class="form-control MyControl" id="AttachmentId" name=@string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j)>
+                                                                        @foreach (var item in BaseSite.Models.Cache.Order_Attachments)
+                                                                        {
+                                                                            if (item.Key == Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId)
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key" selected="selected">@item.Value.Name</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key">@item.Value.Name</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("CabinAddition{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("CabinAdditionAddBtn{0}", i)" onclick="fnAddAddition('Cabin',@i)" data-count="@Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @*################################## FloorDiv ##############################*@
+                        @for (int i = 0; i < Model.Order_Hall.Count; i++)
+                        {
+                            <div class="panel panel-info">
+                                <div class="panel-heading MyHeader">
+                                    <div class="row">
+                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل شاسی طبقات</div>
+                                        <div class="col-xs-5 col-md-5 text-left">
+                                            @string.Format("{0:n0}", Model.Order_Hall.ElementAt(i).Count > 0 ? (Model.Order_Hall.ElementAt(i).Cost / Model.Order_Hall.ElementAt(i).Count) : 0) &nbsp; ريال
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body CabinPanelDiv" style="background-color: rgba(239, 188, 73, 0.47); ">
+                                    <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Id" name=@string.Format("Order_Hall[{0}].Id", i) />
+                                    <div class="row">
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="Lift">آسانسور</span>
+                                                @Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).ElevatorTypeId, BaseSite.Models.Cache.ElevatorCounts.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Hall.ElementAt(i).ElevatorTypeId) }), new { @Class = "form-control MyControl", @Id = "ElevatorTypeId", @Name = "Order_Hall[" + i.ToString() + "].ElevatorTypeId" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">تعداد شاسی</span>
+                                                @Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).PushButtonCountId, BaseSite.Models.Cache.HallPushButtonCount.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Hall.ElementAt(i).PushButtonCountId) }), new { @Class = "form-control MyControl", @Id = "PushButtonCountId", @Name = "Order_Hall[" + i.ToString() + "].PushButtonCountId" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">مدل پنل</span>
+                                                @Html.TextBox("HallPanel", (string)(ViewBag.HallPanelName), new { @Class = "form-control MyControl", @Id = "HallPanel" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).HallPanelId, new { @Class = "form-control MyControl", @Id = "HallPanelId", @Name = "Order_Hall[" + i.ToString() + "].HallPanelId", required = "required" })
+                                        </div>
+                                        <div class="col-md-2 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">تعداد</span>
+                                                @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Count, new { @Class = "form-control text-center MyControl", @Id = "Count", @Name = "Order_Hall[" + i.ToString() + "].Count" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">پوش باتون</span>
+                                                @Html.TextBox("HallPushButton", (string)(ViewBag.HallPushButtonName), new { @Class = "form-control MyControl", @Id = "HallPushButton" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).PushButtonId, new { @Class = "form-control MyControl", @Id = "HallPushButtonId", @Name = "Order_Hall[" + i.ToString() + "].PushButtonId", required = "required" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">نمایشگر</span>
+                                                @Html.TextBox("HallMonitor", (string)(ViewBag.HallMonitorName), new { @Class = "form-control MyControl", @Id = "HallMonitor" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).MonitorId, new { @Class = "form-control MyControl", @Id = "HallMonitorId", @Name = "Order_Hall[" + i.ToString() + "].MonitorId", required = "required" })
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">فلزرویه</span>
+                                                @Html.TextBox("HallSurfaceMetal", (string)(ViewBag.HallSurfaceMetalName), new { @Class = "form-control MyControl", @Id = "HallSurfaceMetal", @Lang = "fa-IR" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).SurfaceMetalId, new { @Class = "form-control MyControl", @Id = "HallSurfaceMetalId", @Name = "Order_Hall[" + i.ToString() + "].SurfaceMetalId", required = "required" })
+                                        </div>
+
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="row">
+                                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon MySpan">تعداد طبقات</span>
+                                                        @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).FloorCount, new { @Class = "form-control text-center MyControl", @Id = "HFloorCount", @Name = "Order_Hall[" + i.ToString() + "].FloorCount" })
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-sm-6 col-xs-12">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon MySpan">تعداد طبقات زیرین</span>
+                                                        @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).UGFloorCount, new { @Class = "form-control text-center MyControl", @Id = "HUGFloorCount", aria_describedby = "HUnderFloors", @Name = "Order_Hall[" + i.ToString() + "].UGFloorCount" })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات</span>
+                                                @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).FloorNames, new { @Class = "form-control text-center MyControl", @Id = "HFloorNames", @Name = "Order_Hall[" + i.ToString() + "].FloorNames", Style = "direction:ltr;" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات زیرین</span>
+                                                @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).UGFloorNames, new { @Class = "form-control text-center MyControl", @Id = "HUGFloorNames", @Name = "Order_Hall[" + i.ToString() + "].UGFloorNames", Style = "direction:ltr;" })
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-10 col-sm-12 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="Comment">توضیحات</span>
+                                                @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Comment, new { @Class = "form-control text-center MyControl", @Id = "Comment", @Name = "Order_Hall[" + i.ToString() + "].Comment", @Lang = "fa-IR" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                            <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseHall{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                        </div>
+                                    </div>
+                                    <div class="@string.Format("{0}", (Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count > 0 || Model.Order_Hall.ElementAt(i).Order_Panel_Addition.Count > 0) ? "collapse in" : "collapse")" id="@string.Format("collapseHall{0}", i)">
+                                        <div class="well" style="padding-top:0;">
+                                            <div class="row">
+                                                <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("HallAttachment{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("HallAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('Hall',@i)" data-count="@Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    ملحقات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-3 col-sm-3 col-xs-3" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                            <div class="col-md-4 col-sm-4 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                    @*@Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = string.Format("{0} ({1:n0})", x.Value.Name, x.Value.Cost), Selected = (x.Key == Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })*@
+
+                                                                    <select class="form-control MyControl" id="AttachmentId" name=@string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j)>
+                                                                        @foreach (var item in BaseSite.Models.Cache.Order_Attachments)
+                                                                        {
+                                                                            if (item.Key == Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId)
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key" selected="selected">@item.Value.Name</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key">@item.Value.Name</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("HallAddition{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("HallAdditionAddBtn{0}", i)" onclick="fnAddAddition('Hall',@i)" data-count="@Model.Order_Hall.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @*####################################### مدل پنل سردرب ################################*@
+                        @for (int i = 0; i < Model.Order_DoorTop.Count; i++)
+                        {
+                            <div class="panel panel-info">
+                                <div class="panel-heading MyHeader">
+                                    <div class="row">
+                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل سردرب</div>
+                                        <div class="col-xs-5 col-md-5 text-left">
+                                            @string.Format("{0:n0}", Model.Order_DoorTop.ElementAt(i).Count > 0 ? (Model.Order_DoorTop.ElementAt(i).Cost / Model.Order_DoorTop.ElementAt(i).Count) : 0) &nbsp; ريال
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body CabinPanelDiv">
+                                    <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Id" name=@string.Format("Order_DoorTop[{0}].Id", i) />
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="Cable">مدل پنل سردرب</span>
+                                                @Html.TextBox("DoorTopPanel", (string)(ViewBag.DoorTopPanelName), new { @Class = "form-control MyControl", @Id = "DoorTopPanel" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_DoorTop.ElementAt(i).DoorTopPanelId, new { @Class = "form-control MyControl", @Id = "DoorTopPanelId", @Name = "Order_DoorTop[" + i.ToString() + "].DoorTopPanelId", required = "required" })
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">نمایشگر</span>
+                                                @Html.TextBox("DoorTopMonitor", (string)(ViewBag.DoorTopMonitorName), new { @Class = "form-control MyControl", @Id = "DoorTopMonitor" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_DoorTop.ElementAt(i).MonitorId, new { @Class = "form-control MyControl", @Id = "DoorTopMonitorId", @Name = "Order_DoorTop[" + i.ToString() + "].MonitorId", required = "required" })
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan">فلزرویه</span>
+                                                @Html.TextBox("DoorTopSurfaceMetal", (string)(ViewBag.DoorTopSurfaceMetalName), new { @Class = "form-control MyControl", @Id = "DoorTopSurfaceMetal", @Lang = "fa-IR" })
+                                            </div>
+                                            @Html.HiddenFor(m => m.Order_DoorTop.ElementAt(i).SurfaceMetalId, new { @Class = "form-control MyControl", @Id = "DoorTopSurfaceMetalId", @Name = "Order_DoorTop[" + i.ToString() + "].SurfaceMetalId", required = "required" })
+                                        </div>
+                                        <div class="col-md-2 col-sm-3 col-xs-6">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="StartFrom">تعداد</span>
+                                                @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Count, new { @Class = "form-control text-center MyControl", @Id = "Count", @Name = "Order_DoorTop[" + i.ToString() + "].Count" })
+                                            </div>
+                                        </div>
+                                        @*<div class="col-md-2 col-sm-3 col-xs-6">
+                                            <div class="input-group">
+                                            <span class="input-group-addon MySpan" id="Cable">شروع از</span>
+                                            <select class="form-control text-center MyControl" id="StartFrom" name=@string.Format("Order_DoorTop[{0}].StartFrom", i.ToString())>
+                                            @if (Model.Order_DoorTop.ElementAt(i).StartFrom == 0)
+                                            {
+                                            <option value="0" selected="selected">لیزر</option>
+                                            <option value="1">انبار</option>
+                                            }
+                                            else if (Model.Order_DoorTop.ElementAt(i).StartFrom == 1)
+                                            {
+                                            <option value="0">لیزر</option>
+                                            <option value="1" selected="selected">انبار</option>
+                                            }
+                                            </select>
+                                            </div>
+                                            </div>*@
+                                        <div class="col-md-10 col-sm-10 col-xs-12">
+                                            <div class="input-group">
+                                                <span class="input-group-addon MySpan" id="Comment">توضیحات</span>
+                                                @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Comment, new { @Class = "form-control text-center MyControl", @Id = "Comment", @Name = "Order_DoorTop[" + i.ToString() + "].Comment", @Lang = "fa-IR" })
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                            <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseDoorTop{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                        </div>
+                                    </div>
+                                    <div class="@string.Format("{0}", (Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count > 0 || Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count > 0) ? "collapse in" : "collapse")" id="@string.Format("collapseDoorTop{0}", i)">
+                                        <div class="well" style="padding-top:0;">
+                                            <div class="row">
+                                                <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("DoorTopAttachment{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("DoorTopAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('DoorTop',@i)" data-count="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    ملحقات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-3 col-sm-3 col-xs-3" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                            <div class="col-md-4 col-sm-4 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
+                                                                    @*@Html.DropDownListFor(x => x.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = string.Format("{0} ({1:n0})", x.Value.Name, x.Value.Cost), Selected = (x.Key == Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })*@
+
+                                                                    <select class="form-control MyControl" id="AttachmentId" name=@string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j)>
+                                                                        @foreach (var item in BaseSite.Models.Cache.Order_Attachments)
+                                                                        {
+                                                                            if (item.Key == Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId)
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key" selected="selected">@item.Value.Name</option>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <option title="@string.Format("{0:n0}", item.Value.Cost)" value="@item.Key">@item.Value.Name</option>
+                                                                            }
+                                                                        }
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                                </div>
+                                                                <div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv" id="@string.Format("DoorTopAddition{0}", i)">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("DoorTopAdditionAddBtn{0}", i)" onclick="fnAddAddition('DoorTop',@i)" data-count="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @*######################################### کسورات #####################################*@
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                <div class="panel-heading MyHeader">
+                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                        (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                    {
+                                        <button type="button" class="btn btn-link" id="DeductionAddBtn" onclick="fnAddDeduction()" data-count="@Model.Order_Deduction.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                                    }
+                                    کسورات
+                                </div>
+                                <div class="panel-body CabinPanelDiv" style="background-color: rgba(239, 188, 73, 0.47); ">
+                                    <div class="row">
+                                        <div class="col-md-2 col-sm-3 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan">عنوان</span></div>
+                                        <div class="col-md-2 col-sm-3 col-xs-6" style="padding-right:0;"><span class="input-group-addon MySpan">مبلغ</span></div>
+                                        <div class="col-md-2 col-sm-3 hidden-xs" style="padding:0;"><span class="input-group-addon MySpan">عنوان</span></div>
+                                        <div class="col-md-2 col-sm-3 hidden-xs" style="padding-right:0;"><span class="input-group-addon MySpan">مبلغ</span></div>
+                                        <div class="col-md-2 hidden-sm hidden-xs" style="padding:0;"><span class="input-group-addon MySpan">عنوان</span></div>
+                                        <div class="col-md-2 hidden-sm hidden-xs" style="padding-right:0;"><span class="input-group-addon MySpan">مبلغ</span></div>
+                                    </div>
+                                    <div class="row" id="DeductionList">
+                                        @for (int i = 0; i < Model.Order_Deduction.Count; i++)
+                                        {
+                                            <input type="hidden" value="@Model.Order_Deduction.ElementAt(i).Id" name=@string.Format("Order_Deduction[{0}].Id", i) />
+                                            <div class="col-md-2 col-sm-3 col-xs-6" style="padding:0;">
+                                                @Html.DropDownListFor(x => x.Order_Deduction.ElementAt(i).DeductionId, BaseSite.Models.Cache.Order_Deductions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Deduction.ElementAt(i).DeductionId) }), new { @Class = "form-control MyControl", @Id = "DeductionId", @Name = "Order_Deduction[" + i.ToString() + "].DeductionId" })
+                                            </div>
+                                            <div class="col-md-2 col-sm-3 col-xs-6" style="padding-right:0;">
+                                                @Html.TextBoxFor(m => m.Order_Deduction.ElementAt(i).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "DeductionCost", @Name = "Order_Deduction[" + i.ToString() + "].Cost" })
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @*################################## Submit Button ###################################*@
+                    <div class="row" style="text-align:center;margin-bottom:10px;">
+                        @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                        {
+                            <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+                        }
+                        @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Delete))
+                        {
+                            <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#OrderDeleteModal" style="margin-right:10px;">حذف پیش فاکتور</button>
+                        }
+                    </div>
+                    @*###################################### end of body ###############################*@
+                }
+            </div>
+        </div>
+        @if (Model.Id > 0)
+        {
+            <div role="tabpanel" class="tab-pane" id="comments">
+                @Html.Partial("~/Views/CRM/Comments.cshtml", comments, new ViewDataDictionary() { { "ttid", (short)BaseSite.Models.DB_Table.Order_Order }, { "tid", Model.Id } })
+            </div>
+            <div role="tabpanel" class="tab-pane" id="history">
+                @Html.Partial("~/Views/Log/Partial_LogTable.cshtml", logList)
+            </div>
+        }
+    </div>
+</div>
+
+@*####################################Start Modal ###############################################*@
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Delete))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="OrderDeleteModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">حذف سفارش</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>آیا از حذف سفارش مطمئن هستید؟</p>
+                        <form method="post" action="@Url.Action("OrderDelete", "Order", new { orderId=Model.Id})" class="formDelete">
+                            <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                <button type="submit" class="btn btn-danger btndelete">حذف</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_ChangeStatus))
+{
+<div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">تغییر وضعیت سفارش</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("OrderChangeStatus", "Order", new { orderId = Model.Id })" class="formDelete">
+                        <div>
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">وضعیت جدید</span>
+                                @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <p style="display:inline-block;">آیا از تغییر وضعیت سفارش مطمئن هستید؟</p>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
+                            <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}
+@*####################################End Modal ###############################################*@
+
+
+    <script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            if ($("#CabinPanel").length)
+                $("#CabinPanel").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteCabinPanels", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#CabinPanelId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#CabinPushButton").length)
+                $("#CabinPushButton").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompletePushButtons", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term, containerTableId: '@((int)BaseSite.Models.DB_Table.Tb_CabinPanels)', containerId: $("#CabinPanelId").val() },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost, color: item.Color };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#CabinPushButtonId").val(ui.item.id);
+                        $("#CabinPushButton").css('background-color', ui.item.color);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr style='background-color:" + item.color + "'><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#CabinMonitor").length)
+                $("#CabinMonitor").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteMonitors", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term, containerTableId: '@((int)BaseSite.Models.DB_Table.Tb_CabinPanels)', containerId: $("#CabinPanelId").val() },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost, color: item.Color };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#CabinMonitorId").val(ui.item.id);
+                        $("#CabinMonitor").css('background-color', ui.item.color);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr style='background-color:" + item.color + "'><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#CabinSurfaceMetal").length)
+                $("#CabinSurfaceMetal").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteCabinSurfaceMetals", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#CabinSurfaceMetalId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#CabinSurfaceMetal2").length)
+                $("#CabinSurfaceMetal2").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteCabinSurfaceMetals", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#CabinSurfaceMetalId2").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#HallPanel").length)
+                $("#HallPanel").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteHallPanels", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#HallPanelId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#HallPushButton").length)
+                $("#HallPushButton").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompletePushButtons", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term, containerTableId: '@((int)BaseSite.Models.DB_Table.Tb_HallPanels)', containerId: $("#HallPanelId").val() },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost, color: item.Color };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#HallPushButtonId").val(ui.item.id);
+                        $("#HallPushButton").css('background-color', ui.item.color);
+                    },
+                    minLength: 0
+                })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                        return $("<li>")
+                            .append("<table style='width:100%'><col width='80%'><col width='20%'><tr style='background-color:" + item.color + "'><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                            .appendTo(ul);
+                    };
+
+            if ($("#HallMonitor").length)
+                $("#HallMonitor").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteMonitors", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term, containerTableId: '@((int)BaseSite.Models.DB_Table.Tb_HallPanels)', containerId: $("#HallPanelId").val() },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost, color: item.Color };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#HallMonitorId").val(ui.item.id);
+                        $("#HallMonitor").css('background-color', ui.item.color);
+                    },
+                    minLength: 0
+                })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                        return $("<li>")
+                            .append("<table style='width:100%'><col width='80%'><col width='20%'><tr style='background-color:" + item.color + "'><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                            .appendTo(ul);
+                    };
+
+            if ($("#HallSurfaceMetal").length)
+                $("#HallSurfaceMetal").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteHallSurfaceMetals", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#HallSurfaceMetalId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                        return $("<li>")
+                            .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                            .appendTo(ul);
+                    };
+
+            if ($("#DoorTopPanel").length)
+                $("#DoorTopPanel").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteDoorTopPanels", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#DoorTopPanelId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+            if ($("#DoorTopMonitor").length)
+                $("#DoorTopMonitor").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteMonitors", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term, containerTableId: '@((int)BaseSite.Models.DB_Table.Tb_DoorTopPanels)', containerId: $("#DoorTopPanelId").val() },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost, color: item.Color };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#DoorTopMonitorId").val(ui.item.id);
+                        $("#DoorTopMonitor").css('background-color', ui.item.color);
+                    },
+                    minLength: 0
+                })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                        return $("<li>")
+                            .append("<table style='width:100%'><col width='80%'><col width='20%'><tr style='background-color:" + item.color + "'><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                            .appendTo(ul);
+                    };
+
+            if ($("#DoorTopSurfaceMetal").length)
+                $("#DoorTopSurfaceMetal").autocomplete({
+                    source: function (request, response) {
+                        $.ajax({
+                            url: "@Url.Action("AutoCompleteSurfaceMetals", "Order")",
+                            type: "POST",
+                            dataType: "json",
+                            data: { Prefix: request.term },
+                            success: function (data) {
+                                response($.map(data, function (item) {
+                                    return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                                }))
+                            }
+                        })
+                    },
+                    select: function (event, ui) {
+                        $("#DoorTopSurfaceMetalId").val(ui.item.id);
+                    },
+                    minLength: 0
+                })
+                .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                        .appendTo(ul);
+                };
+
+        })
+
+        function fnAddAttachment(panel, index) {
+            var count = $("#" + panel + "AttachmentAddBtn" + index).data("count");
+            $("#" + panel + "Attachment" + index).append("<input type='hidden' value='0' name='Order_" + panel + "[" + index + "].Order_Panel_Attachment[" + count + "].Id' />"
+                                                    + "<div class='row'>"
+                                                    + "<div class='col-md-5 col-sm-5 col-xs-5' style='padding:0;'>"
+                                                    + "<select class='form-control MyControl' id='AttachmentId' name='Order_" + panel + "[" + index + "].Order_Panel_Attachment[" + count + "].AttachmentId' >"
+                                                    + "@Html.Raw(tempAttachments)"
+                                                    + "</select>"
+                                                    + "</div>"
+                                                    + "<div class='col-md-3 col-sm-3 col-xs-3' style='padding:0;'>"
+                                                    + "<input class='form-control text-center MyControl' id='AttachmentCount' name='Order_" + panel + "[" + index + "].Order_Panel_Attachment[" + count + "].Count' value='0' type='text'>"
+                                                    + "</div>"
+                                                    + "<div class='col-md-4 col-sm-4 col-xs-4' style='padding:0;'>"
+                                                    + "<input class='form-control text-center MyControl autoNumber' id='AttachmentCost' name='Order_" + panel + "[" + index + "].Order_Panel_Attachment[" + count + "].Cost' value='0' type='text' disabled = 'disabled'>"
+                                                    + "</div>"
+                                                    + "</div>");
+            $("#" + panel + "AttachmentAddBtn" + index).data("count", count + 1);
+        }
+
+        function fnAddAddition(panel, index) {
+            var count = $("#" + panel + "AdditionAddBtn" + index).data("count");
+            $("#" + panel + "Addition" + index).append("<input type='hidden' value='0' name='Order_" + panel + "[" + index + "].Order_Panel_Addition[" + count + "].Id' />"
+                                                    + "<div class='row'>"
+                                                    + "<div class='col-md-6 col-sm-6 col-xs-6' style='padding:0;'>"
+                                                    + "<select class='form-control MyControl' id='AdditionId' name='Order_" + panel + "[" + index + "].Order_Panel_Addition[" + count + "].AdditionId' >"
+                                                    + "@Html.Raw(tempAdditions)"
+                                                    + "</select>"
+                                                    + "</div>"
+                                                    + "<div class='col-md-6 col-sm-6 col-xs-6' style='padding:0;'>"
+                                                    + "<input class='form-control text-center MyControl autoNumber' id='AdditionCost' name='Order_" + panel + "[" + index + "].Order_Panel_Addition[" + count + "].Cost' value='0' type='text'>"
+                                                    + "</div>"
+                                                    + "</div>");
+            $("#" + panel + "AdditionAddBtn" + index).data("count", count + 1);
+        }
+
+        function fnAddDeduction() {
+            var count = $("#DeductionAddBtn").data("count");
+            $("#DeductionList").append("<input type='hidden' value='0' name='Order_Deduction[" + count + "].Id' />"
+                                                    + "<div class='col-md-2 col-sm-3 col-xs-6' style='padding:0;'>"
+                                                    + "<select class='form-control MyControl' id='DeductionId' name='Order_Deduction[" + count + "].DeductionId' >"
+                                                    + "@Html.Raw(tempDeductions)"
+                                                    + "</select>"
+                                                    + "</div>"
+                                                    + "<div class='col-md-2 col-sm-3 col-xs-6' style='padding-right:0;'>"
+                                                    + "<input class='form-control text-center MyControl autoNumber' id='DeductionCost' name='Order_Deduction[" + count + "].Cost' value='0' type='text'>"
+                                                    + "</div>");
+            $("#DeductionAddBtn").data("count", count + 1);
+        }
+
+        function copyFloors(t) {
+            if ($("input[name='Order_Hall[0]." + t + "']").length > 0)
+                $("input[name='Order_Hall[0]." + t + "']").val($("input[name='Order_Cabin[0]." + t + "']").val());
+        }
+    </script>
+
+
+<script type="text/javascript">
+    function Success() {
+        //$('#Name').val('');
+        //$('#Text').val('');
+    }
+
+    function NestedComment(ParentID) {
+        $.ajax({
+            url: "@Url.Action("InsertComment", "Crm")",
+            data:
+                {
+                    ParentID: ParentID,
+                    ttid : @((short)BaseSite.Models.DB_Table.Order_Order),
+                    tid : @Model.Id
+                    },
+            type: "Get"
+        }).done(function (result) {
+            $('#Comment_' + ParentID).append(result);
+        });
+    }
+
+
+    $('#submitcomment').click(function () {
+        $.ajax({
+            url: "@Url.Action("InsertComment", "Crm")",
+            data:
+                {
+                    ParentID: $(this).data("parentId"),
+                    ttid : $(this).data("ttid"),
+                    tid : $(this).data("tid"),
+                    Comment: $("#myComment").val()
+                    },
+            type: "POST",
+            dataType: "html",
+            success: function (data) {
+                //var result = $('<div />').append(data).find('#showresults').html();
+                $('#CommentList').append(data);
+                alert("یادداشت با موفقیت ثبت شد.");
+                $("#myComment").val("");
+            },
+            error: function (xhr, status) {
+                alert("ثبت نظر با مشکل مواجه شد!");
+            },
+            complete: function (xhr, status) {
+                //$('#showresults').slideDown('slow')
+            }
+        });
+    });
+</script>

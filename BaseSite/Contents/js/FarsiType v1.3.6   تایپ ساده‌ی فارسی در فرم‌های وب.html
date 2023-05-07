@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head>
+	<title>FarsiType v1.3.6 | تایپ ساده‌ی فارسی در فرم‌های وب</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-Language" content="fa">
+	<meta name="robots" content="all">
+	<meta name="keywords" content="FarsiType, type farsi in web forms, تایپ فارسی در فرم‌های وب">
+	<meta name="description" content="">
+
+	<script type="text/javascript" src="FarsiType%20v1.3.6%20%20%20%D8%AA%D8%A7%DB%8C%D9%BE%20%D8%B3%D8%A7%D8%AF%D9%87%E2%80%8C%DB%8C%20%D9%81%D8%A7%D8%B1%D8%B3%DB%8C%20%D8%AF%D8%B1%20%D9%81%D8%B1%D9%85%E2%80%8C%D9%87%D8%A7%DB%8C%20%D9%88%D8%A8_files/FarsiType.js"></script>
+	<style type="text/css">
+		body { margin: 10px 0; }
+		a { color: #0475BA; text-decoration: none; }
+		a:hover { color: #003f5f; }
+		p { margin: 13px; }
+
+		#container { width: 770px; margin: auto; background-color: #f1f1f1; border: 1px solid #ccc; }
+		#top { height: 117px; background: url('../files/top.gif') center center no-repeat #fff; }
+		#pbody { direction: rtl; text-align: justify; padding: 20px 50px; font: 10pt tahoma; line-height: 170%; }
+		#footer { background-color: #DADADA; border-top: 1px dashed #ccc; font: 8pt tahoma; color: #808080; text-align: center; padding: 5px; }
+
+		#pbody h1, h2, h3 { font-weight: normal; margin: 0 0 10px; padding: 5px; font-family: georgia, "times new roman", serif; }
+		#pbody h2, h3 { border-bottom: 1px solid #000; }
+		#pbody h1 { text-align: center; font-size: 24pt; letter-spacing: 2px; }
+		#pbody h2 { text-align: center; font-size: 14pt; }
+		#pbody  h3 { width: 50%; font-size: 12pt; font-weight: bold; padding-top: 25px; }
+		#pbody h1 span { font-size: smaller; }
+
+		#pbody table { direction: rtl; font: 8pt tahoma; margin: auto; }
+		#pbody blockquote { direction: ltr;	margin: 3px 30px; padding: 10px; text-align:left; background-color: #eee; border: 1px dashed #ccc; font-size: 90%; font-family: verdana; color: #000; }
+		#pbody table input, select, submit, textarea { width: 140px; direction: ltr; font: 8pt tahoma; }
+		#pbody #disableFarsiType { width: auto; } 
+
+		#pbody ul.master { direction: rtl; }
+		#pbody ul.master > li { margin-bottom: 15px; }
+		#pbody table .regtd { width: 50%; text-align: left; padding-left: 15px; vertical-align: top; line-height: 180%}
+		#pbody .sumr { width: 60%; margin: 15px auto; padding: 10px; background-color: #DADADA; border: 1px solid #CCC;}
+		#pbody .tsum { margin: 15px auto; padding: 10px; background-color: #DADADA; border: 1px solid #CCC;}
+		#pbody strong.smaller { font-size: smaller; }
+	</style>
+</head>
+
+<body>
+<div id="container">
+	<div id="pbody">
+		<h1>FarsiType <span>v1.3.6</span></h1>
+		<h2>فارسی‌تایپ، اسکریپتی برای تایپ ساده‌ی فارسی در فرم‌های وب</h2>
+
+		<div class="sumr">
+			<span><strong>راهنمای صفحه</strong></span>
+			<ul>
+				<li><a href="#int">FarsiType چیست؟</a></li>
+				<li><a href="#usg">نحوه استفاده</a></li>
+				<li><a href="#log">فهرست تغییرات</a></li>
+				<li><a href="#smp">نمونه استفاده از اسکریپت</a></li>
+				<li><a href="#ext">سپاسگزاری و یادآوری</a></li>
+			</ul>
+		</div>
+
+		<h3 id="int">FarsiType چیست؟</h3>
+			<p>فارسی تایپ اسکریپتی است که استفاده از آن در سایت خود، به کاربران 
+شما کمک می‌کند بدون داشتن صفحه کلید فارسی روی کامپیوتر خود، درون فرم‌های
+ سایت شما فارسی تایپ کنند!</p>
+			<p>
+				اسکریپت‌هایی که در گذشته برای اضافه کردن امکان تایپ فارسی در فرم‌های
+ وب مورد استفاده قرار می‌گرفتند، غالبا دارای سه مشکل بودند:
+				</p><ul class="master">
+					<li>اول اینکه فقط در مرورگرهایی مانند Internrt Explorer کار می‌کردند.</li>
+					<li>دوم اینکه بخاطر استفاده از رویدادهای onkeypress و... و اینکه 
+این رویداد/خصوصیت‌ها دیگر در استانداردهای وب جایی ندارند، نمی‌توان 
+صفحاتی که امکان تایپ فارسی را در آنها قرار داده‌ایم، استاندارد کنیم.</li>
+					<li>سوم اینکه تنظیم این امکانات با توجه به کارهایی که باید انجام شود، می‌تواند گیج کننده باشد.</li>
+				</ul>
+			<p></p>
+			<p>به همه‌ی اینها باید این نکته را اضافه کرد که اکثر این اسکریپت‌ها 
+دارای باگ‌های فراوانی هستند. مثلا در یک فرم ممکن است با درخواست تایپ 
+انگلیسی در فیلد "نام کاربر" فیلد "عنوان وبلاگ" نیز به تایپ انگلیسی تبدیل
+ شود در صورتی که دکمه زبان همچنان فارسی است. یعنی همه‌ی فیلدها همزمان یا
+ انگلیسی هستند یا فارسی اما دکمه‌های تغییر زبان همزمان تغییر نمی‌کنند و 
+ممکن است دکمه، تایپ در حالت فارسی را نشان دهد اما انگلیسی تایپ شود.</p>
+			<p>برای اینکه در همه مرورگرها امکانات یکسانی در اختیار کاربران قرار 
+دهیم، کار را راحت‌تر کنیم، استاندارد بمانیم و باگ نداشته باشیم، اسکریپت 
+تایپ فارسی را جور دیگری بازنویسی کردیم!<br>این اسکریپت در تمام مرورگرهای
+ رایج بدرستی و کاملا یکسان کار می‌کند ضمن اینکه استفاده از آن بسیار ساده
+ است، به استاندارد بودن صفحات لطمه‌ای نمی‌زند، باگ هم ندارد 
+(امیدواریم!).</p>
+
+		<h3 id="usg">نحوه استفاده</h3>
+			<p>استفاده از این اسکریپت فقط ۱+۲ مرحله دارد:</p>
+			<p>۰. فایل <a href="http://www.farsitype.ir/FarsiType.js">FarsiType.js</a> را دریافت کنید و متغیرهای زیر را براساس نظر خود مقدار دهی کنید:
+				</p><ul class="master">
+					<li>
+						<strong>ShowChangeLangButton</strong> - نمایش دکمه تعییر زبان
+						<ul>
+							<li>0: نمایش یک دکمه برای تغییر زبان <strong class="smaller">(پیش‌فرض)</strong></li>
+							<li>1: عدم نمایش دکمه برای تغییر زبان</li>
+						</ul>
+					</li>
+					<li>
+						<strong>KeyBoardError</strong> - در صوتی که کیبرد کاربر در حالت تایپ فارسی بود
+						<ul>
+							<li>0: غیرفعال کردن FarsiType <strong class="smaller">(پیش‌فرض)</strong></li>
+							<li>1: نمایش پیغام خطا</li>
+						</ul>
+					</li>
+					<li>
+						<strong>ChangeDir</strong> - تغییر جهت نمایش متن هنگام تغییر زبان
+						<ul>
+							<li>0: بدون واکنش</li>
+							<li>1: تغییر کند</li>
+							<li>2: نمایش یک دکمه برای تغییر Direction  <strong class="smaller">(پیش‌فرض)</strong></li>
+						</ul>
+					</li>
+					<li>
+						<strong>UnSupportedAction</strong> - در مرورگرهایی که فارسی تایپ در آنها پشتیبانی نمی‌شود
+						<ul>
+							<li>0: غیرفعال کردن FarsiType  <strong class="smaller">(پیش‌فرض)</strong></li>
+							<li>1: استفاده از فارسی تایپ با امکانات محدودتر</li>
+						</ul>
+					</li>
+				</ul>
+			<p></p>
+			<p>۱. FarsiType را به صفحات مورد نظر الحاق کنید! (داخل تگ &lt;head&gt;)</p>
+				<blockquote>&lt;script language="javascript" src="FarsiType.js" type="text/javascript"&gt;&lt;/script&gt;</blockquote>
+
+			<p>۲. به شناسه lang هرکدام از تگ‌های &lt;input&gt; یا &lt;textarea&gt; که می‌خواهید دارای امکان تایپ فارسی باشند، مقدار <span dir="ltr">"fa"</span> یا <span dir="ltr">"fa-IR"</span> بدهید! (فقط <span dir="ltr">lang="fa"</span> یا <span dir="ltr">lang="fa-IR"</span> برای این اسکریپت دارای اهمیت است!)</p>
+				<blockquote>&lt;input type="text" name="whatever" lang="fa" /&gt;<br>&lt;textarea cols="30" rows="7" name="whatever" lang="fa"&gt;&lt;/textarea&gt;<br>&lt;input type="text" name="whatever" lang="fa-IR" /&gt;<br>&lt;textarea cols="30" rows="7" name="whatever" lang="fa-IR"&gt;&lt;/textarea&gt;</blockquote>
+
+			<p>تمام! اسکریپت به طور خودکار دکمه‌ی تغییر زبان را ایجاد می‌کند، سایر کارهای مورد نیاز را نیز انجام می‌دهد!</p>
+
+			<p>می‌توانید برای فعال/غیرفعال کردن سکریپت از یک چک‌باکس استفاه کنید وجود این چک‌باکس اختیاری‌ست:</p>
+				<blockquote>&lt;input type="checkbox" id="disableFarsiType" /&gt;</blockquote>
+
+			<p>در این اسکریپت می‌توانید علاوه بر دکمه تغییر زبان، از  <strong>Ctrl + Space</strong> برای تغییر زبان استفاده کنید. (دقت دارید که دکمه تغییر زبان همزمان تغییر می‌کند و با فیلدهای دیگر هم تداخلی ندارد!)</p>
+
+		<h3 id="log">فهرست تغییرات</h3>
+			<ul class="master">
+				<li>
+					<strong>نسخه 1.3.6: </strong>
+					<ul>
+						<li>رفع باگ موجود در نسخه‌هاي قديمي IE</li>
+					</ul>
+				</li>
+				<li>
+					<strong>نسخه 1.3.5: </strong>
+					<ul>
+						<li>رفع مشکلات FarsiType با نسخه‌های جدید مرورگرها و اضافه شدن پشتیبانی از Chrome</li>
+						<li>اضافه شدن تنظیمات کنترلی اختیاری برای مرورگرهای پشتیبانی نشده</li>
+						<li>تغییر دکمه تغییر زبان از F8 به Ctrl + Space</li>
+					</ul>
+				</li>
+				<li>
+					<strong>نسخه 1.3.0: </strong>
+					<ul>
+						<li>اضافه شدن تنظیمات کنترلی اختیاری</li>
+					</ul>
+				</li>
+				<li>
+					<strong>نسخه 1.2.1: </strong>
+					<ul>
+						<li>مرتب‌سازی کدها و کامنت‌ها</li>
+						<li>اضافه شده لایسنس GPL</li>
+						<li>اضافه شدن پشتیبانی از <span dir="ltr">lang = 'fa-IR'</span></li>
+					</ul>
+				</li>
+				<li>
+					<strong>نسخه 1.2: </strong>
+						<ul>
+							<li>اضافه شدن پشتیبانی از Opera</li>
+						</ul>
+				</li>
+				<li>
+					<strong>نسخه 1.1: </strong>
+					<ul>
+						<li>رفع برخی باگ‌های کار با FireFox</li>
+					</ul>
+				</li>
+			</ul>
+
+		<h3 id="smp">نمونه استفاده از اسکریپت</h3>
+			<table class="tsum">
+				<tbody><tr>
+					<td class="regtd">input عادی</td>
+					<td><input name="username" type="text"></td>
+				</tr>
+				<tr>
+					<td class="regtd">input فارسی</td>
+					<td><input name="fname" dir="rtl" style="text-align: right; direction: rtl;" type="text" lang="fa" align="right"><input id="FarsiType_button_1" style="border: medium none; background-color: rgb(236, 233, 216); color: white; font-family: tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="FA" title="Change lang to english" disabled="disabled" type="button">&nbsp;<input id="FarsiType_ChangeDir_1" style="border: none; background-color:darkblue; font-size:11; color:white; font-family:tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="RTL" type="button"></td>
+				</tr>
+	
+				<tr>
+					<td class="regtd">textarea فارسی</td>
+					<td><textarea rows="7" cols="25" dir="rtl" style="text-align: right; direction: rtl;" lang="fa">یبیبی یبیبیب dfdfd</textarea><input id="FarsiType_button_3" style="border: medium none; background-color: rgb(236, 233, 216); color: white; font-family: tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="FA" title="Change lang to english" disabled="disabled" type="button">&nbsp;<input id="FarsiType_ChangeDir_3" style="border: none; background-color:darkblue; font-size:11; color:white; font-family:tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="RTL" type="button"></td>
+				</tr>
+				<tr>
+					<td class="regtd">textarea عادی</td>
+					<td><textarea rows="7" cols="25"></textarea></td>
+	
+				</tr>
+				<tr>
+					<td class="regtd">یک فیلد دیگر فارسی:</td>
+					<td><input dir="rtl" style="text-align: right; direction: rtl;" lang="fa" align="right"><input id="FarsiType_button_2" style="border: medium none; background-color: rgb(236, 233, 216); color: white; font-family: tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="FA" title="Change lang to english" disabled="disabled" type="button">&nbsp;<input id="FarsiType_ChangeDir_2" style="border: none; background-color:darkblue; font-size:11; color:white; font-family:tahoma; padding: 1px; margin: 1px; width: auto; height: auto;" value="RTL" type="button"></td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td><input id="disableFarsiType" checked="checked" type="checkbox"> غیرفعال کردن امکانات تایپ فارسی سیستم</td>
+				</tr>
+			</tbody></table>
+
+		<h3 id="ext">سپاسگزاری و یادآوری</h3>
+			<ul>
+				<li>ایده‌ی اولیه رفع مشکل در Mozilla از <a href="http://forum.persiantools.com/showthread.php?p=667351">اینجا</a> آمده.</li>
+				<li>ایده‌ی اولیه کنترل‌های اتوماتیک از <a href="http://ip.webkar.com/forums/index.php?act=ST&amp;f=19&amp;t=99">اینجا</a> آمده.</li>
+				<li> با نگاهی به راه‌حل‌های به کار رفته در <a href="http://www.behdad.org/editor">ادیتور بهرنگ</a> و <a href="http://www.blogfa.com/">بلاگفا</a> برای تایپ فارسی در فرم‌های وب.</li>
+				<li>با تشکر بسیار از <a href="http://www.gonahkar.com/">گناهکار</a>، <a href="http://www.manionline.org/">مانی منجمی</a> و <a href="http://www.mazdakam.com/">مزدک آقاخانی</a> برای پشتیبانی‌ها و ایده‌های بسیار مفیدشان.</li>
+			</ul>
+
+	</div>
+	<div id="footer">
+			FarsiType is licensed under the <a href="http://www.opensource.org/licenses/gpl-license.php">GPL</a> license.<br>
+			Copyright© 2002-2011 <a href="http://www.kavehahmadi.com/">Kaveh Ahmadi</a>, All rights reserved.
+	</div>
+</div>
+
+</body></html>

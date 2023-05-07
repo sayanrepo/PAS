@@ -1,0 +1,395 @@
+﻿@model List<BaseSite.Models.DBModel.Account_Users>
+@{
+    ViewBag.Title = "لیست اشخاص";
+    Layout = "~/Views/Shared/LayoutCRM.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@*##################### Search Div #############################*@
+<div class="row">
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Add))
+    {
+        <div class="col-xs-12">
+            <i class="fa fa-plus-circle fa-lg">
+                <a href="@Url.Action("PersonAdd")" class="Menu badge alert-success">افزودن شخص جدید</a>
+            </i>
+        </div>
+    }
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Search))
+    {
+        <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+            <form method="post" action="@Url.Action("SearchAccount")">
+                <div class="row" style="padding-top:3px;">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                            @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR", placeholder = "نام فرد/شرکت، مدیرعامل و ..." })
+                        </div>
+                        @Html.Hidden("customerId", (int?)ViewBag.customerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="Mobile1">نوع همکاری</span>
+                            <select id="partnerTypeId" name="partnerTypeId" class="form-control MyControl text-center text-left">
+                                <option selected value> </option>
+                                @foreach (var item in BaseSite.Models.Cache.Account_PartnerTypes)
+                                {
+                                    if (item.Key == ViewBag.partnerTypeId)
+                                    {
+                                        <option value="@item.Key" selected="selected">@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">مسئولیت</span>
+                            <select class="form-control MyControl text-center text-left" id="postId" name="postId">
+                                <option selected value> </option>
+                                @foreach (BaseSite.Models.DBModel.Account_Posts p in BaseSite.Models.Cache.Posts)
+                                {
+                                    if (
+                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer) && (p.Id == (int)BaseSite.Models.AccountRole.Unknown || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_InternetCustomer)) ||
+                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh) && (p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Operator || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Mali || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Manager || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Admin)) ||
+                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid) && (p.Id == (int)BaseSite.Models.AccountRole.Product_Operator || p.Id == (int)BaseSite.Models.AccountRole.Product_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Product_Manager))
+                                        )
+                                    {
+                                        if (ViewBag.postId == p.Id)
+                                        {
+                                            <option value="@p.Id" selected="selected">@p.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@p.Id">@p.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:3px;">
+                    <div class="col-md-4 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">کشور</span>
+                            <select name="hcountryId" id="HCountry" class="form-control MyControl" data-childid="HProvince" onchange="changeCountry(this)">
+                                <option value=""></option>
+                                @foreach (var item in BaseSite.Models.Information.InformationManager.Location_Country_Get())
+                                {
+                                    if (ViewBag.hcountryId != null && ViewBag.hcountryId == item.Id)
+                                    {
+                                        <option value="@item.Id" selected>@item.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Id">@item.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">استان</span>
+                            <select name="hprovinceId" id="HProvince" class="form-control MyControl" data-childid="HCity" onchange="changeProvince(this)">
+                                <option value=""></option>
+                                @if (ViewBag.hcountryId != null)
+                                {
+                                    foreach (var item in BaseSite.Models.Information.InformationManager.Location_Province_Get(ViewBag.hcountryId))
+                                    {
+                                        if (ViewBag.hprovinceId != null && item.Id == ViewBag.hprovinceId)
+                                        {
+                                            <option value="@item.Id" selected>@item.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon">شهر</span>
+                            <select id="HCity" name="hcityId" class="form-control MyControl">
+                                <option value=""></option>
+                                @if (ViewBag.hprovinceId != null)
+                                {
+                                    foreach (var item in BaseSite.Models.Information.InformationManager.Location_City_Get(ViewBag.hprovinceId))
+                                    {
+                                        if (ViewBag.hcityId != null && item.Id == ViewBag.hcityId)
+                                        {
+                                            <option value="@item.Id" selected>@item.Name</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@item.Id">@item.Name</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:3px;">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">وضعیت</span>
+                            <select class="form-control MyControl text-center text-left" id="statusId" name="statusId">
+                                <option selected value> </option>
+                                @if (ViewBag.statusId == 1)
+                                {
+                                    <option value="1" selected="selected">اجازه دسترسی به سیستم دارد</option>
+                                    <option value="2">اجازه دسترسی به سیستم ندارد</option>
+                                    <option value="3">کاربر حذف شده</option>
+                                }
+                                else if (ViewBag.statusId == 2)
+                                {
+                                    <option value="1">اجازه دسترسی به سیستم دارد</option>
+                                    <option value="2" selected="selected">اجازه دسترسی به سیستم ندارد</option>
+                                    <option value="3">کاربر حذف شده</option>
+                                }
+                                else if (ViewBag.statusId == 3)
+                                {
+                                    <option value="1">اجازه دسترسی به سیستم دارد</option>
+                                    <option value="2">اجازه دسترسی به سیستم ندارد</option>
+                                    <option value="3" selected="selected">کاربر حذف شده</option>
+                                }
+                                else
+                                {
+                                    <option value="1">اجازه دسترسی به سیستم دارد</option>
+                                    <option value="2">اجازه دسترسی به سیستم ندارد</option>
+                                    <option value="3">کاربر حذف شده</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon" id="Mobile1">بخش</span>
+                            <select class="form-control MyControl text-center text-left" id="departmentId" name="departmentId">
+                                <option selected value> </option>
+                                @if (ViewBag.departmentId == 1)
+                                {
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    {
+                                        <option value="0">نامعلوم</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    {
+                                        <option value="1" selected="selected">فروش</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    {
+                                        <option value="2">تولید</option>
+                                    }
+                                }
+                                else if (ViewBag.departmentId == 2)
+                                {
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    {
+                                        <option value="0">نامعلوم</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    {
+                                        <option value="1">فروش</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    {
+                                        <option value="2" selected="selected">تولید</option>
+                                    }
+                                }
+                                else if (ViewBag.departmentId == 0)
+                                {
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    {
+                                        <option value="0" selected="selected">نامعلوم</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    {
+                                        <option value="1">فروش</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    {
+                                        <option value="2">تولید</option>
+                                    }
+                                }
+                                else
+                                {
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    {
+                                        <option value="0">نامعلوم</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    {
+                                        <option value="1">فروش</option>
+                                    }
+                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    {
+                                        <option value="2">تولید</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv text-center" style="padding-top:3px; margin-bottom:5px;">
+                        <button class="btn btn-sm btn-primary">جستجو</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+
+<div class="row">
+    @if (ViewBag.Result != null && ViewBag.Result == "ok")
+    {
+        <div class="alert alert-success alert-dismissible" role="alert" id="SuccessedEdit">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong><i class="fa fa-hand-peace-o fa-2x"></i></strong> @ViewBag.ResultMessge
+        </div>
+    }
+    @if (ViewBag.Result != null && ViewBag.Result == "error")
+    {
+        <div class="alert alert-danger alert-dismissible" role="alert" id="FailEdit">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong><i class="fa fa-warning fa-2x"></i></strong> @ViewBag.ResultMessge
+        </div>
+    }
+
+    <div id="DivDetail">
+        <div>
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("FullName", "نام", format: (item) => item.Name + ' ' + item.LastName),
+            grid.Column("Account_PersonTypes.Name", "نوع شخص"),
+            grid.Column("Responsible1", "مدیر عامل"),
+            grid.Column("Account_PartnerTypes.Name", "نوع همکاری"),
+            grid.Column("Phone1", "تلفن "),
+            grid.Column("Location_Cities.Name", "شهر", format: (item) => item.Location_Cities == null ? ' ' : item.Location_Cities.Name),
+            grid.Column("Account_Users2.FullName", "ایجادکننده", format: (item) => item.Account_Users2 == null ? ' ' : item.Account_Users2.FullName),
+            grid.Column("ShRegistrationDate", "زمان ایجاد"),
+            grid.Column("Account_UserStatus.Name", "وضعیت"),
+            grid.Column(header: "جزئیات",
+            format: @<text>
+                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Detail))
+                         {
+                        <a data-value="@item.Id" href="@Url.Action("PersonDetail", new { PersonId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                         }
+                         else
+                         {
+                        <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                         }
+            </text>)
+    ))
+        </div>
+    </div>
+</div>
+
+
+@*############################################ JAVA Script #################################################*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("a[ID='Persons']").css("background-color", "rgba(0, 0, 0, 0.19)");
+    });
+</script>
+
+<script type="text/javascript">
+    //برای تغییر کشور  ،استان و شهر
+    function changeCountry(ecountry) {
+        var value = $(ecountry).val();
+        if (value == "" || value == null) {
+            var eprovince = $('#' + $(ecountry).data('childid'));
+            $(eprovince).empty();
+            var ecity = $('#' + $(eprovince).data('childid'));
+            $(ecity).empty();
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("ProvinceGet", "order")',
+                type: 'GET',
+                dataType: 'text json',
+                data: { countryid: value },
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                success: function (result) {
+                    var eprovince = $('#' + $(ecountry).data('childid'));
+                    $(eprovince).empty();
+                    $(eprovince).append("<option value=''></option>");
+                    $.each(result, function (index, item) {
+                        $(eprovince).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                    $(eprovince).change();
+                },
+                error: function (data) {
+                    var eprovince = $('#' + $(ecountry).data('childid'));
+                    $(eprovince).empty();
+                    $(eprovince).append("<option value=''></option>");
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $.each(data, function (index, item) {
+                        $(eprovince).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                    $(eprovince).change();
+                }
+
+            });
+        }
+    };
+
+    function changeProvince(eprovince) {
+        var value = $(eprovince).val();
+        if (value == "" || value == null) {
+            var ecity = $('#' + $(eprovince).data('childid'));
+            $(ecity).empty();
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("CityGet", "order")',
+                type: 'GET',
+                dataType: 'text json',
+                data: { provinceid: value },
+                contentType: 'application/json; charset=utf-8',
+                cache: false,
+                success: function (result) {
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $(ecity).append("<option value=''></option>");
+                    $.each(result, function (index, item) {
+                        $(ecity).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                },
+                error: function (data) {
+                    var ecity = $('#' + $(eprovince).data('childid'));
+                    $(ecity).empty();
+                    $(ecity).append("<option value=''></option>");
+                    $.each(data, function (index, item) {
+                        $(ecity).append('<option value=' + item.Id + '>' + item.Name + '</option>');
+                    });
+                }
+            });
+        }
+    };
+</script>
+
+
+
+
+

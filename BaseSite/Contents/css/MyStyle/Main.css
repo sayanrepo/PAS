@@ -1,0 +1,817 @@
+﻿@import url("Fonts.css");
+
+@media screen and (max-width: 500px) {
+    .LeftLogo {
+        display: none;
+    }
+}
+
+
+@media screen and (max-width: 568px) {
+    .DivHeight a {
+        font-size: 5px;
+        background-color: none;
+        border: none;
+    }
+
+    #DivCountry, #DivProvince, #DivCity, #DivPanelModel, #DivPushButton, #DivSurfaceMetal, #DivMonitor, #DivBoxing, #DivPanel, #DivAttachment , #DivDeduction , #DivAddition {
+        width: 100%;
+        border: 2px solid rgb(128, 128, 128);
+        border-radius: 4px;
+        padding: 5px;
+        margin-bottom: 4px;
+    }
+
+
+    #DivDetail {
+        width: 100%;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+
+    #DivCityPerson {
+        width: 100%;
+        min-height: 50px;
+    }
+	
+	#DivSearch {
+        width: 100%;
+    }
+}
+
+/*@media screen and (max-width: 768px) {*/
+@media screen and (max-width: 950px) {
+    .DivHeight a {
+        font-size: 10px;
+        background-color: none;
+        border: none;
+    }
+
+    #DivCountry, #DivProvince, #DivCity, #DivPanelModel, #DivPushButton, #DivSurfaceMetal, #DivMonitor, #DivBoxing, #DivPanel, #DivAttachment ,#DivDeduction , #DivAddition {
+        width: 100%;
+        border: 2px solid rgb(128, 128, 128);
+        border-radius: 4px;
+        padding: 5px;
+        margin-bottom: 4px;
+    }
+
+
+    #DivDetail{
+        width: 100%;
+    }
+
+    #DivCityPerson {
+        width: 100%;
+        min-height: 50px;
+    }
+	
+	#DivSearch {
+        width: 100%;
+    }
+}
+
+
+html {
+    /*overflow-y: auto;*/
+}
+
+body {
+    overflow-y: auto;
+    min-height:100vh;
+}
+
+html, body {
+    /*height:100%;*/
+    margin-top: 0px;
+    background-color: rgba(159, 161, 143, 0.55);
+    overflow-x: hidden;
+    font-family: IRANSans, BLotus, BFarnaz, BDavat;
+    font-size: 12px;
+}
+
+#topDiv{
+    margin-top:3px;
+}
+
+.MainDiv {
+    margin-right: auto;
+    margin-left: auto;
+    height: auto;
+    /*min-height: 500px;*/
+    margin-bottom:auto;
+    /*width: 92%;*/
+}
+
+.MyControl {
+    height: 28px;
+}
+.MyControl option {
+    padding: 0px;
+    font-size: 12px;
+}
+.MyCheckbox
+{
+    height:23px;
+}
+
+.panel
+{
+    margin-top:5px;
+}
+.panel-heading
+{
+    text-align:center;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    padding: 6px !important;
+}
+.MyHeader {
+    /*background-color: rgba(0, 0, 0, 0.60);
+    text-align: center;
+    vertical-align: central;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-weight: bolder;
+    font-size: 13px;
+    color: #fff;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;*/
+}
+
+.CabinPanelDiv {
+    /*background-color: whitesmoke; /*rgba(241, 230, 169, 0.47);*/
+    background-color: rgba(173, 241, 97, 0.47);
+    padding-bottom: 5px;
+    height: 100%;
+}
+.CabinPanelDiv > .row > div
+{
+    margin-bottom:5px;
+}
+
+.TopPart {
+    /*background-color: rgba(210, 215, 189, 0.47) !important;*/
+    background-color: rgba(239, 188, 73, 0.47) !important;
+    padding-bottom: 5px;
+    height: 100%;
+}
+
+
+.MySpan {
+    padding: 2px;
+}
+#AmountSummary {
+    margin-top:15px;
+    margin-bottom:2px;
+}
+
+#DivSearch {
+    -webkit-box-shadow: 0 0 5px 2px #bdb5b5;
+    -moz-box-shadow: 0 0 5px 2px #bdb5b5;
+    box-shadow: 0 0 5px 2px #bdb5b5;
+    border-radius: 5px;
+    background-color: whitesmoke; /*#edecec;*/
+    padding: 5px !important;
+    margin-bottom: 5px;
+}
+.DivList
+{
+    background-color:whitesmoke;
+    border-radius: 5px;
+    height:100%;
+    margin-bottom:15px;
+}
+
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+    font-size:14px;
+}
+
+/* IE 6 doesn't support max-height
+* we use height instead, but this forces the menu to always be this tall
+*/
+* html .ui-autocomplete {
+    height: 200px;
+}
+
+
+
+
+
+
+#footer {
+    background-color: rgba(255, 255, 255, 0.64);
+    /*padding-bottom: 62px;
+    padding-top: 17px;*/
+    padding-bottom: 5px;
+    padding-top: 5px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+.leftText {
+    direction: ltr;
+}
+
+.Mjumbotron {
+    padding-top: 15px;
+    padding-bottom: 18px;
+    margin-bottom: 0 !important;
+    margin-top:0;
+    font-family: IRANSans;
+    border-radius: 0 !important;
+}
+
+    .Mjumbotron h1 {
+        font-family: BJadidBold, BFarnaz;
+    }
+
+.MLoginjumbotron {
+    padding-top: 15px;
+    padding-bottom: 18px;
+    margin-bottom: 1px;
+    font-family: IRANSans;
+    border-radius: 0 !important;
+    background-color: rgba(255, 255, 255, 0.67);
+}
+
+    .MLoginjumbotron h1 {
+        font-family: BJadidBold, BFarnaz;
+    }
+
+.MyMenu {
+    padding-right: 18px !important;
+    border-radius: 0 !important;
+}
+
+#UserName, #Password {
+    direction: ltr;
+}
+
+.Otomasiyon {
+    padding-right: 40px;
+    position: static;
+    margin-left: 0px;
+    top: 50%;
+}
+
+.LoginText {
+    background-color: transparent;
+    border: 2px solid #ffffff;
+    color: white;
+    font-weight: bolder;
+}
+
+/*#################################################################################*/
+
+.nopadding {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.DivHeight {
+    min-height: 400px;
+    height: auto;
+}
+
+#Cities {
+    margin-top: 10px;
+}
+
+.DivHeight a {
+    margin: 3px;
+    text-align: center;
+    vertical-align: middle;
+    padding: 4px 0px 4px 0px;
+}
+
+/*#DivCityPerson {
+    width: 100%;
+    min-height: 50px;
+}*/
+/*#################################################################################*/
+
+.LeftLogo {
+    position: fixed;
+    top: 60%;
+    left: -80px;
+    -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    font-weight: bold;
+    font-size: 12px;
+    padding: 2px;
+    padding-right: 28px;
+    padding-left: 28px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 10px;
+    color: whitesmoke;
+    text-shadow: #EEEE00 2px 5px 15px;
+}
+
+.AddBtn {
+    padding: 4px !important;
+}
+
+.DivBox {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    min-height: 500px;
+    height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+/*@media (max-width: @screen-sm) {
+    body{font-size: 14px;}
+}*/
+
+
+.TopText {
+    background-color: rgb(128, 128, 128);
+    border: solid 1px #ffffff;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    width: 70%;
+    vertical-align: central;
+    margin-right: 12%;
+}
+
+
+
+
+a:hover {
+    color: #5c5353 !important;
+    font-weight: bolder !important;
+}
+
+
+
+.Spinner {
+    float: right;
+}
+
+
+.tblgrid {
+    text-align: center;
+    vertical-align: central !important;
+    font-size: 11px;
+}
+
+    .tblgrid tbody tr td {
+        padding: 4px !important;
+        vertical-align: central !important;
+        line-height: 2;
+        font-weight: bold;
+    }
+
+.tblGridHeader {
+    background-color: #191717;
+}
+
+    .tblGridHeader th {
+        text-align: center !important;
+        padding: 4px !important;
+        font-size: 12px;
+    }
+
+        .tblGridHeader th, .tblGridHeader th a {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+	
+
+#tblCountry, #tblProvince, #tblCity {
+    margin-top: 10px;
+    border-radius: 3px;
+    text-align: center;
+}
+
+    #tblCountry tr td:nth-child(1), #tblProvince tr td:nth-child(1), #tblCity tr td:nth-child(1) {
+        background-color: rgba(226, 218, 218, 0.17);
+    }
+
+        #tblCountry tr td:nth-child(1) a, #tblProvince tr td:nth-child(1) a, #tblCity tr td:nth-child(1) a {
+            color: black !important;
+            font-weight: bolder !important;
+        }
+
+    #tblCountry tr td:nth-child(2), #tblCountry tr td:nth-child(3), #tblProvince tr td:nth-child(2), #tblProvince tr td:nth-child(3),
+    #tblCity tr td:nth-child(2), #tblCity tr td:nth-child(3) {
+        width: 15%;
+    }
+
+.ModalHeader {
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+    .ModalHeader h1, h2, h3, h4 {
+        font-family: IRANSans, BLotus, BFarnaz, BDavat !important;
+        font-size: 14px;
+    }
+
+
+.PersonDiv {
+    margin-bottom: 8px !important;
+}
+
+
+
+.addresslable {
+    vertical-align: central !important;
+    padding: 0px !important;
+    line-height: 2;
+    margin-bottom: 0px !important;
+}
+
+
+.Mylegend {
+    font-size: 14px !important;
+    font-weight: bold;
+    color: #7a0626 !important;
+    font-family: IRANSans, BLotus, BFarnaz, BDavat !important;
+}
+
+.MyFieldSet {
+    margin-top: 30px !important;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    text-align: center;
+}
+
+    .MyFieldSet .PersonDiv {
+        margin-top: 5px !important;
+    }
+
+li {
+    text-align: center;
+}
+
+.dropdown-menu {
+    right: initial !important;
+}
+
+.drop {
+    left: initial !important;
+}
+
+.dropbtn {
+    padding: 3px !important;
+}
+
+
+.input-group-addon {
+    font-size: 11px !important;
+    background-color: rgb(128, 128, 128);
+    color: white;
+    font-weight: bold;
+}
+
+
+a.Menu {
+    font-family: IRANSans, BLotus, BFarnaz, BDavat !important;
+    font-size: 14px;
+    padding: 6px !important;
+}
+
+    a.Menu:hover {
+        color: rgb(28, 56, 39) !important;
+    }
+
+.searchbox {
+    font-size: 10px;
+    direction: ltr;
+    float: left;
+}
+
+#SuccessedAdd , #SuccessedEdit{
+    color: #fff !important;
+    background-color: rgb(28, 56, 39) !important;
+    font-weight: bolder !important;
+    border-radius:5px !important;
+    border-width:2px;
+    padding:8px;
+    vertical-align:central;
+    margin-bottom:3px;
+    margin-top:0px;
+}
+
+.CabinPanelTopText
+{
+    background-color: rgb(128, 128, 128);
+    border: solid 1px #ffffff;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffd800;
+    text-align: center;
+    width: 70%;
+    vertical-align: central;
+    margin-right: 12%;
+}
+
+
+.OrderTopText
+{
+    background-color: rgb(128, 128, 128);
+    border: solid 1px #ffffff;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #a5c6c4;
+    text-align: center;
+    width: 70%;
+    vertical-align: central;
+    margin-right: 12%;
+}
+
+
+.DoorTopTopText{
+    background-color: rgb(128, 128, 128);
+    border: solid 1px #ffffff;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #ff6a00;
+    text-align: center;
+    width: 70%;
+    vertical-align: central;
+    margin-right: 12%;
+}
+
+#SuccessedEdit {
+    color: #fff !important;
+    background-color: rgb(28, 56, 39) !important;
+    font-weight: bolder !important;
+    border-radius: 5px !important;
+    border-width: 2px;
+    padding: 8px;
+    vertical-align: central;
+    margin-bottom: 3px;
+    margin-top: 0px;
+}
+
+.PackName , .ElevatorBoardName , .AttachmentName , .DeductionName , .AdditionName{
+    color:black !important;
+    font-weight:bold;
+}
+
+#tblPack , #tblElevatorBoard , #tblAttachment , #tblDeduction , #tblAddition{
+    margin-top:5px;
+}
+
+
+.tblgrid {
+    text-align: center;
+    vertical-align: central !important;
+    font-size: 11px;
+}
+
+    .tblgrid tbody tr td {
+        padding: 4px !important;
+        vertical-align: central !important;
+        line-height: 2;
+        font-weight: bold;
+    }
+
+.tblGridHeader {
+    background-color: #191717;
+}
+
+    .tblGridHeader th {
+        text-align: center !important;
+        padding: 4px !important;
+        font-size: 12px;
+    }
+
+        .tblGridHeader th, .tblGridHeader th a {
+            color: #ffffff !important;
+            font-weight: bold;
+        }
+
+.input-group {
+    padding: 1px !important;
+}
+
+.formdiv {
+    padding: -5px !important;
+}
+
+.fromdiv span {
+    font-size: 9px !important;
+    color: red !important;
+}
+
+
+.EndText {
+    background-color: transparent !important;
+    color: black;
+}
+
+
+
+.form-control {
+    padding: 0px 0px !important;
+    font-size: 13px !important;
+}
+
+
+#RightPart {
+    -webkit-box-shadow: 0 0 5px 2px rgb(255, 255, 255);
+    -moz-box-shadow: 0 0 5px 2px rgb(255, 255, 255);
+    box-shadow: 0 0 5px 2px rgb(255, 255, 255);
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 5px;
+}
+
+#StateTop {
+    margin-top: 10%;
+}
+
+#State {
+    background-color: #fff;
+}
+
+.rotate {
+    transform:rotate(-90deg);
+    /* Safari */
+    -webkit-transform: rotate(-90deg);
+    /* Firefox */
+    -moz-transform: rotate(-90deg);
+    /* IE */
+    -ms-transform: rotate(-90deg);
+    /* Opera */
+    -o-transform: rotate(-90deg);
+}
+
+
+
+.no-gutter {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+
+
+.AmountTable thead {
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: rgba(16, 43, 26, 0.89);
+    color: #fff;
+    font-weight: bold;
+}
+
+    .AmountTable thead th {
+        text-align: center;
+    }
+
+    .AmountTable thead tr th {
+        padding: 2px;
+    }
+
+div> #OrderRegisterBtn {
+    color: #a40a0a;
+}
+
+    #OrderRegisterBtn:hover {
+        color: rgba(164, 10, 10, 0.41);
+    }
+    
+    .AddingPanel {
+    -webkit-box-shadow: 0 0 5px 2px #bdb5b5;
+    -moz-box-shadow: 0 0 5px 2px #bdb5b5;
+    box-shadow: 0 0 5px 2px #bdb5b5;
+    border-radius: 7px;
+    padding: 6px !important;
+}
+
+
+.DescriptionTextarea {
+    resize: vertical;
+    padding: 5px;
+    font-size: 12px;
+}
+
+.DescriptionTextareaForList {
+    resize: vertical;
+    font-size: 10px;
+    padding: 5px;
+    background-color: rgba(230, 224, 224, 0.70);
+}
+
+
+#tblPanelModel, #tblSurfaceMetal, #tblMonitor {
+    margin-top: 5px;
+}
+
+.setting-items td{
+    color: black !important;
+    font-weight: bold;
+    border:0 solid;
+}
+
+.DescriptionTd {
+    border-top: none !important;
+}
+
+hr {
+    color: black;
+    border-top-color: black;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+
+/* Floating Social Media Bar Style Starts Here */
+.floatingbar {
+    position: fixed;
+    left: -80px;
+    top: 20%;
+}
+    .floatingbar .item {
+        background-color: cornflowerblue;
+        border-radius: 0 5px 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        padding: 4px;
+        margin-bottom: 4px;
+        width: 120px;
+        z-index: 1000;
+        -webkit-transition: all .25s ease;
+        -moz-transition: all .25s ease;
+        -ms-transition: all .25s ease;
+        -o-transition: all .25s ease;
+        transition: all .25s ease;
+    }
+    .floatingbar .icon {
+        font-size: 22px;
+        color: #fff;
+        padding: 10px 0;
+        width: 40px;
+        margin-right: 8px;
+    }
+    .floatingbar .item:hover {
+        left: 80px;
+    }
+    .floatingbar .item a {
+        color: #fff !important;
+        font-family: IRANSans, BLotus, BFarnaz, BDavat;
+        text-decoration: none;
+        text-align: center;
+        line-height: 43px !important;
+        vertical-align: top !important;
+    }
+/* Floating Social Media Bar Style Ends Here */
+
+
+/*----------------------------- COMMENTS -----------------------------*/
+.badge.badge-count{
+    background-color:red;
+}
+.tab-pane{
+    margin-top:2px;
+}
+
+#comments {
+    background-color: white;
+    padding: 3px;
+}
+    #comments textarea {
+        padding: 5px !important;
+        direction:rtl;
+    }
+    #comments .media-comment {
+        border: 1px solid rgb(204, 204, 204);
+        border-radius: 3px;
+        padding: 5px;
+    }
+        #comments .media-comment img.media-object {
+            width: 64px;
+            height: 64px;
+        }
+        #comments .media-comment .media-body {
+            padding: 3px 5px 3px 3px;
+            width: 100%;
+        }
+            #comments .media-comment .media-body p {
+                white-space: pre-wrap;
+            }

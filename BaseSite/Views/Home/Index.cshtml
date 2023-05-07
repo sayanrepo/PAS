@@ -1,0 +1,76 @@
+﻿@{
+    ViewBag.Title = "صفحه ی ورود به سایت";
+    Layout = "~/Views/Shared/LayoutLogin.cshtml";
+}
+
+<div class="alert alert-danger alert-dismissible" role="alert" style="display:none;" id="FailLogin">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    <strong><i class="fa fa-warning fa-2x"></i></strong> نام کاربری یا کلمه عبور اشتباه میباشد
+</div>
+
+<div class="row" style="margin-top:7%;">
+    <form method="post" action="@Url.Action("Index")" id="LoginForm">
+        @Html.Hidden("returnurl", ViewBag.ReturnUrl == null ? "" : (string)ViewBag.ReturnUrl)
+        <div class="col-md-5 col-xs-12 col-md-offset-3" style="margin-bottom: 10px;">
+            <div class="col-md-3 text-left">
+                <i class="fa fa-user fa-2x" style="color:white;"></i>
+            </div>
+            <div class="col-md-9">
+                <input type="text" id="UserName" name="UserName" class="form-control text-center text-left LoginText" />
+            </div>
+        </div>
+        <div class="col-md-5 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
+            <div class="col-md-3 text-left">
+                <i class="fa fa-key fa-2x" style="color:white;"></i>
+            </div>
+            <div class="col-md-9">
+                <input type="password" id="Password" name="Password" class="form-control text-center text-left LoginText" />
+            </div>
+        </div>
+        <div class="col-md-5 col-xs-12 col-md-offset-3">
+            <div class="col-md-3 col-md-offset-6">
+                <button type="submit" class="btn btn-default">ورود</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+@*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*@
+@*############################################ JAVA Script #################################################*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#LoginForm #UserName").focus();
+
+
+        $("#LoginForm").submit(function (e) {
+            $("#FailLogin").css("display", "none");
+            var UserName = $("#UserName").val();
+            var Password = $("#Password").val();
+            if (UserName == "" || UserName == null || Password == "" || Password == null) {
+                $("#LoginForm #UserName").css("background-color", "#eb6a6a");
+                $("#LoginForm #Password").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+
+        $("#LoginForm #UserName").click(function () {
+            $("#FailLogin").css("display", "none");
+            $("#LoginForm #UserName").css("background-color", "transparent");
+            $("#LoginForm #Password").css("background-color", "transparent");
+        });
+
+        $("#LoginForm #Password").click(function () {
+            $("#FailLogin").css("display", "none");
+            $("#LoginForm #UserName").css("background-color", "transparent");
+            $("#LoginForm #Password").css("background-color", "transparent");
+        });
+
+        var FailLogin = '@ViewBag.FailLogin';
+        if (FailLogin != null && FailLogin != "") {
+            $("#FailLogin").css("display", "block");
+        }
+
+    });
+</script>

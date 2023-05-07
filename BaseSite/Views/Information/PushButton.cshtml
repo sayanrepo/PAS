@@ -1,0 +1,220 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Tb_PushButtons>
+@{
+    ViewBag.Title = "پوش باتون";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: Model.Count > 0 ? Model.Count : 20);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: Model.Count);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    <div id="DivDetail">
+        <div class="col-xs-6 col-md-offset-3 col-xs-offset-3" id="DivPushButton">
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_PushButton_Add))
+            {
+                @Html.Partial("Partial_ItemAdd", new ViewDataDictionary { { "topic", "پوش باتون" }, { "actionName", "AddPushButton" }, { "controllerName", "Information" } })
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row" style="padding-top:20px;">
+    <div id="DivDetail">
+        <div class="col-xs-12" id="DivAttachment">
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+            {
+                @Html.Partial("Partial_ChangeCost", new ViewDataDictionary { { "sectionId", "pushButtonList" } })
+            }
+        </div>
+    </div>
+</div>
+
+@*########################### webgrid ##########################################*@
+@{
+    var gridColumns = new List<WebGridColumn>();
+    gridColumns.Add(grid.Column("ردیف", format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex));
+
+    gridColumns.Add(grid.Column("Name", "نام پوش باتون", @<text>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
+            {
+                <span id="Name" class="display-mode">@item.Name</span>
+                <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
+            }
+            else
+            {
+                <span id="Name" class="display-mode">@item.Name</span>
+                <span id="iName" class="edit-mode">@item.Name</span>
+            }
+        </text>));
+
+    gridColumns.Add(grid.Column("Description", "شرح", @<text>
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
+            {
+                <span id="Description" class="display-mode">@item.Description</span>
+                <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
+            }
+            else
+            {
+                <span id="Description" class="display-mode">@item.Description</span>
+                <span id="iDescription" class="edit-mode">@item.Description</span>
+            }
+        </text>));
+
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+    {
+        gridColumns.Add(grid.Column("Cost", "قیمت", @<text>
+            <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
+            <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
+        </text>));
+    }
+
+    gridColumns.Add(grid.Column("ProductFactor", "ضریب", @<text> 
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
+            {
+                <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+                <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
+            }
+            else
+            {
+                <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+                <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
+            }
+    </text>));
+
+    gridColumns.Add(grid.Column("Available", "موجود", @<text> 
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+            {
+                @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+                @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
+            }
+            else
+            {
+                @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+                @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
+            }
+    </text>));
+           
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_PushButton_Edit))
+        {
+            gridColumns.Add(grid.Column("Edit", "ویرایش", @<text>
+                <button class="btn btn-primary edit-item display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
+                <button class="btn btn-success save-item edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
+            </text>));
+        }
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_PushButton_Delete))
+        {
+            gridColumns.Add(grid.Column("Delete", "حذف", @<text>
+                <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#PushButtonDeleteModal" name="PushButtonDelete" id="@item.Id">حذف</button>
+            </text>));
+        }
+}
+
+<div class="row DivList" id="pushButtonList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+                @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+                headerStyle: "tblGridHeader",
+                mode: WebGridPagerModes.All,
+                firstText: " اولین ",
+                previousText: " قبلی ",
+                nextText: " بعدی ",
+                lastText: " آخرین ",
+                columns: grid.Columns(gridColumns.ToArray()))
+        </div>
+    </div>
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="PushButtonDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف پوش باتون</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف پوش باتون مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeletePushButton", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*#################################END Delete Modal #################################################*@
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("Li#PrimaryInfo").css("background-color", "#524d4d");
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+
+        //تغییر رنگ بکگراند شهرها و اشخاص
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[5];
+        if (LinkHref == "Index" || LinkHref == null || LinkHref == "") {
+            $("a[ID='PushButton']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+
+        ////////////////////// PushButton //////////////////
+        $("button[name=PushButtonDelete]").click(function () {
+            var id = $(this).prop('id');
+            if (id != null && id != "") {
+                $('#PushButtonDeleteModal #ItemId').val(id);
+            }
+        });
+
+        $('.edit-mode').hide();
+        $('.edit-item').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+        });
+        $('.save-item').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            var itemId = $(this).prop('id');
+            var name = tr.find('#iName').val();
+            var description = tr.find('#iDescription').val();
+            var cost = tr.find('#iCost').val();
+            var productFactor = tr.find('#iProductFactor').val();
+            var available = tr.find('#iAvailable').prop("checked");
+
+            $.ajax({
+                url: "@Url.Action("EditPushButton", "Information")",
+                type: "Post",
+                dataType: "json",
+                data: { ItemId: itemId, ItemName: name, ItemDescription: description, ItemCost: cost, ItemProductFactor: productFactor, ItemAvailable: available },
+                success: function (data) {
+                    tr.find('#Name').text(data.Name);
+                    tr.find('#Description').text(data.Description);
+                    tr.find('#Cost').autoNumeric('set', data.Cost);
+                    tr.find('#ProductFactor').text(data.ProductFactor);
+                    tr.find('#Available').prop("checked", data.Available);
+
+                    tr.find('.edit-mode, .display-mode').toggle();
+                }
+            });
+        });
+    });
+</script>

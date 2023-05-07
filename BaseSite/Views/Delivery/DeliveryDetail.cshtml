@@ -1,0 +1,652 @@
+﻿@model BaseSite.Models.DBModel.Delivery_Delivery
+@using System.Globalization
+@{
+    ViewBag.Title = "تحویل کالا";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    ViewBag.index = 0;
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+    //var name = this.ViewContext.ViewData.ModelMetadata.PropertyName;
+    //var value = Model.HasValue ? toPersianDate(Model.Value) : string.Empty;
+}
+
+<link href="@Url.Content("~/Contents/css/MyStyle/PrintPA4.css")" rel="stylesheet">
+
+<div class="row" id="dvContents">
+    @using (Html.BeginForm("DeliveryDetail", "Delivery", FormMethod.Post))
+    {
+        <div class="panel-group">
+
+            @*#################################### TopPart ####################################*@
+            <div class="panel panel-success">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">فرم تحویل کالا</div>
+                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Print))
+                        {
+                            <div class="col-sm-offset-3 col-md-offset-3 col-sm-2 col-md-2 text-left">
+                                <a href="@Url.Action("Print", "Delivery", new { doc = "delivery", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فرم تحویل کالا"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                <a href="@Url.Action("Print", "Delivery", new { doc = "deliveryPack", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فرم محموله"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="panel-body TopPart">
+                    @Html.HiddenFor(m => m.Id)
+                    @Html.HiddenFor(m => m.OrderId)
+                    @Html.HiddenFor(m => m.SaleId)
+                    @Html.HiddenFor(m => m.DocNumber)
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>شماره حواله خروج کالا: </b>@Model.DocNumber</p>
+                        </div>
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">وضعیت</span>
+                                @Html.DropDownListFor(m => m.StatusId, (ViewBag.DeliveryStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "DeliveryStatus" })
+                            </div>
+                        </div>
+                        <div class="col-md-offset-2 col-sm-offset-2 col-md-2 col-sm-2 col-xs-6">
+                            <p><b>تاریخ: </b>@Model.ShDate</p>
+                        </div>
+                        @*<div class="col-md-2 col-sm-2 col-xs-6">
+                            <p><b>ساعت: </b>@Model.Date.Value.ToShortTimeString()</p>
+                        </div>*@
+                    </div>
+                    <hr style="color:black; border-top-color:black;" />
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>شماره سند: </b>@(Model.Order_Order != null ? Model.Order_Order.DocNumber : Model.Sale_Sale.DocNumber)</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>نام پروژه: </b>@(Model.Order_Order != null ? Model.Order_Order.ProjectName : "-")</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p>@(Model.Order_Order != null ? Model.Order_Order.FactorNumber : Model.Sale_Sale.FactorNumber)</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>فرستنده: </b>پنتا</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>تلفن: </b>26208257 - 26208251</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <p><b>فاکس: </b>26208314</p>
+                        </div>
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <p><b>آدرس: </b>تهران- بلوار آفریقا- بلوار ناهید شرقی- پلاک 14- طبقه چهارم- واحد14</p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-2 col-sm-3 col-xs-12">
+                            <p>نام هماهنگ کننده ترتیبات حمل</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">سمت فرستنده</span>
+                                @Html.TextBoxFor(m => m.SendResponsible, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "SendResponsible", @readonly = "readonly" } : (object)new { @Class = "form-control text-center MyControl", @Id = "SendResponsible", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">سمت گیرنده</span>
+                                @Html.TextBoxFor(m => m.RecieveResponsible, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "RecieveResponsible", @readonly = "readonly" } : (object)new { @Class = "form-control text-center MyControl", @Id = "RecieveResponsible", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-2 col-sm-3 col-xs-12">
+                            <p>وضعیت بسته بندی</p>
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">نوع بسته بندی</span>
+                                @if (Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode)
+                                {
+                                    <select name="PackTypeId" class="form-control MyControl" disabled>
+                                        @foreach (var item in BaseSite.Models.Cache.PackTypes)
+                                        {
+                                            if (item.Key == Model.PackTypeId)
+                                            {
+                                                <option selected="selected" value="@item.Key">@item.Value</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Key">@item.Value</option>
+                                            }
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    <select name="PackTypeId" class="form-control MyControl">
+                                        @foreach (var item in BaseSite.Models.Cache.PackTypes)
+                                        {
+                                            if (item.Key == Model.PackTypeId)
+                                            {
+                                                <option selected="selected" value="@item.Key">@item.Value</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@item.Key">@item.Value</option>
+                                            }
+                                        }
+                                    </select>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;margin-bottom:30px;">
+                        <div class="col-md-12 col-sm-12 col-xs-12" style="display: table;">
+                            <div style="display: table-row">
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>انتخاب</b></p>
+                                </div>
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>شرح کالا</b></p>
+                                </div>
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>تعداد</b></p>
+                                </div>
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>توضیحات</b></p>
+                                </div>
+                            </div>
+                            @for (int i = 0; i < Model.Items.Count; i++)
+                            {
+                                ViewBag.index++;
+
+                                <div style="display: table-row">
+                                    @Html.HiddenFor(m => m.Items.ElementAt(i).Type, new { @Name = "Items[" + i.ToString() + "].Type" })
+                                    @Html.HiddenFor(m => m.Items.ElementAt(i).Id, new { @Name = "Items[" + i.ToString() + "].Id" })
+                                    <div class="boxBottom text-center" style="display: table-cell;">
+                                        <p> @Html.CheckBoxFor(m => m.Items.ElementAt(i).Checked, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Name = "Items[" + i.ToString() + "].Checked", disabled = "disabled" } : (object)new { @Name = "Items[" + i.ToString() + "].Checked" })</p>
+                                    </div>
+                                    <div class="boxBottom text-right" style="display: table-cell;">
+                                        <p> @Model.Items.ElementAt(i).Name</p>
+                                    </div>
+                                    <div class="boxBottom text-center" style="display: table-cell;">
+                                        <p> @Model.Items.ElementAt(i).Count</p>
+                                    </div>
+                                    <div class="boxBottom text-center" style="display: table-cell;">
+                                        @Html.TextBoxFor(m => m.Items.ElementAt(i).Comment, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Name = "Items[" + i.ToString() + "].Comment", @Class = "text-center MyControl", disabled = "disabled", Style = "width:97%;" } : (object)new { @Name = "Items[" + i.ToString() + "].Comment", @Class = "text-center MyControl", Style = "width:97%;", @Lang = "fa-IR" })
+                                        @*<p> @Model.Items.ElementAt(i).Comment</p>*@
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding-top:15px; margin-bottom:10px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="row" style="margin-bottom:10px;">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">نام شرکت تحویل گیرنده کالا</span>
+                                        @Html.TextBoxFor(m => m.RecieverName, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverName", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverName", @Lang = "fa-IR" })
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">تلفن&nbsp;&nbsp;</span>
+                                        @Html.TextBoxFor(m => m.RecieverPhone, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverPhone", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverName" })
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">موبایل&nbsp;&nbsp;</span>
+                                        @Html.TextBoxFor(m => m.RecieverMobile, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverMobile", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "RecieverMobile" })
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label>محل تحویل کالا:&nbsp;&nbsp;&nbsp;</label>
+                                    @if (Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.TayidShode)
+                                    {
+                                        if (Model.DestinationType == 1)
+                                        {
+                                            <input type="radio" name="DestinationType" value="1" checked disabled> @("محل مشتری")
+                                            <input type="radio" name="DestinationType" value="2" disabled style="margin-right:10px;"> @("محل پروژه")<br />
+                                        }
+                                        else
+                                        {
+                                            <input type="radio" name="DestinationType" value="1" disabled> @("محل مشتری")
+                                            <input type="radio" name="DestinationType" value="2" checked disabled style="margin-right:10px;"> @("محل پروژه")<br />
+                                        }
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">آدرس دقیق محل تحویل کالا</span>
+                                            <textarea readonly rows="4" cols="50" name="DestinationAddress" id="DestinationAddress" class="form-control MyControl" style="padding:10px; resize:vertical;" Lang="fa-IR">@Model.DestinationAddress</textarea>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        if (Model.DestinationType == 1)
+                                        {
+                                            <input type="radio" name="DestinationType" value="1" checked onchange="destinationChange(1);"> @("محل مشتری")
+                                            <input type="radio" name="DestinationType" value="2" onchange="destinationChange(2);" style="margin-right:10px;"> @("محل پروژه")<br />
+                                        }
+                                        else
+                                        {
+                                            <input type="radio" name="DestinationType" value="1" onchange="destinationChange(1);"> @("محل مشتری")
+                                            <input type="radio" name="DestinationType" value="2" checked onchange="destinationChange(2);" style="margin-right:10px;"> @("محل پروژه")<br />
+                                        }
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">آدرس دقیق محل تحویل کالا</span>
+                                            <textarea rows="4" cols="50" name="DestinationAddress" id="DestinationAddress" class="form-control MyControl" style="padding:10px; resize:vertical;">@Model.DestinationAddress</textarea>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="row">
+                                @if (Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode)
+                                {
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">ارسال به</span>
+                                            <select name="DeliveryLocationId" class="form-control MyControl" disabled>
+                                                @foreach (var item in BaseSite.Models.Cache.Delivery_DeliveryLocations)
+                                                {
+                                                    if (item.Key == Model.DeliveryLocationId)
+                                                    {
+                                                        <option selected="selected" value="@item.Key">@item.Value</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item.Key">@item.Value</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">حمل توسط</span>
+                                            <select name="VehicleTypeId" class="form-control MyControl" disabled>
+                                                @foreach (var item in BaseSite.Models.Cache.Delivery_VehicleTypes)
+                                                {
+                                                    if (item.Key == Model.VehicleTypeId)
+                                                    {
+                                                        <option selected="selected" value="@item.Key">@item.Value</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item.Key">@item.Value</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">ارسال به</span>
+                                            <select name="DeliveryLocationId" class="form-control MyControl">
+                                                @foreach (var item in BaseSite.Models.Cache.Delivery_DeliveryLocations)
+                                                {
+                                                    if (item.Key == Model.DeliveryLocationId)
+                                                    {
+                                                        <option selected="selected" value="@item.Key">@item.Value</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item.Key">@item.Value</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <div class="input-group">
+                                            <span class="input-group-addon MySpan">حمل توسط</span>
+                                            <select name="VehicleTypeId" class="form-control MyControl">
+                                                @foreach (var item in BaseSite.Models.Cache.Delivery_VehicleTypes)
+                                                {
+                                                    if (item.Key == Model.VehicleTypeId)
+                                                    {
+                                                        <option selected="selected" value="@item.Key">@item.Value</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@item.Key">@item.Value</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                }
+
+                                @*<div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">پیک/آژانس</span>
+                                        @Html.TextBoxFor(m => m.CarierAgencyName, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "CarierAgencyName", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "CarierAgencyName" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">قبض آژانس</span>
+                                        @Html.TextBoxFor(m => m.CarierAgencyBill, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "CarierAgencyBill", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "CarierAgencyBill" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">شماره ماشین</span>
+                                        @Html.TextBoxFor(m => m.VehiclePlaque, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "VehiclePlaque", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "VehiclePlaque" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">راننده</span>
+                                        @Html.TextBoxFor(m => m.DriverName, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "DriverName", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "DriverName" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">تلفن راننده</span>
+                                        @Html.TextBoxFor(m => m.DriverPhone, Model.StatusId >= (byte)BaseSite.Models.DeliveryStatus.ErsalShode ? (object)new { @Class = "form-control text-center MyControl", @Id = "DriverPhone", disabled = "disabled" } : (object)new { @Class = "form-control text-center MyControl", @Id = "DriverPhone" })
+                                    </div>
+                                </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*################################## Submit Button ###################################*@
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            @if (Model.StatusId < (byte)BaseSite.Models.DeliveryStatus.ErsalShode && 
+                (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Add) || BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Confirm)))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+            }
+        </div>
+        @*###################################### end of body ###############################*@
+    }
+</div>
+
+<script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+<script type="text/javascript">
+    function destinationChange(type)
+    {
+        if(type==1)
+        {
+            $("#DestinationAddress").val('@ViewBag.CustomerAddress');
+        }
+        else if(type==2)
+        {
+            $("#DestinationAddress").val('@ViewBag.ProjectAddress');
+        }
+    }
+
+    $(document).ready(function () {
+        $("#Customer").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteUsers", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CustomerId").val(ui.item.id);
+            },
+            minLength: 1
+        });
+
+
+        $("#CabinPanel").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteCabinPanels", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CabinPanelId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+
+        $("#CabinPushButton").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompletePushButtons", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CabinPushButtonId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+
+        $("#CabinMonitor").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteMonitors", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CabinMonitorId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+
+        $("#CabinSurfaceMetal").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteCabinSurfaceMetals", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CabinSurfaceMetalId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+
+        $("#HallPanel").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteHallPanels", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#HallPanelId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+
+        $("#HallPushButton").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompletePushButtons", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#HallPushButtonId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                  .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                  .appendTo(ul);
+            };
+
+
+        $("#HallMonitor").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteMonitors", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#HallMonitorId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                  .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                  .appendTo(ul);
+            };
+
+
+        $("#HallSurfaceMetal").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteHallSurfaceMetals", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#HallSurfaceMetalId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+            .autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                  .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+                  .appendTo(ul);
+            };
+
+
+        $("#DoorTopPanel").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteDoorTopPanels", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, desc: item.Cost };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#DoorTopPanelId").val(ui.item.id);
+            },
+            minLength: 0
+        })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+              .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.desc + "</td></tr></table>")
+              .appendTo(ul);
+        };
+
+    })
+</script>

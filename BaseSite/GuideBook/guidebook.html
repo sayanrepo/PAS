@@ -1,0 +1,1079 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+<title>Panta</title><link href='../guidebook/themes/middle-east-night.css' rel='stylesheet' type='text/css' /><link href='../guidebook/themes/middle-east/code-3024-day.css' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color:#ffffff; --text-color:#333333; --select-text-bg-color:#B5D6FC; --select-text-font-color:auto; --monospace:"Lucida Console",Consolas,"Courier",monospace; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0px; padding: 0px; height: auto; bottom: 0px; top: 0px; left: 0px; right: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; tab-size: 4; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 40px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+  .CodeMirror-sizer { margin-left: 0px !important; }
+  .CodeMirror-gutters { display: none !important; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 2; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px !important; }
+tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-diagram-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; }
+  #write { margin-top: 0px; padding-top: 0px; border-color: transparent !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  html.blink-to-pdf { font-size: 13px; }
+  .typora-export #write { padding-left: 32px; padding-right: 32px; padding-bottom: 0px; break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.8; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.md-inline-math .MathJax_SVG .noError { display: none !important; }
+.html-for-mac .inline-math-svg .MathJax_SVG { vertical-align: 0.2px; }
+.md-math-block .MathJax_SVG_Display { text-align: center; margin: 0px; position: relative; text-indent: 0px; max-width: none; max-height: none; min-height: 0px; min-width: 100%; width: auto; overflow-y: hidden; display: block !important; }
+.MathJax_SVG_Display, .md-inline-math .MathJax_SVG_Display { width: auto; margin: inherit; display: inline-block !important; }
+.MathJax_SVG .MJX-monospace { font-family: var(--monospace); }
+.MathJax_SVG .MJX-sans-serif { font-family: sans-serif; }
+.MathJax_SVG { display: inline; font-style: normal; font-weight: 400; line-height: normal; zoom: 90%; text-indent: 0px; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0px; min-height: 0px; border: 0px; padding: 0px; margin: 0px; }
+.MathJax_SVG * { transition: none 0s ease 0s; }
+.MathJax_SVG_Display svg { vertical-align: middle !important; margin-bottom: 0px !important; margin-top: 0px !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+svg[id^="mermaidChart"] { line-height: 1em; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+mark .md-meta { color: rgb(0, 0, 0); opacity: 0.3 !important; }
+
+
+/* Theme adapted from https://codemirror.net/theme/dracula.css */
+/*
+    Name:       dracula
+    Author:     Michael Kaminsky (http://github.com/mkaminsky11)
+
+    Original dracula color scheme by Zeno Rocha (https://github.com/zenorocha/dracula-theme)
+*/
+
+.cm-s-inner {
+  padding: 0.5rem 0.2rem;
+  border: 1px solid var(--accent-color) !important;
+  border-radius: 0.25rem;
+}
+
+.cm-s-inner.CodeMirror, .cm-s-inner .CodeMirror-gutters {
+  background-color: #282a36 !important;
+  color: #f8f8f2 !important;
+  border: none;
+}
+
+.cm-s-inner .CodeMirror-gutters {
+  width: 5ch;
+  color: #282a36;
+}
+.cm-s-inner .CodeMirror-cursor { border-left: solid thin #f8f8f2 !important; }
+.cm-s-inner .CodeMirror-linenumber {
+  width: 4ch !important;
+  color: #6D8A88;
+}
+
+.cm-s-inner .CodeMirror-line::selection,
+.cm-s-inner .CodeMirror-line > span::selection,
+.cm-s-inner .CodeMirror-line > span > span::selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-inner .CodeMirror-line::-moz-selection,
+.cm-s-inner .CodeMirror-line > span::-moz-selection,
+.cm-s-inner .CodeMirror-line > span > span::-moz-selection { background: rgba(255, 255, 255, 0.10); }
+.cm-s-inner span.cm-comment { color: #6272a4; }
+.cm-s-inner span.cm-string, .cm-s-inner span.cm-string-2 { color: #f1fa8c; }
+.cm-s-inner span.cm-number { color: #bd93f9; }
+.cm-s-inner span.cm-variable, .cm-s-inner span.cm-variable-2 { color: #50fa7b; }
+.cm-s-inner span.cm-def { color: white; }
+.cm-s-inner span.cm-operator { color: #ff79c6; }
+.cm-s-inner span.cm-keyword { color: #ff79c6; }
+.cm-s-inner span.cm-atom { color: #bd93f9; }
+.cm-s-inner span.cm-meta { color: #f8f8f2; }
+.cm-s-inner span.cm-tag { color: #ff79c6; }
+.cm-s-inner span.cm-attribute { color: #50fa7b; }
+.cm-s-inner span.cm-qualifier { color: #50fa7b; }
+.cm-s-inner span.cm-property { color: #66d9ef; }
+.cm-s-inner span.cm-builtin { color: #50fa7b; }
+.cm-s-inner span.cm-variable-3, .cm-s-inner span.cm-type { color: #ffb86c; }
+
+.cm-s-inner .CodeMirror-activeline-background { background: rgba(255,255,255,0.1); }
+.cm-s-inner .CodeMirror-matchingbracket {
+  text-decoration: underline;
+  color: white !important;
+}
+.CodeMirror-selectedtext, .CodeMirror-selected {
+  background: #313746 !important;
+  text-shadow: none;
+}
+/* 
+  Middle East - Night
+  Typora RTL theme
+  design: isapanah.com
+  date: 2019
+  version: 1.1
+*/
+
+@import url("../guidebook/themes/");
+
+/*
+  Vazir provided by Rastikerdar
+  Downloaded from `https://github.com/rastikerdar/vazir-font`
+*/
+/*
+	Cousine provided by Steve Matteson from Google Fonts
+	Downloaded from `https://fonts.google.com/specimen/Cousine`
+*/
+/** ROOT VARIABLES **/
+
+:root {
+  --bg-color: #1e2022; /* change background */
+  --text-color: #dddddd; /* change text color */
+  --md-char-color: #5b5b5b; /* change color of meta characetrs like `*` in markdown */
+  --meta-content-color: #757575; /* change color of meta contents like image text or link address in markdown */
+  --link-color: #6bcafb; /* change color of hyperlinks */
+
+  --primary-color: #428bca; /* primary color */
+  --primary-btn-border-color: #285e8e; /* primary color for buttons */
+  --primary-btn-text-color: #fff; /* primary text color for buttons */
+  --accent-color: #3c3c3c; /* background accent color */
+
+  --window-border: 1px solid #16161a; /* border for sidebar, etc*/
+
+  --active-file-bg-color: #16161a; /* background color if list item in file tree or file list*/
+  --active-file-text-color: inherit; /* text color for selected file */
+  --active-file-border-color: #777; /* border color for selected file */
+  --active-search-item-bg-color: #212121; /* background color for active search item */
+
+  --side-bar-bg-color: #2b2b2b; /* change background of sidebar*/
+  --item-hover-bg-color: var(--bg-color); /* background of control items when hover, like menu in sidebar*/
+  --item-hover-text-color: white; /* text color upon hovering over menu items */
+  --search-hit-bg-color: #428bca40;
+  --search-select-text-color: var(--text-color); /* Text color for selected searched text */
+  --search-select-bg-color: #428bca90; /* Background color for selected searched text */
+  --rawblock-edit-panel-bd: var(--accent-color); /* Background color for inline HTML "edit panel" blocks */
+  --monospace: "Cousine"; /* monospace font for codes, fences */
+
+  --megamenu-bg-color: var(--side-bar-bg-color); /* background color for unibody megamenu */
+  --megamenu-sidebar-bg-color: var(--bg-color); /* background color for megamenu sidebar */
+  --megamenu-sidebar-hover-bg-color: #161819; /* background color for hovering megamenu sidebar items */
+  --megamenu-sidebar-active-bg-color: #101010; /* background color for active megamenu sidebar items */
+  --megamenu-button-border-color: #9292928f; /* background color for megamenu buttons */
+  --megamenu-item-hover-bg-color: var(--bg-color); /* background color for hovering megamenu items */
+  --megamenu-item-hover-text-color: white; /* text color for hovering megamenu items */
+}
+
+/** TAGS **/
+
+html,
+body {
+  font-family: "Vazir", "Lato", sans-serif;
+}
+
+body {
+  font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6, p, a, del, mark, #write p, #write a, #write del, #write mark, #write ul, #write li, #write ol,
+#write table, #write tr, #write td, table, tr, td {
+  direction: rtl;
+}
+
+.outline-item{
+  direction: rtl;
+}
+.outline-h2, .outline-h3, .outline-h4,
+ .outline-h5, .outline-h6 {
+  margin-right: 10px !important;
+}
+
+#md-notification, #md-notification *{
+  direction: ltr;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Vazir-Bold";
+}
+
+h1 {
+  font-size: 1.8rem;
+  margin: 1rem 0;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 0.7rem 0;
+}
+
+h3 {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+h4 {
+  font-size: 1.1rem;
+  margin: 0.2rem 0;
+}
+
+h5 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+h6 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
+a {
+  color: var(--link-color);
+}
+
+del {
+  color: var(--md-char-color);
+}
+
+mark {
+  padding: 2px 1px;
+  background: #fee405;
+}
+
+/* Writing area -> line height */
+#write {
+	line-height: 1.6;
+}
+
+/* Custom list-style */
+#write ol,
+#write ul {
+  padding-left: 2rem;
+  margin: 0.5rem 0;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+#write ul {
+  list-style-type: disc;
+}
+
+#write ol > li,
+#write ul > li {
+  color: var(--primary-color);
+  padding-left: 0.25em;
+}
+
+#write ol li > *,
+#write ul li > * {
+  color: var(--text-color);
+}
+
+#write .md-task-list-item {
+  transition: all 0.3s;
+}
+
+#write .md-task-list-item > input {
+  -webkit-appearance: initial;
+  display: block;
+  position: absolute;
+  border: 1px solid var(--md-char-color);
+  border-radius: 0.25rem;
+  margin-top: 0.1rem;
+  margin-right: -1.8rem;
+  height: 1.2rem;
+  width: 1.2rem;
+  transition: background 0.4s;
+  right: 0;
+}
+
+#write .md-task-list-item > input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#write .md-task-list-item > input:hover {
+  background: var(--accent-color);
+}
+
+#write .md-task-list-item.task-list-done > p {
+  color: var(--md-char-color);
+  text-decoration: line-through;
+}
+
+#write .md-task-list-item > input[checked]::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  height: 60%;
+  width: 2px;
+  transform: rotate(40deg);
+  background: var(--text-color);
+}
+
+#write .md-task-list-item > input[checked]::after {
+  content: "";
+  position: absolute;
+  top: 46%;
+  left: 25%;
+  height: 30%;
+  width: 2px;
+  transform: rotate(-40deg);
+  background: var(--text-color);
+}
+
+blockquote {
+  margin: 1rem 0rem 1rem 0;
+  font-family: "Vazir-Bold";
+}
+
+blockquote p::before {
+  content: "";
+  position: absolute;
+  right: -2rem;
+  height: 100%;
+  width: 0.25rem;
+  background: var(--primary-color);
+}
+
+blockquote p:not(:last-child):before {
+  height: calc(100% + 1rem);
+}
+
+code,
+.md-fences,
+tt {
+  font-family: "Cousine", monospace;
+  font-size: 1rem;
+}
+
+code {
+  border: 1px solid var(--accent-color);
+  border-radius: 0.25rem;
+  padding: 0 0.125rem;
+}
+
+/* Code auto-suggest list menu */
+#fences-auto-suggest .active {
+  background: var(--accent-color);
+}
+
+hr {
+  border-color: var(--md-char-color);
+}
+
+/* YAML */
+pre.md-meta-block {
+  background-color: transparent;
+  border-bottom: 1px solid var(--md-char-color);
+  padding-bottom: 1rem;
+  opacity: 0.8;
+}
+
+/* Tables */
+table {
+  border: 1px solid var(--md-char-color);
+  margin: 1rem 0;
+}
+
+thead {
+  background: #4d4d4d;
+}
+
+table tr:nth-child(2n) {
+  background: var(--accent-color);
+}
+
+td,
+th {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--md-char-color);
+}
+
+/* Table toolbar */
+.md-table-edit {
+  border-top: 1px solid var(--meta-content-color);
+  margin-top: -29px !important;
+  padding: 3px 0;
+}
+
+/* Table drag areas */
+.typora-table-drag-area::after {
+  content: "";
+  position: absolute;
+  border: 2px solid var(--text-color);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+#typora-table-row-tracker .typora-table-drag-area::after {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 100%;
+}
+
+#typora-table-col-tracker .typora-table-drag-area::after {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 0;
+}
+
+#typora-table-row-tracker .typora-table-drag-area:hover::after,
+#typora-table-col-tracker .typora-table-drag-area:hover::after {
+  opacity: 1;
+}
+
+/* Table of contents */
+.md-toc-tooltip {
+  z-index: 10;
+}
+
+span.md-toc-item {
+  font-size: 1.1rem;
+  color: var(--primary-btn-border-color);
+}
+
+span.md-toc-h1 {
+  font-family: "Vazir-Bold";
+  font-size: 1.3rem;
+}
+
+span.md-toc-h2 {
+  font-size: 1.2rem;
+}
+
+/* Footnote */
+sup.md-footnote {
+  font-family: "Vazir-Bold";
+  font-size: 0.8rem;
+  padding: 0 4px;
+}
+
+span.md-def-split {
+  min-width: 1ch;
+}
+
+.md-def-name::before,
+.md-def-name::after {
+  color: var(--meta-content-color);
+}
+
+/* Writing area */
+#write {
+  width: 90%;
+  max-width: 700px;
+}
+
+/* Fill whole width of container */
+#write h1,
+#write h2,
+#write h3,
+#write h4,
+#write h5,
+#write h6,
+#write p,
+#write pre {
+  width: auto;
+}
+
+/* Header prefix symbol */
+/* Disable default header symbol */
+#write h3.md-focus::before,
+#write h4.md-focus::before,
+#write h5.md-focus::before,
+#write h6.md-focus::before {
+  border: none;
+  border-radius: 0;
+  left: auto;
+  float: none;
+  padding: 0;
+  vertical-align: baseline;
+  line-height: 20px;
+}
+
+#write h1::before,
+#write h2::before,
+#write h3::before,
+#write h4::before,
+#write h5::before,
+#write h6::before {
+  position: absolute;
+  top: 0;
+  right: calc(100% + 10px);
+  color: var(--md-char-color);
+  font-size: 1rem;
+  font-weight: bold;
+  font-variant: "small-caps";
+}
+
+#write h1::before {
+  content: "H1";
+  top: 0.7rem;
+}
+
+#write h2::before {
+  content: "H2";
+  top: 0.37rem;
+}
+
+#write h3::before {
+  content: "H3";
+  top: 0.15rem;
+}
+
+#write h4::before {
+  content: "H4";
+}
+
+#write h5::before {
+  content: "H5";
+}
+
+#write h6::before {
+  content: "H6";
+}
+
+/* Image meta text */
+#write .md-image > .md-meta {
+  color: var(--meta-content-color);
+}
+
+/* Inline styles */
+.md-rawblock-tooltip {
+  top: -1.5rem;
+  height: 1.5rem;
+  padding: 0.25rem;
+}
+
+/* Search results */
+.md-search-hit {
+  background: var(--search-hit-bg-color);
+  border-radius: 0.125em;
+}
+
+.md-search-select {
+  background: var(--search-select-bg-color);
+  border: 1px solid var(--megamenu-button-border-color);
+  padding: 0 1px;
+}
+
+/* Focus mode */
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) *,
+.on-focus-mode pre.md-end-block:not(.md-focus):not(.md-focus-container) {
+  color: var(--md-char-color) !important;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) img,
+.on-focus-mode
+  blockquote
+  .md-end-block:not(.md-focus):not(.md-focus-container)::before,
+.on-focus-mode li:not(.md-focus-container)::before {
+  opacity: 0.5;
+}
+
+.on-focus-mode .md-end-block:not(.md-focus):not(.md-focus-container) mark {
+  background: var(--accent-color);
+}
+
+/* UI Sidebar */
+#typora-sidebar {
+  border-right: 1px solid #19191c;
+}
+
+.sidebar-tabs {
+  font-family: "Vazir-Bold";
+  border-bottom: 1px solid black;
+}
+
+.file-list-item-file-name {
+  font-family: "Vazir-Bold";
+  font-size: 1.2rem;
+}
+
+input.file-list-item-file-name, input.file-tree-rename-input {
+  background: var(--side-bar-bg-color);
+}
+
+#file-library-search .file-list-item-file-name {
+  font-size: 1.1rem;
+}
+
+#file-library-search .ty-search-item.active {
+  background: var(--active-search-item-bg-color);
+}
+
+#file-library-search-input {
+  background: var(--side-bar-bg-color);
+}
+
+.file-list-item-summary,
+.ty-search-item-line {
+  font-family: "Vazir", "Lato", sans-serif;
+}
+
+.ty-file-search-match-text,
+.ty-outline-hit {
+  font-weight: bold;
+  background: transparent;
+}
+
+#outline-content {
+  line-height: 1.4em;
+}
+
+#outline-content .outline-h1 > .outline-item {
+  font-family: "Vazir-Bold";
+}
+
+.file-library-node,
+.file-library-node .file-node-background {
+  transition: background 0.4s;
+}
+
+.file-tree-node.file-library-file-node:not(.active):hover .file-node-background,
+.file-list-item.file-library-node:not(.active):hover {
+  background: var(--item-hover-bg-color);
+}
+
+.file-tree-node.file-library-file-node.active .file-node-background,
+.file-list-item.file-library-file-node.active {
+  border-left: 5px solid var(--primary-color);
+}
+
+/* Remove blinking animation when updating filename */
+.blink-area {
+  animation: none;
+}
+
+#ty-sidebar-footer {
+  border-top: 1px solid black;
+}
+
+.sidebar-footer-item {
+  transition: background 0.3s;
+}
+
+.outline-title-wrapper,
+.outline-item-wrapper.outline-h1 > .outline-item {
+  font-family: "Vazir-Bold";
+  font-weight: bold;
+}
+
+/* Windows-specific */
+/* Context and dropdown menus */
+ul.dropdown-menu li.active a,
+ul.dropdown-menu li.has-extra-menu.active a,
+ul.dropdown-menu li.has-btn-submenu a.menu-style-btn.active,
+#footer-word-count-info .ty-footer-word-count-all tr:hover,
+#ty-spell-check-dict-missing-menu li:hover,
+.ty-spell-check-panel-item.ty-active,
+.ty-spell-check-panel-item:hover {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+}
+
+/* Windows Unibody */
+footer.ty-footer {
+  border-top: 0;
+}
+
+.footer-item:hover {
+  background: var(--text-color) !important;
+  color: var(--bg-color) !important;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 2px var(--primary-color);
+}
+
+/* Windows Unibody megamenu */
+.megamenu-opened header {
+  background-image: none;
+}
+
+#top-titlebar, #top-titlebar * {
+  color: inherit;
+}
+
+#megamenu-content {
+  padding-top: 28px;
+  background: var(--megamenu-bg-color);
+  color: var(--text-color);
+}
+
+.megamenu-menu-panel:not(:first-of-type) {
+  margin-top: 48px;
+}
+
+#megamenu-content .long-btn {
+  border-color: var(--megamenu-button-border-color);
+  transition: all 0.4s;
+}
+
+#megamenu-content .long-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--megamenu-item-hover-bg-color);
+  color: var(--megamenu-item-hover-text-color) !important;
+}
+
+#recent-file-panel-action-btn {
+  background: inherit;
+  border-color: var(--megamenu-button-border-color);
+  transition: all 0.4s;
+}
+
+#recent-file-panel-action-btn:hover {
+  border-color: var(--primary-color);
+  background: var(--megamenu-item-hover-bg-color);
+  color: var(--megamenu-item-hover-text-color);
+}
+
+#recent-document-table {
+  border: 1px solid var(--accent-color);
+}
+
+#recent-file-panel tbody tr:nth-child(2n-1) {
+  background-color: inherit;
+}
+
+#recent-file-panel tbody tr:hover {
+  background-color: var(--megamenu-item-hover-bg-color) !important;
+}
+
+#recent-file-panel tbody tr:hover td:nth-child(1) {
+  color: var(--megamenu-item-hover-text-color);
+}
+
+/* Windows Unibody sidebar */
+#megamenu-menu-sidebar {
+  background: var(--megamenu-sidebar-bg-color);
+  color: var(--text-color);
+}
+
+.megamenu-menu-header, .megamenu-menu-list li:not(.saved) a {
+  transition: all 0.4s;
+}
+
+.megamenu-menu-header {
+  border-bottom: var(--window-border);
+}
+
+.megamenu-menu-header:hover, .megamenu-menu-list li:not(.saved) a:not(.active):hover {
+  background: var(--megamenu-sidebar-hover-bg-color);
+}
+
+.megamenu-menu-list li a.active {
+  background: var(--megamenu-sidebar-active-bg-color) !important;
+}
+
+#m-saved {
+  background: inherit;
+  color: inherit;
+}
+
+#megamenu-menu-list {
+  margin: 0;
+}
+
+.theme-preview-div {
+  transition: all 0.4s;
+}
+
+.theme-preview-div:hover {
+  border: 4px solid var(--primary-btn-border-color);
+}
+
+.theme-preview-div.active, .theme-preview-div.active:hover {
+  border: 4px solid var(--primary-color);
+}
+
+.theme-preview-div.active i {
+  color: var(--primary-color);
+}
+
+/* Source Code */
+.cm-s-typora-default .cm-s-inner.CodeMirror-line {
+  border: 0 !important;
+}
+
+/* Print/PDF */
+@media print {
+  #write ol > li,
+  #write ul > li {
+    color: var(--text-color);
+  }
+  #write h1::before, #write h2::before, #write h3::before,
+  #write h4::before, #write h5::before, #write h6::before {
+    display: none;
+  }
+}
+
+/* Theme adapted from https.//codemirror.net/theme/3024-day.css */
+/*
+
+    Name:       3024 day
+    Author:     Jan T. Sott (http://github.com/idleberg)
+
+    CodeMirror template by Jan T. Sott (https://github.com/idleberg/base16-codemirror)
+    Original Base16 color scheme by Chris Kempson (https://github.com/chriskempson/base16)
+
+*/
+
+.cm-s-inner.CodeMirror, .cm-s-inner .CodeMirror-gutters {
+  background: #f7f7f7 !important;
+  color: #3a3432 !important;
+}
+
+.cm-s-inner .CodeMirror-cursor {
+  border-left: solid thin #3a3432 !important;
+}
+
+.cm-s-inner .CodeMirror-line::selection, .cm-s-inner .CodeMirror-line > span::selection, .cm-s-inner .CodeMirror-line > span > span::selection { background: #d6d5d4; }
+.cm-s-inner .CodeMirror-line::-moz-selection, .cm-s-inner .CodeMirror-line > span::-moz-selection, .cm-s-inner .CodeMirror-line > span > span::selection { background: #d9d9d9; }
+
+.cm-s-inner .CodeMirror-gutters { background: #f7f7f7; border-right: 0px; }
+.cm-s-inner .CodeMirror-guttermarker { color: #db2d20; }
+.cm-s-inner .CodeMirror-guttermarker-subtle { color: #807d7c; }
+.cm-s-inner .CodeMirror-linenumber { color: #807d7c; }
+
+.cm-s-inner .CodeMirror-cursor { border-left: 1px solid #5c5855; }
+
+.cm-s-inner span.cm-comment { color: #cdab53; }
+.cm-s-inner span.cm-atom { color: #a16a94; }
+.cm-s-inner span.cm-meta { color: inherit; }
+.cm-s-inner span.cm-number { color: #a16a94; }
+
+.cm-s-inner span.cm-property, .cm-s-inner span.cm-attribute { color: #01a252; }
+.cm-s-inner span.cm-keyword { color: #db2d20; }
+.cm-s-inner span.cm-string { color: #f2b01d; }
+
+.cm-s-inner span.cm-variable { color: #01a252; }
+.cm-s-inner span.cm-variable-2 { color: #01a0e4; }
+.cm-s-inner span.cm-def { color: #e8bbd0; }
+.cm-s-inner span.cm-bracket { color: #3a3432; }
+.cm-s-inner span.cm-tag { color: #db2d20; }
+.cm-s-inner span.cm-link { color: #a16a94; }
+.cm-s-inner span.cm-error { background: #db2d20; color: #5c5855; }
+
+.cm-s-inner .CodeMirror-activeline-background { background: #e8f2ff; }
+.cm-s-inner .CodeMirror-matchingbracket { text-decoration: underline; color: #a16a94 !important; }
+
+.CodeMirror-selectedtext, .CodeMirror-selected {
+  background: #f4dbdb !important;
+}
+/* 
+  Middle East - Day
+  Typora RTL theme
+  design: isapanah.com
+  date: 2019
+  version: 1.1
+*/
+
+@import url("../guidebook/themes/");
+
+/** ROOT VARIABLES **/
+:root {
+  --bg-color: #fbfbfb; /* change background */
+  --text-color: #333333; /* change text color */
+  --md-char-color: #b4b4b4; /* change color of meta characetrs like `*` in markdown */
+  --meta-content-color: #757575; /* change color of meta contents like image text or link address in markdown */
+  --link-color: #db4d52; /* change color of hyperlinks */
+
+  --primary-color: #db4d52; /* primary color */
+  --primary-btn-border-color: #be2f34; /* primary color for buttons */
+  --primary-btn-text-color: #000; /* primary text color for buttons */
+  --accent-color: #d0d0d0; /* background accent color */
+
+  --window-border: 1px solid #16161a; /* border for sidebar, etc */
+
+  --active-file-bg-color: #16161a; /* background color if list item in file tree or file list */
+  --active-file-text-color: inherit; /* text color for selected file */
+  --active-file-border-color: #777; /* border color for selected file */
+  --active-search-item-bg-color: #23242b; /* background color for active search item */
+
+  --side-bar-bg-color: #2e3235; /* change background of sidebar*/
+  --item-hover-bg-color: #202020; /* background of control items when hover, like menu in sidebar*/
+  --item-hover-text-color: white; /* text color upon hovering over menu items */
+  --search-hit-bg-color: #db4d5230;
+  --search-select-text-color: var(--text-color); /* Text color for selected searched text */
+  --search-select-bg-color: #db4d5270; /* Background color for selected searched text */
+  --rawblock-edit-panel-bd: var(--accent-color); /* Background color for inline HTML "edit panel" blocks */
+  --monospace: "Cousine"; /* monospace font for codes, fences */
+
+  --megamenu-bg-color: var(--bg-color); /* background color for unibody megamenu */
+  --megamenu-sidebar-bg-color: var(--side-bar-bg-color); /* background color for megamenu sidebar */
+  --megamenu-sidebar-hover-bg-color: #161819; /* background color for hovering megamenu sidebar items */
+  --megamenu-sidebar-active-bg-color: #101010; /* background color for active megamenu sidebar items */
+  --megamenu-button-border-color: #9292928f; /* background color for megamenu buttons */
+  --megamenu-item-hover-bg-color: #e6e6e6; /* background color for hovering megamenu items */
+  --megamenu-item-hover-text-color: #222222; /* text color for hovering megamenu items */
+}
+
+/** TAGS **/
+
+mark {
+  background: #adfe96;
+}
+
+code {
+  background: #f7f7f7;
+}
+
+/* Tables */
+thead {
+  background: #d0d0d0;
+}
+
+table tr:nth-child(2n) {
+  background: #e6e6e6;
+}
+
+/* Footnote */
+sup.md-footnote {
+  background: #dddddd;
+}
+
+/* Sidebar */
+#typora-sidebar * {
+  color: var(--bg-color);
+}
+
+/* Windows Unibody sidebar */
+#megamenu-menu-sidebar, .megamenu-menu-list li:not(.saved) a:not(.active):hover, .megamenu-menu-list li a.active {
+  color: var(--bg-color) !important;
+}
+
+
+
+</style>
+</head>
+<body class='typora-export os-windows' >
+<div  id='write'  class = 'is-node'><div style="text-align:center;font-size:34px;">راهنمای استفاده از اتوماسیون تولید و فروش پنتا</div><p>&nbsp;</p><p>&nbsp;</p><h3>فهرست مطالب</h3><div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n9"><a class="md-toc-inner" href="#1-وضعیت-سفارشات">1. وضعیت سفارشات</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n10"><a class="md-toc-inner" href="#پیش-فاکتور">پیش فاکتور</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n17"><a class="md-toc-inner" href="#در-دست-اقدام">در دست اقدام</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n21"><a class="md-toc-inner" href="#درخواست-تولید">درخواست تولید</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n34"><a class="md-toc-inner" href="#در-جریان-تولید">در جریان تولید</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n38"><a class="md-toc-inner" href="#تولید-شده">تولید شده</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n57"><a class="md-toc-inner" href="#آماده-تحویل">آماده تحویل</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n61"><a class="md-toc-inner" href="#مجوز-خروج-صادر-شده">مجوز خروج صادر شده</a></span><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n79"><a class="md-toc-inner" href="#2-تغییر-وضعیت-اضطراری">2. تغییر وضعیت اضطراری</a></span><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n97"><a class="md-toc-inner" href="#3-گزارشات">3. گزارشات</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n184"><a class="md-toc-inner" href="#صورتحساب-مشتری-خاص">صورتحساب مشتری خاص</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n114"><a class="md-toc-inner" href="#گزارش-کنترلی-فروش-روزانه">گزارش کنترلی (فروش روزانه)</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n125"><a class="md-toc-inner" href="#صورتحساب-کلی">صورتحساب کلی</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n131"><a class="md-toc-inner" href="#گزارشات-آماری">گزارشات آماری</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n139"><a class="md-toc-inner" href="#گزارشات-آماری--ریز-مصرف">گزارشات آماری- ریز مصرف</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n149"><a class="md-toc-inner" href="#سفارشات-ماهانه--تاریخ-سفارش">سفارشات ماهانه- تاریخ سفارش</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n157"><a class="md-toc-inner" href="#سفارشات-ماهانه--تاریخ-فاکتور">سفارشات ماهانه- تاریخ فاکتور</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n171"><a class="md-toc-inner" href="#وصول-فروش-ماهانه">وصول/ فروش ماهانه</a></span></p></div><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><h1><a name="1-وضعیت-سفارشات" class="md-header-anchor"></a><span>1. وضعیت سفارشات</span></h1><h2><a name="پیش-فاکتور" class="md-header-anchor"></a><span>پیش فاکتور</span></h2><p><span>هر سفارش ابتدا به صورت پیش فاکتور ثبت می شود. در این مرحله مشتری مشخصات سفارش خود را بیان می کند و قیمت نهایی توسط سیستم محاسبه شده و به اطلاع مشتری رسانده می شود.</span></p><p><span>هر یک از اعضای واحد فروش (هر یک از سطوح دسترسی واحد فروش) می تواند پیش فاکتور ثبت کند و یا پیش فاکتورهای موجود را ویرایش کند.</span></p><p><span>کسی که برای بار اول یک پیش فاکتور را ثبت می کند به عنوان </span><strong><span>&quot;سفارش گیرنده&quot;</span></strong><span> آن سفارش در نظر گرفته می شود.</span></p><p><span>تاریخ ایجاد یک پیش فاکتور به عنوان </span><span style="color:red"><strong><span>&quot;تاریخ سفارش&quot;</span></strong></span><span> در نظر گرفته می شود.</span></p><p><span>زمانی که یک پیش فاکتور ایجاد و یا ویرایش می شود، هزینه آن سفارش با توجه به قیمت کنونی قطعات به روز رسانی می شود. یعنی اگر پیش فاکتوری یک ماه قبل ایجاد شده باشد؛ وقتی اپراتور فروش مشخصات آن پیش فاکتور را مشاهده می شود، هزینه ها بر اساس قیمت های یک ماه قبل (زمان آخرین ویرایش پیش فاکتور) می باشد اما به محض اینکه اپراتور فروش دکمه ثبت را کلیک کند کلیه هزینه ها بر اساس قیمت های کنونی بروزرسانی شده و در نتیجه ممکن است هزینه آن سفارش نسبت به قبل تغییر کند. </span></p><p>&nbsp;</p><h2><a name="در-دست-اقدام" class="md-header-anchor"></a><span>در دست اقدام</span></h2><p><span>زمانی که مشتری پیش فاکتور را تایید اولیه کرد، آن پیش فاکتور در دست اقدام قرار می گیرد. وقتی یک سفارش در دست اقدام شد، اپراتورهای فروش دیگر نمی توانند آن را تغییر دهند و تغییرات فقط توسط دستیار فروش و یا مسئول فروش انجام می شود.</span></p><p><span>توجه داشته باشید که وقتی سفارشی که در دست اقدام قرار گرفته ویرایش می شود، برخلاف پیش فاکتور تنها قیمت آن بخش هایی که مدلشان تغییر پیدا کرده و یا به سفارش اضافه شده اند به روزرسانی می شود. به عنوان مثال اگر مدل پوش باتون پنل طبقات در یک سفارش که در حال حاضر در وضعیت &quot;در دست اقدام&quot; قرار دارد تغییر پیدا کند و سایر بخش ها تغییری نداشته باشند، فقط قیمت پوش باتون پنل طبقات به روزرسانی می شود.</span></p><p>&nbsp;</p><h2><a name="درخواست-تولید" class="md-header-anchor"></a><span>درخواست تولید</span></h2><p><span>زمانی که یک سفارش در دست اقدام توسط دستیار فروش یا مسئول فروش بازبینی شد و به تایید نهایی مشتری رسید، وضعیت آن سفارش توسط دستیار یا مسئول فروش به &quot;درخواست تولید&quot; تغییر می کند.</span></p><p><span>وقتی وضعیت یک سفارش به &quot;درخواست تولید&quot; تغییر پیدا کرد، تغییرات زیر در سیستم اعمال می شوند:</span></p><ul><li><span>درخواست تولید آن سفارش به واحد تولید ارسال می شود و دستیار تولید و یا مسئول تولید، آن سفارش را در کارتابل خود مشاهده می کند.</span></li><li><span>تاریخ فعلی به عنوان </span><span style="color:red"><strong><span>&quot;تاریخ تحویل سفارش به کارخانه برای تولید&quot;</span></strong></span><span> ذخیره می شود تا بعدا معلوم شود که درخواست تولید سفارش در چه تاریخی به کارخانه ارسال شده است.</span></li><li><span>10 روز بعد از تاریخ فعلی به عنوان </span><span style="color:red"><strong><span>&quot;تاریخ تحویل سفارش&quot;</span></strong></span><span> یا همان </span><span style="color:red;"><strong><span>&quot;تاریخ فاکتور&quot;</span></strong></span><span> در نظر گرفته می شود.</span></li><li><span>پنل های داخل کابین، طبقات و سر دربی که مدل آنها نامعلوم باشند از سفارش حذف می شوند تا فقط موارد خواسته شده و نهایی شده در سفارش و فاکتورهای چاپی آورده شوند.</span></li></ul><p>&nbsp;</p><h2><a name="در-جریان-تولید" class="md-header-anchor"></a><span>در جریان تولید</span></h2><p><span>سفارشاتی که درخواست تولید شده اند در کارتابل واحد تولید قرار می گیرند. مسئول تولید و یا دستیار تولید پس از بررسی درخواست های تولید و انجام مقدمات تولید (از جمله چاپ سندهای کوچک و بزرگ تولید و ...)، آنها را در جریان تولید قرار می دهند.</span></p><p><span>پس از اینکه یک سفارش در جریان تولید قرار گرفت، اپراتورهای تولید می توانند تولید اجزای آن سفارش را آغاز کنند.</span></p><p>&nbsp;</p><h2><a name="تولید-شده" class="md-header-anchor"></a><span>تولید شده</span></h2><p><span>پس از اینکه همه اجزای سفارش (پنل داخل کابین، طبقات، سردرب و ...) مراحل تولید را در کارخانه طی کردند، وضعیت آن سفارش به صورت خودکار به &quot;تولید شده&quot; تغییر می کند.</span></p><p><span>لازم به ذکر است مراحل تولید در کارخانه عبارتند از:</span></p><ol start='' ><li><span>نقشه کشی</span></li><li><span>ماشین کاری</span></li><li><span>انبار</span></li><li><span>مونتاژ</span></li><li><span>کنترل کیفیت</span></li><li><span>بسته بندی</span></li><li><span>آماده ارسال</span></li></ol><p>&nbsp;</p><h2><a name="آماده-تحویل" class="md-header-anchor"></a><span>آماده تحویل</span></h2><p><span>سفارشات تولید شده به صورت خودکار به &quot;آماده تحویل&quot; تغییر وضعیت می دهند.</span></p><p><span>توجه داشته باشید که در نسخه های قبلی سامانه تولید و فروش پنتا، پس از اینکه مراحل تولید یک سفارش به اتمام می رسید و وضعیت آن سفارش به &quot;تولید شده&quot; تغییر پیدا می کرد، مسئول تولید یا دستیار تولید باید روی دکمه </span><strong><span>&quot;اتمام فرآیند تولید&quot;</span></strong><span>  کلیک می کردند تا اتمام فرآیند تولید را رسما تایید می کردند و پس از آن، وضعیت سفارش به &quot;آماده تحویل&quot; تغییر پیدا می کرد. </span></p><p>&nbsp;</p><h2><a name="مجوز-خروج-صادر-شده" class="md-header-anchor"></a><span>مجوز خروج صادر شده</span></h2><p><span>تا زمانی که وضعیت سفارش &quot;آماده تحویل&quot; نشود، واحد فروش نمی تواند حواله خروج برای آن سفارش صادر کند. به محض اینکه یک سفارش آماده تحویل شد، در ستون جزئیات آن سفارش آیکون تحویل که به شکل ماشین حمل بار است نمایان می شود.</span></p><p><img src="../guidebook/files/delivery.JPG" style="zoom:150%;" /></p><p>&nbsp;</p><p><span>مسئول فروش می تواند با کلیک روی آیکون تحویل و انتخاب گزینه &quot;افزودن تحویل&quot; حواله خروج برای آن سفارش صادر کند.</span></p><p><span>مسئول فروش می تواند یک حواله خروج برای سفارش صادر کند که همه اجزا و پنل های سفارش داخل آن باشند و یا در مواردی خاص برای سفارش چند حواله خروج صادر کند که هر یک شامل اجزای متفاوتی از سفارش باشد.</span></p><p><span>با کلیک روی آیکون تحویل و انتخاب گزینه &quot;لیست تحویل ها&quot; می توان لیست حواله های خروج صادر شده برای آن سفارش را مشاهده کرد.</span></p><p><span>به محض اینکه اولین حواله خروج برای هر سفارش ثبت شود وضعیت آن سفارش از &quot;آماده تحویل&quot; به &quot;مجوز خروج صادر شده&quot; تبدیل می شود. و تاریخ فاکتور آن سفارش به روزرسانی می شود و تاریخ کنونی به عنوان </span><span style="color:red;"><strong><span>&quot;تاریخ فاکتور&quot;</span></strong></span><span> آن سفارش ثبت می شود.</span></p><p><span>لازم به ذکر است لیست حواله های خروج از منوی &quot;تحویل&quot; قابل مشاهده است. همچنین هر تحویل (مجوز خروج) دارای سه وضعیت(مرحله) می باشد:</span></p><ul><li><span>صادر شده</span></li><li><span>تایید شده</span></li><li><span>ارسال شده</span></li></ul><p>&nbsp;</p><p>&nbsp;</p><h1><a name="2-تغییر-وضعیت-اضطراری" class="md-header-anchor"></a><span>2. تغییر وضعیت اضطراری</span></h1><p><span>وقتی درخواست تولید یک سفارش به واحد تولید ارسال شد، اطلاعات آن سفارش حتی توسط مسئول واحد فروش هم قابل تغییر نیست.</span></p><p><span>اما گاهی بنا به اصرار مشتری و یا شرایط اضطراری دیگر ممکن است یک سفارش در وضعیت &quot;درخواست تولید&quot; و یا وضعیت های بعد از آن، نیاز به تغییر داشته باشد. در این صورت ادمین فروش (سیستم) با توجه به دسترسی ویژه خود می تواند وضعیت سفارش را به عقب برگرداند تا تغییرات لازم در سفارش اعمال شود.</span></p><p>&nbsp;</p><p><img src="../guidebook/files/changestatus.JPG" alt="changestatus"  /></p><p>&nbsp;</p><p><span>این امکان علاوه بر سفارشات برای بخش های &quot;فروش کالا&quot;، &quot;خدمات&quot; و &quot;اسناد دریافتی&quot; هم وجود دارد.</span></p><p><span>در رابطه با تغییر وضعیت اضطراری لازم است به نکات زیر توجه داشته باشید:</span></p><ul><li><p><span>در برخی موارد ممکن است بعد از تغییر وضعیت سفارش و انجام اصلاحات مورد نیاز، ادامه مراحل به روش عادی (سیکل همیشگی) باعث ایجاد اختلال در سیستم شود. در این موارد باید ادمین سیستم پس از انجام اصلاحات مورد نیاز، وضعیت سفارش را بدون طی کردن مجدد سیکل همیشگی به وضعیت قبلی برگرداند.</span></p><p><span>به عنوان مثال فرض کنید که مراحل تولید یک سفارش به اتمام رسیده است و سفارش در وضعیت &quot;تولید شده&quot; قرار دارد اما بخاطر اشتباه اپراتور فروش، تخفیفی که به مشتری قول داده شده بود در فاکتور فروش نیامده است و بنا به پافشاری مشتری نیاز است تخفیف مورد نظر در سفارش اعمال شود. در این صورت ادمین سیستم وضعیت سفارش را به &quot;در دست اقدام&quot; تغییر می دهد و سپس مسئول فروش تخفیف را در سفارش اعمال می کند. در این زمان اگر مسئول فروش طبق روال همیشگی سفارش را تایید نهایی کند، درخواست تولید آن سفارش به واحد تولید ارسال می شود و ممکن است سفارشی که تولید شده است مجددا تولید شود. بنابراین مسئول فروش باید پس از اعمال تخفیف یاد شده در سفارش، از ادمین سیستم بخواهد که وضعیت سفارش را مجددا به &quot;تولید شده&quot; تغییر دهد.</span></p></li><li><p><span>نکته دیگر که باید به آن توجه داشت این است که اگر وضعیت سفارش به &quot;پیش فاکتور&quot; برگردانده شود در این صورت با ثبت تغییرات ،کلیه قیمت ها بر اساس نرخ های جدید محاسبه شده و هزینه سفارش ممکن است تغییر پیدا کند. اگر می خواهید قیمت ها تغییری پیدا نکند باید وضعیت سفارش به &quot;در دست اقدام&quot; برگردانده شود و سپس تغییرات خود را اعمال نمایید. در این صورت اگر مدل اجزای سفارش تغییر پیدا نکند محاسبه قیمت ها براساس نرخ جدید انجام نمی شود و همان قیمت های قبلی باقی می ماند مگر اینکه مدل یکی از اجزای سفارش از جمله پوش باتون، فلز رویه و ... تغییر کند که در این صورت قیمت همان جزء تغییر کرده و مجددا محاسبه می شود.</span></p></li><li><p><span>توجه داشته باشید که تغییر وضعیت فقط و فقط باید در موارد خیلی خاص و اضطراری استفاده شود چون ممکن است باعث تغییر ناخواسته قیمت سفارشات و یا برخی تغییرات ناخواسته دیگر شود که این امر می تواند منجر به نارضایتی مشتریان، نتایج اشتباه در گزارشات، سردرگمی کارکنان و به طور کلی بهم ریختن یکپارچگی و استواری اتوماسیون شود.</span></p></li></ul><p>&nbsp;</p><p>&nbsp;</p><h1><a name="3-گزارشات" class="md-header-anchor"></a><span>3. گزارشات</span></h1><p><img src="../guidebook/files/reports.JPG"  /></p><p>&nbsp;</p><h2><a name="صورتحساب-مشتری-خاص" class="md-header-anchor"></a><span>صورتحساب مشتری خاص</span></h2><p><span>این گزارش صورتحساب یک مشتری خاص را در بازه زمانی خواسته شده ارائه می کند. این صورتحساب موارد زیر را شامل می شود:</span></p><ul><li><span>تمام اسناد و مبالغ پرداختی مشتری و اسناد برگشتی از جمله چک های برگشتی مشتری که </span><strong><span>تاریخ سند</span></strong><span> آنها در بازه زمانی موردنظر باشد.</span></li><li><span>تمام کالاهای فروخته شده به مشتری که مجوز خروج آنها صادر شده است و تاریخ صدور مجوز خروج آنها (تاریخ فاکتور آنها) در بازه زمانی موردنظر باشد.</span></li><li><span>کالاهای مرجوع شده مشتری در بازه زمانی موردنظر</span></li><li><span>خدمات ارائه شده به مشتری که مجوز خروج آنها صادر شده و تاریخ فاکتور آنها در بازه زمانی موردنظر باشد.</span></li><li><span>سفارش هایی که مجوز خروج آن ها صادر شده است و تاریخ فاکتور آنها در بازه زمانی موردنظر باشد.</span></li></ul><p>&nbsp;</p><p><span>این گزارش علاوه بر سفارشاتی که مجوز خروج آنها صادر شده است، در بخشی جداگانه صورت حساب سفارشات تحویل نشده مشتری را هم نمایش می دهد. سفارشات تحویل نشده عبارتند از همه سفارشات آن مشتری که درخواست تولید آنها صادر شده است یا در جریان تولید هستند و یا آماده تحویل هستند اما هنوز مجوز خروجشان صادر نشده است.</span></p><p>&nbsp;</p><h2><a name="گزارش-کنترلی-فروش-روزانه" class="md-header-anchor"></a><span>گزارش کنترلی (فروش روزانه)</span></h2><p><span>همان گونه که از نام این گزارش پیداست، این گزینه گزارشی از فروش کالا، سفارشات دریافتی از مشتریان و نیز مبالغ و اسناد پرداختی مشتریان در همان روز را ارائه می کند. هر چند که می توان تاریخ شروع و پایان گزارش را تغییر داد و فروش روزانه روز دیگر و یا بازه زمانی دیگری را مشاهده کرد.</span></p><p><span>این گزارش موارد زیر را در بر می گیرد:</span></p><ul><li><span>کلیه مبالغ و اسناد پرداختی توسط مشتریان و یا اسناد برگشت خورده مشتریان که تاریخ سند آنها در آن روز باشد.</span></li><li><span>کلیه سفارشاتی که درخواست تولید آنها در آن روز به کارخانه ارسال شده است. در واقع کلیه سفارشاتی که در آن روز به تایید نهایی واحد فروش رسیده اند و باید تولید شوند.</span></li><li><span>کلیه کالاهای فروخته شده که مجوز خروجشان صادر شده و تاریخ فاکتور آنها در آن روز باشد.</span></li></ul><p>&nbsp;</p><h2><a name="صورتحساب-کلی" class="md-header-anchor"></a><span>صورتحساب کلی</span></h2><p><span>این گزارش صورتحساب کلی مشتریان را در بازه زمانی خواسته شده ارائه می کند. در واقع مثل این است که &quot;گزارش صورتحساب مشتری خاص&quot; را برای همه مشتریان تکرار کرده باشیم و جمع بدهکاری و بستانکاری هر مشتری را در صورتحساب کلی آورده باشیم. </span></p><p><span>البته صورتحساب کلی مشتریان شامل برخی موارد دیگر از جمله مبلغ آخرین چک برگشتی هر مشتری، افتتاحیه حساب هر مشتری، آخرین سفارش و یا پیش فاکتوری که بنام هر مشتری در سیستم ثبت شده است و نیز مبلغ و تاریخ آن سفارش نیز می باشد.</span></p><p>&nbsp;</p><h2><a name="گزارشات-آماری" class="md-header-anchor"></a><span>گزارشات آماری</span></h2><p><span>این گزارش تعداد و جمع مبلغ همه پنل های داخل کابین، نمایشگرهای پنل داخل کابین، پنل های طبقات، نمایشگرهای پنل طبقات، پنل های سردرب و پوش باتون های به کار رفته در سفارشاتی که تاریخ فاکتور آنها در بازه زمانی خواسته شده می باشد را به تفکیک مدل هر آیتم ارائه می کند.</span></p><p><span>نکته ای که باید به آن دقت کرد این است که همان گونه که قبلا بیان شد؛ وقتی درخواست تولید یک سفارش به کارخانه ارسال می شود و وضعیت آن سفارش &quot;درخواست تولید&quot; می شود سیستم به طور پیش فرض تاریخ فاکتور (تحویل) آن سفارش را 10 روز بعد از تاریخ درخواست تولید قرار می دهد. بنابراین سفارشاتی که در حال تولید هستند و تاریخ پیش فرض تحویلشان در بازه زمانی خواسته شده است هم در گزارش آماری محاسبه می شوند.</span></p><p>&nbsp;</p><h2><a name="گزارشات-آماری--ریز-مصرف" class="md-header-anchor"></a><span>گزارشات آماری- ریز مصرف</span></h2><p><span>این گزارش همانند گزارش آماری است با این تفاوت که نشان می دهد مثلا هر مدل از پنل طبقات در کدام سفارشات به کار رفته است و نام مشتری، تاریخ فاکتور، نام پروژه و شماره سند آن سفارشات چیست.</span></p><p><span>تفاوت دیگری که بین این گزارش و گزارش آماری وجود دارد این است که این گزارش برخلاف گزارش آماری که فقط &quot;سفارشات&quot; را نظر می گیرد، &quot;فروش کالا&quot; را هم در نظر می گیرد. یعنی مانیتورها، پوش باتون ها و ملحقاتی که هم در سفارشات به کار رفته اند و هم به صورت فروش کالا به مشتریان فروخته شده اند را در برمی گیرد.</span></p><p><span>مانند گزارش آماری، این گزارش هم سفارشات و فروش کالاهایی که تاریخ فاکتور آنها در بازه زمانی خواسته شده باشند را شامل می شود.</span></p><p>&nbsp;</p><h2><a name="سفارشات-ماهانه--تاریخ-سفارش" class="md-header-anchor"></a><span>سفارشات ماهانه- تاریخ سفارش</span></h2><p><span>این گزارش تعداد و جمع مبلغ همه سفارشاتی که درخواست تولیدشان صادر شده و یا تحویل مشتری شده اند را به تفکیک ماه شمسی </span><strong><span>تاریخ درخواست تولید</span></strong><span> به صورت نموداری نشان می دهد.</span></p><p><span>توجه داشته باشید که منظور از تاریخ درخواست تولید همان تاریخی است که سفارش تایید نهایی شده و درخواست تولید آن به کارخانه ارسال شده است.</span></p><p>&nbsp;</p><h2><a name="سفارشات-ماهانه--تاریخ-فاکتور" class="md-header-anchor"></a><span>سفارشات ماهانه- تاریخ فاکتور</span></h2><p><span>این گزارش تعداد و جمع مبلغ همه سفارشاتی که درخواست تولیدشان صادر شده و یا تحویل مشتری شده اند را به تفکیک ماه شمسی </span><strong><span>تاریخ فاکتور</span></strong><span> به صورت نموداری نشان می دهد.</span></p><p><span>توجه داشته باشید که منظور از تاریخ فاکتور در سفارشاتی که تحویل مشتری شده است همان تاریخی است که مجوز خروج سفارش صادر شده است.</span></p><p><span>نکته ای که باید به آن دقت کرد این است که همان گونه که قبلا بیان شد؛ وقتی درخواست تولید یک سفارش به کارخانه ارسال می شود و وضعیت آن سفارش &quot;درخواست تولید&quot; می شود سیستم به طور پیش فرض تاریخ فاکتور (تحویل) آن سفارش را 10 روز بعد از تاریخ درخواست تولید قرار می دهد. بنابراین سفارشاتی که در حال تولید هستند و تاریخ پیش فرض تحویلشان در بازه زمانی خواسته شده است هم در این گزارش آورده می شوند.</span></p><p>&nbsp;</p><h2><a name="وصول-فروش-ماهانه" class="md-header-anchor"></a><span>وصول/ فروش ماهانه</span></h2><p><span>این گزارش شامل دو بخش است:</span></p><p><span>فروش ماهانه؛ که عبارت است از جمع مبلغ سفارشات، فروش کالا و خدماتی است که مجوز خروج آنها صادر شده است به تفکیک تاریخ فاکتور آنها. در واقع کل فروشی که در هر ماه محقق شده و حواله خروج آنها صادر شده است.</span></p><p><span>وصول؛ که عبارت است از کلیه مبالغی که نقدا یا طی اسناد و حواله از مشتریان دریافت شده است به تفکیک تاریخ اسناد یعنی تاریخ دریافت اسناد. در واقع کل اسناد و مبالغ دریافتی که در هر ماه از مشتریان دریافت شده است.</span></p></div>
+</body>
+</html>

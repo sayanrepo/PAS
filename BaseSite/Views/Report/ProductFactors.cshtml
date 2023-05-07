@@ -1,0 +1,228 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.ZaribKarkard>
+@{
+    ViewBag.Title = "کارکرد";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 200);
+    grid.Bind(Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+@*##################### Search Div #############################*@
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+        <form method="post" action="@Url.Action("SearchProductFactors")">
+            <div class="row">
+                <div class="col-md-4 col-sm-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">تاریخ سفارش از</span>
+                        <input type="text" name="reportDateFrom" class="form-control text-center text-left" dir="ltr"
+                               value="@ViewBag.reportDateFrom"
+                               onclick="PersianDatePicker.Show(this,'@today');" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">تا</span>
+                        <input type="text" name="reportDateTo" class="form-control text-center text-left" dir="ltr"
+                               value="@ViewBag.reportDateTo"
+                               onclick="PersianDatePicker.Show(this,'@today');" />
+                    </div>
+                </div>
+                <div class="col-xs-2 col-md-2 col-md-offset-1 col-xs-offset-5">
+                    <button class="btn btn-sm btn-primary">جستجو</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div id="DivDetail">
+        <div>
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            firstText: "<< اولین ",
+            previousText: "< قبلی",
+            nextText: "بعدی >",
+            lastText: "آخرین >>",
+            columns: grid.Columns(
+            grid.Column("OperatorName", header: "نام", format: item => item.UserFullName),
+            grid.Column("CalculatedFactor", header: "مجموع کارکرد", format: item => item.CalculatedFactor),
+            grid.Column(header: "جزئیات",
+            format: @<text>
+                <a data-toggle="modal" href="#ProcessModal" name="processLink" data-userid="@item.UserId" data-userfullname="@item.UserFullName"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+            </text>),
+            grid.Column(header: "چاپ",
+            format: @<text>
+                <a target="_blank" href="@Url.Action("PrintProductFactors", "Report", new { userId = item.UserId, dateFrom = ViewBag.reportDateFrom, dateTo = ViewBag.reportDateTo })" name="processLink"><i class="fa fa-print fa-lg" title="چاپ"></i></a>
+            </text>)
+))
+        </div>
+    </div>
+</div>
+
+
+@*#################################Start Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ProcessModal">
+    <div class="row">
+        <div class="col-xs-pull-1 col-xs-10 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ضرایب کارکرد</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:2px;">
+                        <div style="width: 100%; display: table;" id="ProcessTable">
+                            <div style="display: table-row">
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b>تاریخ</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b>شرح</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> شماره سند</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> آیتم</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> مدل</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> ضریب واحد</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> تعداد</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> مرحله</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> درصد انجام شده</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b> ضریب سند</b></p>
+                                </div>
+                                <div class="box bg-info text-center" style="display: table-cell;">
+                                    <p><b>کارکرد</b></p>
+                                </div>
+                            </div>
+                            @*<div style="display: table-row">
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.ShTime</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.Description</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.DocNumber</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.ItemName</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.ItemModel</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.ItemPFactor</b></p>
+                                    </div>
+                                <div class="box text-center" style="display: table-cell;">
+                                        <p><b>item.Count</b></p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p>item.StatusName</p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p>item.Percent</p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p>item.CalculatedFactor</p>
+                                    </div>
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p>item.CalculatedFactor*(item.Percent/100)</p>
+                                    </div>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*################################END Modal ###################################################*@
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[4];
+        if (LinkHref == "ProductFactors") {
+            $("a[ID='ProductFactors']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+    });
+
+    $('#ProcessModal').on('show.bs.modal', function (event) {
+        var clickedLink = $(event.relatedTarget); // Button that triggered the modal
+        var vuserId = clickedLink.data("userid"); // Extract info from data-* attributes
+        var vuserFullName = clickedLink.data("userfullname");
+
+        var modal = $(this);
+        modal.find('.modal-title').text('جزئیات کارکرد (' + vuserFullName + ')');
+
+        var contentHtml = "<div style='display: table-row'>"+
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>تاریخ</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>شرح</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>شماره سند</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>آیتم</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>مدل</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>ضریب واحد</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>تعداد</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b> مرحله</b></p></div>"+
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b> درصد انجام شده</b></p></div>"+
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b> ضریب سند</b></p></div>" +
+                                    "<div class='box bg-info text-center' style='display: table-cell;'><p><b>کارکرد</b></p></div>" +
+                                    "</div>";
+        $('#ProcessTable').html(contentHtml);
+
+        $.ajax({
+            url: "@Url.Action("GetProcessList", "Report")",
+            type: "GET",
+            dataType: "json",
+            data: { userId: vuserId, dateFrom: '@ViewBag.reportDateFrom', dateTo: '@ViewBag.reportDateTo'},
+            success: function (data) {
+                $.each(data, function (i, item) {
+                    contentHtml = "<div style='display: table-row'>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.ShTime + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.Description + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.DocNumber + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.ItemName + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.ItemModel + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + Math.round(item.ItemPFactor * 10000) / 10000 + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p><b>" + item.Count + "</b></p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p>" + item.StatusName + "</p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p>" + item.Percent + "</p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p>" + Math.round(item.CalculatedFactor * 10000)/10000 + "</p></div>" +
+                                    "<div class='box text-center' style='display: table-cell;'><p>" + Math.round(item.CalculatedFactor * (item.Percent / 100) * 10000) / 10000 + "</p></div>" +
+                                    "</div>";
+                    $('#ProcessTable').append(contentHtml);
+                });
+            }
+        })
+    })
+</script>

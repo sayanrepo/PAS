@@ -1,0 +1,622 @@
+﻿@model BaseSite.Models.DBModel.Order_Order
+@using System.Globalization
+@{
+    ViewBag.Title = "برنامه تولید";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+    //var name = this.ViewContext.ViewData.ModelMetadata.PropertyName;
+    //var value = Model.HasValue ? toPersianDate(Model.Value) : string.Empty;
+}
+
+<div class="row" id="dvContents">
+    @using (Html.BeginForm("PlanDetail", "Plan", FormMethod.Post))
+    {
+        <div class="panel-group">
+
+            @*#################################### TopPart ####################################*@
+            <div class="panel panel-success">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">سفارش</div>
+                        <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                            <a href="@Url.Action("Print", "Plan", new { doc = "order", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات سفارش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body TopPart">
+                    <input type="hidden" value="@Model.Id" name="Id" />
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                @Html.DisplayFor(m => m.DocNumber)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">وضعیت</span>
+                                @Html.DisplayFor(m => m.Order_Status.Name)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">تاریخ سفارش</span>
+                                @Html.DisplayFor(m => m.ShDateOrder)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan" id="FactorDate">تاریخ تحویل</span>
+                                @Html.DisplayFor(m => m.ShDateFactor)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">مشتری</span>
+                                @(string.IsNullOrEmpty(Model.Account_Users.FullName) ? "-" : Model.Account_Users.FullName)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">نام پروژه</span>
+                                @(string.IsNullOrEmpty(Model.ProjectName) ? "-" : Model.ProjectName)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">سفارش دهنده</span>
+                                @(string.IsNullOrEmpty(Model.ClienteleName) ? "-" : Model.ClienteleName)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">نوع تابلو</span>
+                                @Html.DisplayFor(m => m.Tb_ElevatorBoards.Name)
+                            </div>
+                        </div>
+                        <div class="col-md-9 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">محل ارسال</span>
+                                @(string.IsNullOrEmpty(Model.DeliveryAddress) ? "-" : Model.DeliveryAddress)
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">نوع بسته بندی</span>
+                                @Html.DisplayFor(m => m.Tb_PackTypes.Name)
+                            </div>
+                        </div>
+                        @*<div class="col-md-3 col-sm-6 col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan" id="Fax">فاکس</span>
+                                    <input type="text" class="form-control text-center MyControl" disabled="disabled" aria-describedby="Fax" value="@Model.Account_Users.Fax" />
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+
+            @*#################################### CabinPanelDiv ####################################*@
+            @for (int i = 0; i < Model.Order_Cabin.Count; i++)
+            {
+                if (Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                {
+                    <div class="panel panel-info">
+                        <div class="panel-heading MyHeader">
+                            <div class="row">
+                                <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">پنل شاسی داخل کابین</div>
+                                <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                    <a href="@Url.Action("Print", "Plan", new { doc = "cabin", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات پنل داخل کابین"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body CabinPanelDiv">
+                            <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Id" name=@string.Format("Order_Cabin[{0}].Id", i) />
+                            <div class="row">
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">مدل پنل</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Name)
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).CabinPanelId, new { @Class = "form-control MyControl", @Id = "CabinPanelId", @Name = "Order_Cabin[" + i.ToString() + "].CabinPanelId", required = "required" })
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">پوش باتون</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_PushButtons.Name)
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).PushButtonId, new { @Class = "form-control MyControl", @Id = "CabinPushButtonId", @Name = "Order_Cabin[" + i.ToString() + "].PushButtonId", required = "required" })
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">نمایشگر</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_Monitors.Name)
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).MonitorId, new { @Class = "form-control MyControl", @Id = "CabinMonitorId", @Name = "Order_Cabin[" + i.ToString() + "].MonitorId", required = "required" })
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-6 col-xs-12">
+                                            <div class="input-group form-control text-center MyControl">
+                                                <span class="input-group-addon MySpan">تعداد</span>
+                                                @Html.DisplayFor(m => m.Order_Cabin.ElementAt(i).Count)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 col-sm-6 col-xs-12">
+                                            <div class="input-group form-control text-center MyControl">
+                                                <span class="input-group-addon MySpan">تعداد طبقات</span>
+                                                @Html.DisplayFor(m => m.Order_Cabin.ElementAt(i).FloorCount)
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5 col-sm-6 col-xs-12">
+                                            <div class="input-group form-control text-center MyControl">
+                                                <span class="input-group-addon MySpan">تعداد طبقات زیرین</span>
+                                                @Html.DisplayFor(m => m.Order_Cabin.ElementAt(i).UGFloorCount)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات</span>
+                                        <p class="form-control" style="border:none; height:26px; direction:ltr;">@(string.IsNullOrEmpty(Model.Order_Cabin.ElementAt(i).FloorNames) ? "-" : Model.Order_Cabin.ElementAt(i).FloorNames)</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="FloorsNaming">نام گذاری و ترتیب طبقات زیرین</span>
+                                        <p class="form-control" style="border:none; height:26px; direction:ltr;">@(string.IsNullOrEmpty(Model.Order_Cabin.ElementAt(i).UGFloorNames) ? "-" : Model.Order_Cabin.ElementAt(i).UGFloorNames)</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">فلزرویه</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_CabinSurfaceMetals.Name)
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Cabin.ElementAt(i).SurfaceMetalId, new { @Class = "form-control MyControl", @Id = "CabinSurfaceMetalId", @Name = "Order_Cabin[" + i.ToString() + "].SurfaceMetalId", required = "required" })
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">نحوه نصب</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_InstallationTypes.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="MicroPhoneCode">کد بلندگو</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_Speakers.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="col-md-4 col-xs-4">
+                                        <div class="input-group">
+                                            <label>
+                                                @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).PhoneCallButton, new { @Name = "Order_Cabin[" + i.ToString() + "].PhoneCallButton", @Disabled = "disabled" }) کلیدآیفون
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-xs-4">
+                                        <div class="input-group">
+                                            <label>
+                                                @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DO, new { @Name = "Order_Cabin[" + i.ToString() + "].DO", @Disabled = "disabled" }) DO
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 col-xs-4">
+                                        <div class="input-group">
+                                            <label>
+                                                @Html.CheckBoxFor(m => m.Order_Cabin.ElementAt(i).DC, new { @Name = "Order_Cabin[" + i.ToString() + "].DC", @Disabled = "disabled" }) DC
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="PName">متن برش لیزری</span>
+                                        <p class="form-control" style="border:none; height:26px; direction:ltr;">@(Model.Order_Cabin.ElementAt(i).LaserCuttingText == null ? "-" : Model.Order_Cabin.ElementAt(i).LaserCuttingText)</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">شروع از</span>
+                                        @(Model.Order_Cabin.ElementAt(i).Tb_CabinPanels.Order_ProductStatus.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="PName">متن حک لیزری</span>
+                                        <p class="form-control" style="border:none; height:26px; direction:ltr;">@(Model.Order_Cabin.ElementAt(i).LaserEngravingText == null ? "-" : Model.Order_Cabin.ElementAt(i).LaserEngravingText)</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">توضیحات</span>
+                                        @(string.IsNullOrEmpty(Model.Order_Cabin.ElementAt(i).Comment) ? "-" : Model.Order_Cabin.ElementAt(i).Comment)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                    <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseCabin{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                </div>
+                            </div>
+                            @if (Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count > 0)
+                            {
+                                <div class="collapse" id="@string.Format("collapseCabin{0}", i)">
+                                    <div class="well" style="padding-top:0;">
+                                        <div class="row">
+                                            <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                <div class="panel-body CabinPanelDiv">
+                                                    <div class="row">
+                                                        <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                            <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                ملحقات
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-5 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                    </div>
+                                                    @for (int j = 0; j < Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                    {
+                                                        <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Id", i,j) />
+                                                        <div class="row">
+                                                            <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                                @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value.Name, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })
+                                                            </div>
+                                                            <div class="col-md-5 col-sm-5 col-xs-4" style="padding:0;">
+                                                                @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                            </div>
+                                                            @*<div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>*@
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="submit" name="submit" class="btn btn-link" value="addAdditionCabin" style="padding: 0; height: 12px;"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_Cabin[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            @*################################## FloorDiv ##############################*@
+            @for (int i = 0; i < Model.Order_Hall.Count; i++)
+            {
+                if (Model.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                {
+                    <div class="panel panel-info">
+                        <div class="panel-heading MyHeader">
+                            <div class="row">
+                                <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">پنل شاسی طبقات</div>
+                                <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                    <a href="@Url.Action("Print", "Plan", new { doc = "hall", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات پنل طبقات"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body CabinPanelDiv" style="background-color: rgba(239, 188, 73, 0.47); ">
+                            <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Id" name=@string.Format("Order_Hall[{0}].Id", i) />
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">مدل پنل</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_HallPanels.Name
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).HallPanelId, new { @Class = "form-control MyControl", @Id = "HallPanelId", @Name = "Order_Hall[" + i.ToString() + "].HallPanelId", required = "required" })
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="Lift">آسانسور</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_ElevatorCounts.Name
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">تعداد شاسی</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_HallPushButtonCounts.Name
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">تعداد</span>
+                                        @Html.DisplayFor(m => m.Order_Hall.ElementAt(i).Count)
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">پوش باتون</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_PushButtons.Name
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).PushButtonId, new { @Class = "form-control MyControl", @Id = "HallPushButtonId", @Name = "Order_Hall[" + i.ToString() + "].PushButtonId", required = "required" })
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">نمایشگر</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_Monitors.Name
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).MonitorId, new { @Class = "form-control MyControl", @Id = "HallMonitorId", @Name = "Order_Hall[" + i.ToString() + "].MonitorId", required = "required" })
+                                </div>
+                                <div class="col-md-3 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">فلزرویه</span>
+                                        @Model.Order_Hall.ElementAt(i).Tb_HallSurfaceMetals.Name
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_Hall.ElementAt(i).SurfaceMetalId, new { @Class = "form-control MyControl", @Id = "HallSurfaceMetalId", @Name = "Order_Hall[" + i.ToString() + "].SurfaceMetalId", required = "required" })
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan">شروع از</span>
+                                        @(Model.Order_Hall.ElementAt(i).Tb_HallPanels.Order_ProductStatus.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-sm-12 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="Comment">توضیحات</span>
+                                        @(string.IsNullOrEmpty(Model.Order_Hall.ElementAt(i).Comment) ? "-" : Model.Order_Hall.ElementAt(i).Comment)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                    <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseHall{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                </div>
+                            </div>
+                            @if (Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count > 0)
+                            {
+                                <div class="collapse" id="@string.Format("collapseHall{0}", i)">
+                                    <div class="well" style="padding-top:0;">
+                                        <div class="row">
+                                            <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                <div class="panel-body CabinPanelDiv">
+                                                    <div class="row">
+                                                        <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                            <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                ملحقات
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-5 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                    </div>
+                                                    @for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                    {
+                                                        <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Id", i, j) />
+                                                        <div class="row">
+                                                            <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                                @Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value.Name, Selected = (x.Key == Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })
+                                                            </div>
+                                                            <div class="col-md-5 col-sm-5 col-xs-4" style="padding:0;">
+                                                                @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                            </div>
+                                                            @*<div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_Hall[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>*@
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="submit" name="submit" class="btn btn-link" value="addAdditionHall" style="padding: 0; height: 12px;"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_Hall[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+
+            @*####################################### مدل پنل سردرب ################################*@
+            @for (int i = 0; i < Model.Order_DoorTop.Count; i++)
+            {
+                if (Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                {
+                    <div class="panel panel-info">
+                        <div class="panel-heading MyHeader">
+                            <div class="row">
+                                <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">پنل سردرب</div>
+                                <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                    <a href="@Url.Action("Print", "Plan", new { doc = "doortop", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات پنل سردرب"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-body CabinPanelDiv">
+                            <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Id" name=@string.Format("Order_DoorTop[{0}].Id", i) />
+                            <div>
+                                <div class="col-md-5 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="Cable">مدل پنل سردرب</span>
+                                        @Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Name
+                                    </div>
+                                    @Html.HiddenFor(m => m.Order_DoorTop.ElementAt(i).DoorTopPanelId, new { @Class = "form-control MyControl", @Id = "DoorTopPanelId", @Name = "Order_DoorTop[" + i.ToString() + "].DoorTopPanelId", required = "required" })
+                                </div>
+                                <div class="col-md-5 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="StartFrom">فلزرویه</span>
+                                        @Html.DisplayFor(m => m.Order_DoorTop.ElementAt(i).Tb_SurfaceMetals.FullName)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="StartFrom">تعداد</span>
+                                        @Html.DisplayFor(m => m.Order_DoorTop.ElementAt(i).Count)
+                                    </div>
+                                </div>                                
+                                <div class="col-md-5 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="StartFrom">نمایشگر</span>
+                                        @Html.DisplayFor(m => m.Order_DoorTop.ElementAt(i).Tb_Monitors.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-5 hidden-sm hidden-xs">
+                                </div>
+                                <div class="col-md-2 col-sm-6 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="Cable">شروع از</span>
+                                        @(Model.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Order_ProductStatus.Name)
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-sm-12 col-xs-12">
+                                    <div class="input-group form-control text-center MyControl">
+                                        <span class="input-group-addon MySpan" id="Comment">توضیحات</span>
+                                        @(string.IsNullOrEmpty(Model.Order_DoorTop.ElementAt(i).Comment) ? "-" : Model.Order_DoorTop.ElementAt(i).Comment)
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-xs-3 text-center" style="padding-top:8px;">
+                                    <a href="#" data-toggle="collapse" data-target="#@string.Format("collapseDoorTop{0}", i)" aria-expanded="false" aria-controls="collapseExample"><span class="fa fa-arrows fa-lg" aria-hidden="true"></span> ملحقات و اضافات</a>
+                                </div>
+                            </div>
+                            @if (Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count > 0)
+                            {
+                                <div class="collapse" id="@string.Format("collapseDoorTop{0}", i)">
+                                    <div class="well" style="padding-top:0;">
+                                        <div class="row">
+                                            <div class="col-md-7 col-sm-7 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                <div class="panel-body CabinPanelDiv">
+                                                    <div class="row">
+                                                        <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                            <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                ملحقات
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-md-5 col-sm-5 col-xs-4" style="padding: 0;"><span class="input-group-addon MySpan" style="padding:7px;">تعداد</span></div>
+                                                    </div>
+                                                    @for (int j = 0; j < Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                                    {
+                                                        <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Id" name=@string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Id", i, j) />
+                                                        <div class="row">
+                                                            <div class="col-md-7 col-sm-7 col-xs-8" style="padding:0;">
+                                                                @Html.DropDownListFor(x => x.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId, BaseSite.Models.Cache.Order_Attachments.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value.Name, Selected = (x.Key == Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId) }), new { @Class = "form-control MyControl", @Id = "AttachmentId", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].AttachmentId", i, j) })
+                                                            </div>
+                                                            <div class="col-md-5 col-sm-5 col-xs-4" style="padding:0;">
+                                                                @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count, new { @Class = "form-control text-center MyControl", @Id = "AttachmentCount", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Count", i, j) })
+                                                            </div>
+                                                            @*<div class="col-md-4 col-sm-4 col-xs-4" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AttachmentCost", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Attachment[{1}].Cost", i, j), disabled = "disabled" })
+                                                                </div>*@
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                            @*<div class="col-md-5 col-sm-5 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                                                    <div class="panel-body CabinPanelDiv">
+                                                        <div class="row">
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                <span class="input-group-addon MySpan" style="padding:7px;">
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    {
+                                                                        <button type="submit" name="submit" class="btn btn-link" value="addAdditionDoorTop" style="padding: 0; height: 12px;"><span class="glyphicon glyphicon-plus"></span></button>
+                                                                    }
+                                                                    اضافات
+                                                                </span>
+                                                            </div>
+                                                            <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;"><span class="input-group-addon MySpan" style="padding:7px;">مبلغ</span></div>
+                                                        </div>
+                                                        @for (int j = 0; j < Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                                        {
+                                                            <input type="hidden" value="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Id" name=@string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].Id", i, j) />
+                                                            <div class="row">
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.DropDownListFor(x => x.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId, BaseSite.Models.Cache.Order_Additions.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId) }), new { @Class = "form-control MyControl", @Id = "AdditionId", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].AdditionId", i, j) })
+                                                                </div>
+                                                                <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
+                                                                    @Html.TextBoxFor(m => m.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "AdditionCost", @Name = string.Format("Order_DoorTop[{0}].Order_Panel_Addition[{1}].Cost", i, j) })
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        @*################################## Submit Button ###################################*@
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            @if (Model.StatusId == (byte)BaseSite.Models.OrderStatus.DarkhasteTolid)
+            {
+                if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_StartCommand))
+                {
+                    <button type="submit" class="btn btn-success" name="submit" value="DarJaryaneTolid">شروع فرآیند تولید</button>
+                }
+            }
+            @*else if (Model.StatusId == (byte)BaseSite.Models.OrderStatus.TolidShode)
+                {
+                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_FinishCommand))
+                    {
+                        <button type="submit" class="btn btn-success" name="submit" value="AmadeTahvil">اتمام فرآیند تولید</button>
+                    }
+                }*@
+        </div>
+
+        @*###################################### end of body ###############################*@
+    }
+</div>

@@ -1,0 +1,379 @@
+﻿@model BaseSite.Models.DBModel.Sale_Sale
+@using System.Globalization
+@{
+    ViewBag.Title = "ثبت فروش کالا";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+    //var name = this.ViewContext.ViewData.ModelMetadata.PropertyName;
+    //var value = Model.HasValue ? toPersianDate(Model.Value) : string.Empty;
+
+    ViewBag.GoodsType = new Dictionary<byte, string>();
+    ViewBag.GoodsType.Add(4, "محصولات فروشگاه");
+}
+
+<div class="row">
+    @using (Html.BeginForm("SaleDetail", "Store", FormMethod.Post))
+    {
+        <div class="panel-group">
+
+            @*#################################### TopPart ####################################*@
+            <div class="panel panel-success" style="margin-bottom:10px;">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">فروش کالا</div>
+                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Print))
+                        {
+                            <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
+                                <a href="@Url.Action("Print", "Store", new { doc = "bill", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ صورتحساب فروش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                <a href="@Url.Action("Print", "Store", new { doc = "sale", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فاکتور"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="panel-body TopPart" style="padding-bottom:15px;">
+                    <input type="hidden" value="@Model.Id" name="Id" />
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                @Html.TextBoxFor(m => m.DocNumber, new { @Class = "form-control text-center MyControl", @Id = "DocNumber", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">وضعیت</span>
+                                @Html.DropDownListFor(m => m.StatusId, (ViewBag.OrderStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })
+                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_ChangeStatus))
+                                {
+                                    <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="OrderType">نوع معامله</span>
+                                @Html.DropDownListFor(m => m.TradeTypeId, BaseSite.Models.Cache.Order_TradeTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.TradeTypeId) }), new { @Class = "form-control MyControl", @Id = "TradeType", aria_describedby = "TradeType" })
+                            </div>
+                        </div>
+                        <div style="display:none;">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="OrderType">نوع سفارش</span>
+                                @Html.DropDownListFor(m => m.OrderTypeId, BaseSite.Models.Cache.Order_OrderTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.OrderTypeId) }), new { @Class = "form-control MyControl", @Id = "OrderType", aria_describedby = "OrderType" })
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">تاریخ سفارش</span>
+                                <input type="text" id="ShDateOrder" name="ShDateOrder" class="form-control text-center MyControl" value="@Model.ShDateOrder"
+                                       @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="FactorDate">تاریخ تحویل</span>
+                                <input type="text" id="ShDateFactor" name="ShDateFactor" class="form-control text-center MyControl" value="@Model.ShDateFactor"
+                                       @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-sm-6 col-xs-12">
+                            @*<div class="input-group">
+                                    <input type="text" class="form-control MyControl" aria-label="Text input with checkbox" value="مرجوعی" disabled="disabled">
+                                    <span class="input-group-addon MySpan">@Html.CheckBoxFor(m => m.GiveBack, new { @Class = "form-control MyControl MyCheckbox", @name = "GiveBack" })</span>
+                                </div>*@
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">مرجوعی</span>
+                                <span class="input-group-addon MySpan">@Html.CheckBoxFor(m => m.GiveBack, new { @Class = "form-control MyControl MyCheckbox", @name = "GiveBack" })</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="AmountSummary" style="padding-bottom:5px;">
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan" id="SumCabinPenel">کالاها</span>
+                                <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCostGoods" value="@Model.SumCostGoods" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">کرایه حمل</span>
+                                @Html.TextBoxFor(m => m.DeliveryCost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "DeliveryCost", @ariadescribedby = "DeliveryCost" })
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">عوارض</span>
+                                @Html.TextBoxFor(m => m.Tax, new { @Class = "form-control text-center MyControl", @Id = "Tax" })
+                                <span class="input-group-addon MySpan EndText">درصد</span>
+                                <input type="text" class="form-control text-center MyControl autoNumber" disabled="disabled" aria-describedby="SumCostTax" value="@Model.SumCostTax" />
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">تخفیف</span>
+                                @Html.TextBoxFor(m => m.Discount, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Discount" })
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">جمع کل</span>
+                                @Html.TextBoxFor(m => m.Cost, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Cost", @disabled = "disabled" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding-bottom:5px;">
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">مشتری</span>
+                                @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.CustomerId"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                            </div>
+                            @Html.HiddenFor(m => m.CustomerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">سفارش دهنده</span>
+                                @Html.TextBoxFor(m => m.ClienteleName, new { @Class = "form-control text-center MyControl", @Id = "ClienteleName", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">محل ارسال</span>
+                                @Html.TextBoxFor(m => m.DeliveryAddress, new { @Class = "form-control text-center MyControl", @Id = "DeliveryAddress", @Lang = "fa-IR" })
+                            </div>
+                        </div>
+                        @*<div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                            <span class="input-group-addon MySpan" id="Fax">فاکس</span>
+                            <input type="text" class="form-control text-center MyControl" disabled="disabled" aria-describedby="Fax" value="@Model.Account_Users.Fax" />
+                            </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+
+            @*######################################### کالاها #####################################*@
+            <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
+                    <div class="panel-heading MyHeader">
+                        @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Add)) ||
+                        (Model.StatusId < (byte)BaseSite.Models.OrderStatus.TahvilShode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Edit)))
+                        {
+                            <button type="button" class="btn btn-link" id="GoodsAddBtn" onclick="fnAddGoods()" data-count="@Model.Sale_Goods.Count"><span class="glyphicon glyphicon-plus"></span></button>
+                        }
+                        کالاها
+                    </div>
+                    <div class="panel-body CabinPanelDiv" id="GoodsList">
+                        <div class="row">
+                            <div class="col-md-2 col-sm-2 col-xs-2" style="padding:0;"><span class="input-group-addon MySpan">نوع کالا</span></div>
+                            <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;"><span class="input-group-addon MySpan">شرح کالا</span></div>
+                            <div class="col-md-1 col-sm-1 col-xs-1" style="padding:0;"><span class="input-group-addon MySpan">تعداد</span></div>
+                            <div class="col-md-1 col-sm-1 col-xs-1" style="padding:0;"><span class="input-group-addon MySpan">فی</span></div>
+                            <div class="col-md-2 col-sm-2 col-xs-2" style="padding:0;"><span class="input-group-addon MySpan">جمع</span></div>
+                            <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;"><span class="input-group-addon MySpan">توضیحات</span></div>
+                        </div>
+                        @for (int i = 0; i < Model.Sale_Goods.Count; i++)
+                        {
+                            <input type="hidden" value="@Model.Sale_Goods.ElementAt(i).Id" name=@string.Format("Sale_Goods[{0}].Id", i) />
+                            <div class="row">
+                                <div class="col-md-2 col-sm-2 col-xs-2" style="padding:0;">
+                                    @Html.DropDownListFor(m => m.Sale_Goods.ElementAt(i).TypeId, (ViewBag.GoodsType as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.Sale_Goods.ElementAt(i).TypeId) }), new { @Class = "form-control MyControl", @Name = "Sale_Goods[" + i.ToString() + "].TypeId", @Id = "Sale_Goods_Type" + i.ToString(), aria_describedby = "TypeId" })
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;">
+                                    @Html.TextBoxFor(m => m.Sale_Goods.ElementAt(i).Name, new { @Class = "form-control text-center MyControl Sale_Goods_Name", @Name = "Sale_Goods[" + i.ToString() + "].Name", data_index = string.Format("{0}", i.ToString()) })
+                                    @Html.HiddenFor(m => m.Sale_Goods.ElementAt(i).ProductId, new { @Class = "form-control MyControl", @Name = "Sale_Goods[" + i.ToString() + "].ProductId", @Id = "Sale_Goods_" + i.ToString() + "_ProductId" })
+                                </div>
+                                <div class="col-md-1 col-sm-1 col-xs-1" style="padding:0;">
+                                    @Html.TextBoxFor(m => m.Sale_Goods.ElementAt(i).Count, new { @Class = "form-control text-center MyControl", @Name = "Sale_Goods[" + i.ToString() + "].Count" })
+                                </div>
+                                <div class="col-md-1 col-sm-1 col-xs-1" style="padding:0;">
+                                    @Html.TextBoxFor(m => m.Sale_Goods.ElementAt(i).Phi, new { @Class = "form-control text-center MyControl autoNumber", @Name = "Sale_Goods[" + i.ToString() + "].Phi", @Id = "Sale_Goods_" + i.ToString() + "_Phi" })
+                                </div>
+                                <div class="col-md-2 col-sm-2 col-xs-2" style="padding:0;">
+                                    <input type="text" disabled="disabled" class="form-control text-center MyControl autoNumber" name='Sale_Goods[@i.ToString()].Cost' value="@(Model.Sale_Goods.ElementAt(i).Phi*Model.Sale_Goods.ElementAt(i).Count)" />
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3" style="padding:0;">
+                                    @Html.TextAreaFor(m => m.Sale_Goods.ElementAt(i).Comment, new { @rows = 3, @Class = "form-control text-center MyControl", @Style = "white-space: pre-wrap;", @Name = "Sale_Goods[" + i.ToString() + "].Comment", @Id = "Sale_Goods_" + i.ToString() + "_Comment" })
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        //*################################## Submit Button ###################################
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Add)) ||
+            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Edit)))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+            }
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Delete))
+            {
+                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#SaleDeleteModal" style="margin-right:10px;">حذف پیش فاکتور</button>
+            }
+        </div>
+        //*###################################### end of body ###############################*
+    }
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_Delete))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="SaleDeleteModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">حذف فروش کالا</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>آیا از حذف فروش کالا مطمئن هستید؟</p>
+                        <form method="post" action="@Url.Action("SaleDelete", "Store", new { saleId = Model.Id })" class="formDelete">
+                            <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                <button type="submit" class="btn btn-danger btndelete">حذف</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Store_ChangeStatus))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">تغییر وضعیت فروش کالا</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="@Url.Action("SaleChangeStatus", "Store", new { saleId = Model.Id })" class="formDelete">
+                            <div>
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">وضعیت جدید</span>
+                                    @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <p style="display:inline-block;">آیا از تغییر وضعیت فروش کالا مطمئن هستید؟</p>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
+                                <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@*####################################End Delete Modal ###############################################*@
+
+<script type="text/javascript">
+    $('.Sale_Goods_Name').each(function (i, el) {
+        el = $(el);
+        el.autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteSaleGoods", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term, type: $("#Sale_Goods_Type" + el.data("index")).find(":selected").val() },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id, phi: item.Cost, desc: item.Description};
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#Sale_Goods_" + el.data("index") + "_ProductId").val(ui.item.id);
+                $("#Sale_Goods_" + el.data("index") + "_Phi").val(ui.item.phi);
+                $("#Sale_Goods_" + el.data("index") + "_Comment").val(ui.item.desc);
+            },
+            minLength: 0
+        })
+    .autocomplete("instance")._renderItem = function (ul, item) {
+        return $("<li>")
+            .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.phi + "</td></tr></table>")
+            .appendTo(ul);
+    };
+    });
+
+    function fnAddGoods() {
+        var count = $("#GoodsAddBtn").data("count");
+        $("#GoodsList").append("<input type='hidden' value='0' name='Sale_Goods[" + count + "].Id' />"
+                            + "<div class='row'>"
+                            + "<div class='col-md-2 col-sm-2 col-xs-2' style='padding:0;'>"
+                            + "<select class='form-control MyControl' name='Sale_Goods[" + count + "].TypeId' id='Sale_Goods_Type" + count + "' aria-describedby='TypeId' >"
+                            + "<option selected='selected' value='4'>محصولات فروشگاه</option>"
+                            + "</select>"
+                            + "</div>"
+                            + "<div class='col-md-3 col-sm-3 col-xs-3' style='padding:0;'>"
+                            + "<input class='form-control text-center MyControl Sale_Goods_Name ui-autocomplete-input' name='Sale_Goods[" + count + "].Name' data-index='" + count + "' value=' ' type='text'>"
+                            + "<input class='form-control MyControl' id='Sale_Goods_" + count + "_ProductId' name='Sale_Goods[" + count + "].ProductId' value='0' type='hidden'>"
+                            + "</div>"
+                            + "<div class='col-md-1 col-sm-1 col-xs-1' style='padding:0;'>"
+                            + "<input class='form-control text-center MyControl' name='Sale_Goods[" + count + "].Count' value='0' type='text'>"
+                            + "</div>"
+                            + "<div class='col-md-1 col-sm-1 col-xs-1' style='padding:0;'>"
+                            + "<input class='form-control text-center MyControl autoNumber' id='Sale_Goods_" + count + "_Phi' name='Sale_Goods[" + count + "].Phi' value='0' type='text'>"
+                            + "</div>"
+                            + "<div class='col-md-2 col-sm-2 col-xs-2' style='padding:0;'>"
+                            + "<input disabled='disabled' class='form-control text-center MyControl autoNumber' name='Sale_Goods[" + count + "].Cost' value='0' type='text'>"
+                            + "</div>"
+                            + "<div class='col-md-3 col-sm-3 col-xs-3' style='padding:0;'>"
+                            + "<textarea rows='3' class='form-control text-center MyControl' style='white-space: pre-wrap;' id='Sale_Goods_" + count + "_Comment' name='Sale_Goods[" + count + "].Comment'></textarea>"
+                            + "</div>"
+                            + "</div>");
+
+        $("#GoodsAddBtn").data("count", count + 1);
+
+
+        $('.Sale_Goods_Name').each(function (i, el) {
+            el = $(el);
+            el.autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        url: "@Url.Action("AutoCompleteSaleGoods", "Order")",
+                        type: "POST",
+                        dataType: "json",
+                        data: { Prefix: request.term, type: $("#Sale_Goods_Type" + el.data("index")).find(":selected").val() },
+                        success: function (data) {
+                            response($.map(data, function (item) {
+                                return { label: item.Name, value: item.Name, id: item.Id, phi: item.Cost, desc: item.Description };
+                            }))
+                        }
+                    })
+                },
+                select: function (event, ui) {
+                    $("#Sale_Goods_" + el.data("index") + "_ProductId").val(ui.item.id);
+                    $("#Sale_Goods_" + el.data("index") + "_Phi").val(ui.item.phi);
+                    $("#Sale_Goods_" + el.data("index") + "_Comment").val(ui.item.desc);
+                },
+                minLength: 0
+            })
+        .autocomplete("instance")._renderItem = function (ul, item) {
+            return $("<li>")
+                .append("<table style='width:100%'><col width='80%'><col width='20%'><tr><td>" + item.label + "</td><td>" + item.phi + "</td></tr></table>")
+                .appendTo(ul);
+        };
+        });
+    }
+</script>

@@ -1,0 +1,223 @@
+﻿@{
+    Layout = null;
+    ViewBag.title = "کارت مشخصات پنل طبقات";
+}
+@model BaseSite.Models.DBModel.Order_Order
+
+<!DOCTYPE html>
+
+<link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+<link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+<script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+<script src="@Url.Content("~/Contents/js/JsBarcode.all.min.js")"></script>
+<script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+<link href="@Url.Content("~/Contents/css/MyStyle/PrintLA5.css")" rel="stylesheet">
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.title</title>
+</head>
+<body>
+    <div class="container-fluid" id="divPrint">
+        <div class="row box" id="header" style="padding-bottom:5px;">
+            <div class="col-xs-3 text-right">
+                <p><b>شماره سند: </b>@Model.DocNumber</p>
+            </div>
+            <div class="col-xs-6 text-center" style="font-size:large;">
+                <u><b>@ViewBag.title</b></u>
+            </div>
+            <div class="col-xs-3 text-left">
+                <p><b>درخواست تولید: </b>@Model.ShDateDelivery</p>
+            </div>
+            <div class="col-xs-4 text-right">
+                <p><b>مشتری: </b>@Model.Account_Users.FullName</p>
+            </div>
+            <div class="col-xs-8 text-left">
+                <p><b>تاریخ تحویل: </b>@Model.ShDateFactor</p>
+            </div>
+            <div class="col-xs-4 text-right">
+                <p><b>جهت پروژه: </b>@Model.ProjectName</p>
+            </div>
+            <div class="col-xs-4 text-center" id="barcode1" style="margin-top:-20px;">
+                <svg id="barcode"></svg>
+                @*<p><b>بارکد: </b>@Model.Order_Hall.ElementAt(0).DocNumber</p>*@
+            </div>
+            <div class="col-xs-4 text-left">
+                <p><b>نوع تابلو: </b>@Model.Tb_ElevatorBoards.Name</p>
+            </div>
+            <div class="col-xs-6 text-right" style="margin-top:-16px;">
+                <p><b>نوع بسته بندی: </b>@Model.Tb_PackTypes.Name</p>
+            </div>
+            <div class="col-xs-6 text-left" style="margin-top:-16px;">
+                <p><b>تاریخ چاپ: </b>@(new PersianDateTime(DateTime.Now).ToString(PersianDateTimeFormat.Date))</p>
+            </div>
+            @*<div class="col-sm-12 col-md-12 text-right">
+                    <p><b>محل اسال: </b>@Model.DeliveryAddress</p>
+                </div>*@
+        </div>
+
+        @for (int i = 0; i < Model.Order_Hall.Count; i++)
+        {
+            <div class="row">
+                <div style="width: 100%; display: table; padding-top: 5px;">
+                    <div style="display: table-row">
+                        @*<div class="box" style="width: 30px; display: table-cell;padding:5px;">
+                                <div class="rotate"><p><b> پنل شاسی طبقات</b></p></div>
+                            </div>*@
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-10 text-right">
+                                <p><b>مدل پنل: </b>@Model.Order_Hall.ElementAt(i).Tb_HallPanels.Name</p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b>@Model.Order_Hall.ElementAt(i).Count</p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>آسانسور: </b>@Model.Order_Hall.ElementAt(i).Tb_ElevatorCounts.Name</p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>تعداد شاسی: </b>@Model.Order_Hall.ElementAt(i).Tb_HallPushButtonCounts.Name</p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>پوش باتون: </b>@Model.Order_Hall.ElementAt(i).Tb_PushButtons.Name</p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>شروع از: </b>  @Model.Order_Hall.ElementAt(i).Tb_HallPanels.Order_ProductStatus.Name </p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>نمایشگر: </b>@Model.Order_Hall.ElementAt(i).Tb_Monitors.Name</p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>فلزرویه: </b>@Model.Order_Hall.ElementAt(i).Tb_HallSurfaceMetals.Name</p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد طبقات: </b>@Model.Order_Hall.ElementAt(i).FloorCount</p>
+                            </div>
+                            <div class="col-xs-6 text-right">
+                                <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;">@Model.Order_Hall.ElementAt(i).FloorNames</p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>طبقات زیرین: </b>@Model.Order_Hall.ElementAt(i).UGFloorCount</p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height:20px;"><b>توضیحات: </b>@Model.Order_Hall.ElementAt(i).Comment</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="row" style="margin-top:8px;">
+            <div style="width: 60%; display: table; float: right;">
+                <div style="display: table-row">
+                    <div class="text-center" style="display: table-cell;">
+                        <p><b> نام مونتاژکار:</b></p>
+                    </div>
+                </div>
+                <div style="display: table-row">
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> کنترل استیل از</b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b>&nbsp;&nbsp; تاریخ&nbsp;&nbsp;</b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> خط و خش/ روکش استیل</b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> تحویل گیرنده</b></p>
+                    </div>
+                </div>
+                <div style="display: table-row">
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b></b>QC</p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> </b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b></b></p>
+                    </div>
+                    <div class="box bg-info text-center" style="display: table-cell;">
+                        <p><b> </b></p>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 38%; display: table; float: left;">
+                @for (int i = 0; i < Model.Order_Hall.Count; i++)
+                {
+                    if (Model.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                    {
+                        for (int j = 0; j < Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                        {
+                            if (Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                            {
+                                if (j == 0)
+                                {
+                                    <div style="display: table-row">
+                                        <div class="text-center" style="display: table-cell;">
+                                            <p><b> ملحقات اضافی:</b></p>
+                                        </div>
+                                    </div>
+                                    <div style="display: table-row">
+                                        <div class="box bg-info text-center" style="display: table-cell;">
+                                            <p><b> شرح کالا</b></p>
+                                        </div>
+                                        <div class="box bg-info text-center" style="width:20px;display: table-cell;">
+                                            <p><b> تعداد</b></p>
+                                        </div>
+                                    </div>
+                                }
+                                <div style="display: table-row">
+                                    <div class="box text-center" style="display: table-cell;">
+                                        <p> @Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                    </div>
+                                    <div class="box text-center" style="width:20px;display: table-cell;">
+                                        <p> @Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var setting = {
+            format: "CODE39",
+            width: 1,
+            height: 45,
+            displayValue: true,
+            fontOptions: "bold",
+            font: "BNazanin",
+            textAlign: "center",
+            textPosition: "bottom",
+            textMargin: 1,
+            fontSize: 15,
+            background: "#ffffff",
+            lineColor: "#000000",
+            margin: 1
+            //marginTop: 1,
+            //marginBottom: 1,
+            //marginLeft: 1,
+            //marginRight: 1
+        };
+
+        $(document).ready(function () {
+            JsBarcode("#barcode", "@Model.Order_Hall.ElementAt(0).DocNumber", setting);
+
+            $('#divPrint').printThis({
+                importCSS: true,
+                importStyle: true,
+                printContainer: true,
+                copyTagClasses: true
+            });
+        });
+    </script>
+
+</body>
+</html>

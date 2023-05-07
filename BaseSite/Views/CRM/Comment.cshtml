@@ -1,0 +1,20 @@
+﻿@model BaseSite.Models.DBModel.CRM_Comments
+
+<div class="media media-comment">
+    <div class="media-left">
+        <img class="media-object" src="@Url.Content("~/Images/System/" + Model.Account_Users.ImagePath)" data-holder-rendered="true">
+    </div>
+    <div class="media-body" id="Comment_@(Model.Id)">
+        <h4 class="media-heading">
+            <b>@Model.Account_Users.FullName:</b>
+            <label class="badge pull-left" style="font-weight: normal; direction:ltr;">@Model.ShCreateDate</label>
+        </h4>
+        <div class="clearfix">
+            <p>@Model.Comment</p>
+        </div>
+
+        @*<a class="btn btn-xs pull-left btn-primary" onclick="NestedComment(@Model.Id)" style="clear: both">ارسال پاسخ</a>*@
+    </div>
+</div>
+
+

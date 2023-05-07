@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/28/2022 02:37:15" ReportInfo.Modified="07/02/2022 03:47:30" ReportInfo.CreatorVersion="2021.3.12.0">
+  <Dictionary>
+    <MsSqlDataConnection Name="ConnectionPanta" ConnectionString="rijcmlq+rW0RkboK+/8CKGGYUID3ctBV8q9SvKYxl3iiE7vBnh7Tgou0+4WFf3NfmPSvHVFLV3WHEXr3I59IXC1vExRaWNBSYN95H8IpKQNPiZyvkq8mQeG+chkFGSOgVQet4njebUHCBkh6mhlCvXywrCowxYmKDTCwXgCqZniR6KTyKwukOQgzCp88I8R+FYPQaHt">
+      <TableDataSource Name="Table" Alias="NewCustomers" DataType="System.Int32" Enabled="true" SelectCommand="exec RSalesToNewCustomers @_shdatefrom, @_shdateto">
+        <Column Name="ShYearFactor" DataType="System.String"/>
+        <Column Name="ShMonthFactor" DataType="System.String"/>
+        <Column Name="ShMonthNameFactor" DataType="System.String"/>
+        <Column Name="TotalCount" DataType="System.Int32"/>
+        <Column Name="TotalCost" DataType="System.Double"/>
+        <Column Name="NewsCount" DataType="System.Int32"/>
+        <Column Name="NewsCost" DataType="System.Double"/>
+        <CommandParameter Name="_shdatefrom" DataType="12" Size="10" Expression="[shdatefrom]" DefaultValue="1399/01/01"/>
+        <CommandParameter Name="_shdateto" DataType="12" Size="10" Expression="[shdateto]" DefaultValue="1401/12/29"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="shdatefrom" DataType="System.String"/>
+    <Parameter Name="shdateto" DataType="System.String"/>
+    <Parameter Name="customerid" DataType="System.Int32"/>
+  </Dictionary>
+  <ReportPage Name="Page1" RawPaperSize="9" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="56.7">
+      <TextObject Name="Text1" Left="217.35" Top="9.45" Width="453.6" Height="37.8" Text="نسبت فروش به مشتریان جدید و مشتریان قبلی در هر ماه" HorzAlign="Center" Font="Arial Narrow, 14.25pt"/>
+      <TableObject Name="Table1" Left="18.9" Top="9.45" Width="151.2" Height="37.8" Border.Lines="All">
+        <TableColumn Name="Column1" Width="85.05"/>
+        <TableColumn Name="Column2"/>
+        <TableRow Name="Row1">
+          <TableCell Name="Cell1" Border.Lines="All" Text="[shdatefrom]" HorzAlign="Center" Font="Arial, 10pt"/>
+          <TableCell Name="Cell2" Border.Lines="All" Text="از تاریخ" HorzAlign="Center" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row2">
+          <TableCell Name="Cell6" Border.Lines="All" Text="[shdateto]" HorzAlign="Center" Font="Arial, 10pt"/>
+          <TableCell Name="Cell7" Border.Lines="All" Text="تا تاریخ" HorzAlign="Center" Font="Arial, 10pt"/>
+        </TableRow>
+      </TableObject>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="60.7" Width="718.2" Height="28.35"/>
+    <DataBand Name="Data1" Top="93.05" Width="718.2" Height="604.8">
+      <MSChartObject Name="MSChart1" Width="718.2" Height="604.8" Dock="Fill" DataSource="Table" AutoSeriesColumn="" ChartData="PENoYXJ0IFNpemU9IjI4OCwgMjMyIiBCb3JkZXJsaW5lQ29sb3I9IkRhcmtHcmF5IiBCb3JkZXJsaW5lV2lkdGg9IjIiIEJvcmRlcmxpbmVEYXNoU3R5bGU9IlNvbGlkIj4NCiAgPFNlcmllcz4NCiAgICA8U2VyaWVzIE5hbWU9Itiz2KfbjNixINmF2LTYqtix24zYp9mGIiBMZWdlbmQ9IkRlZmF1bHQiIFhWYWx1ZVR5cGU9IlN0cmluZyIgWVZhbHVlVHlwZT0iRG91YmxlIiBDaGFydFR5cGU9IlN0YWNrZWRDb2x1bW4iIENoYXJ0QXJlYT0iRGVmYXVsdCIgTGFiZWw9IiNWQUxZIj4NCiAgICAgIDxQb2ludHM+DQogICAgICAgIDxEYXRhUG9pbnQgWVZhbHVlcz0iMSIgQXhpc0xhYmVsPSJBIiAvPg0KICAgICAgICA8RGF0YVBvaW50IFlWYWx1ZXM9IjMiIEF4aXNMYWJlbD0iQiIgLz4NCiAgICAgICAgPERhdGFQb2ludCBZVmFsdWVzPSIyIiBBeGlzTGFiZWw9IkMiIC8+DQogICAgICAgIDxEYXRhUG9pbnQgWVZhbHVlcz0iNCIgQXhpc0xhYmVsPSJEIiAvPg0KICAgICAgPC9Qb2ludHM+DQogICAgPC9TZXJpZXM+DQogICAgPFNlcmllcyBOYW1lPSLZhdi02KrYsduM2KfZhiDYrNiv24zYryIgTGVnZW5kPSJEZWZhdWx0IiBYVmFsdWVUeXBlPSJTdHJpbmciIFlWYWx1ZVR5cGU9IkRvdWJsZSIgQ2hhcnRUeXBlPSJTdGFja2VkQ29sdW1uIiBDaGFydEFyZWE9IkRlZmF1bHQiIExhYmVsPSIjVkFMWSI+DQogICAgICA8UG9pbnRzPg0KICAgICAgICA8RGF0YVBvaW50IFlWYWx1ZXM9IjEiIEF4aXNMYWJlbD0iQSIgLz4NCiAgICAgICAgPERhdGFQb2ludCBZVmFsdWVzPSIzIiBBeGlzTGFiZWw9IkIiIC8+DQogICAgICAgIDxEYXRhUG9pbnQgWVZhbHVlcz0iMiIgQXhpc0xhYmVsPSJDIiAvPg0KICAgICAgICA8RGF0YVBvaW50IFlWYWx1ZXM9IjQiIEF4aXNMYWJlbD0iRCIgLz4NCiAgICAgIDwvUG9pbnRzPg0KICAgIDwvU2VyaWVzPg0KICA8L1Nlcmllcz4NCiAgPExlZ2VuZHM+DQogICAgPExlZ2VuZCBOYW1lPSJEZWZhdWx0IiBJc0RvY2tlZEluc2lkZUNoYXJ0QXJlYT0iRmFsc2UiPg0KICAgIDwvTGVnZW5kPg0KICA8L0xlZ2VuZHM+DQogIDxUaXRsZXM+DQogICAgPFRpdGxlIE5hbWU9IlRpdGxlMSIgVmlzaWJsZT0iRmFsc2UiPg0KICAgIDwvVGl0bGU+DQogIDwvVGl0bGVzPg0KICA8Q2hhcnRBcmVhcz4NCiAgICA8Q2hhcnRBcmVhIE5hbWU9IkRlZmF1bHQiPg0KICAgICAgPEF4aXNZIFRpdGxlPSLZhduM2LLYp9mGINmB2LHZiNi0IC0g2YXbjNmE24zZiNmGINiq2YjZhdin2YYiIFRpdGxlRm9udD0iQ2FsaWJyaSwgOS43NXB0LCBHZGlDaGFyU2V0PTAiPg0KICAgICAgICA8TWFqb3JHcmlkIExpbmVDb2xvcj0iNjQsIDY0LCA2NCwgNjQiIC8+DQogICAgICA8L0F4aXNZPg0KICAgICAgPEF4aXNYPg0KICAgICAgICA8TWFqb3JHcmlkIExpbmVDb2xvcj0iNjQsIDY0LCA2NCwgNjQiIC8+DQogICAgICA8L0F4aXNYPg0KICAgICAgPEF4aXNYMj4NCiAgICAgICAgPE1ham9yR3JpZCBMaW5lQ29sb3I9IjY0LCA2NCwgNjQsIDY0IiAvPg0KICAgICAgPC9BeGlzWDI+DQogICAgICA8QXhpc1kyPg0KICAgICAgICA8TWFqb3JHcmlkIExpbmVDb2xvcj0iNjQsIDY0LCA2NCwgNjQiIC8+DQogICAgICA8L0F4aXNZMj4NCiAgICA8L0NoYXJ0QXJlYT4NCiAgPC9DaGFydEFyZWFzPg0KICA8Qm9yZGVyU2tpbiBTa2luU3R5bGU9IkVtYm9zcyIgLz4NCjwvQ2hhcnQ+">
+        <MSChartSeries Name="Series1" XValue="[NewCustomers.ShMonthNameFactor]" YValue1="Round(([NewCustomers.TotalCost]-[NewCustomers.NewsCost])/10000000)"/>
+        <MSChartSeries Name="Series2" XValue="[NewCustomers.ShMonthNameFactor]" YValue1="Round([NewCustomers.NewsCost]/10000000)"/>
+      </MSChartObject>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Top="701.85" Width="718.2" Height="18.9"/>
+  </ReportPage>
+</Report>

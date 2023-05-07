@@ -1,0 +1,230 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Tb_SurfaceMetals>
+@{
+    ViewBag.Title = "فلز رویه";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+    
+    WebGrid grid2 = new WebGrid(null, rowsPerPage: Model.Count > 0 ? Model.Count : 20);
+    grid2.Bind(Model, autoSortAndPage: true, rowCount: Model.Count);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+
+@*########################### SurfaceMetal ##########################################*@
+<div class="row">
+    <div id="DivDetail">
+        <div class="col-xs-6  col-md-offset-3 col-xs-offset-3" id="DivSurfaceMetal">
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CabinSurfaceMetal_Add))
+            {
+                @Html.Partial("Partial_ItemAdd", new ViewDataDictionary { { "topic", "فلز رویه" }, { "actionName", "_AddSurfaceMetal" }, { "controllerName", "Information" } })
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row" style="padding-top:20px;">
+    <div id="DivDetail">
+        <div class="col-xs-12" id="DivAttachment">
+            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+            {
+                @Html.Partial("Partial_ChangeCost", new ViewDataDictionary { { "sectionId", "metalList" } })
+            }
+        </div>
+    </div>
+</div>
+
+@{
+    var gridColumns2 = new List<WebGridColumn>();
+    gridColumns2.Add(grid2.Column("ردیف", format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid2.TotalRowCount / grid2.PageCount) / grid2.RowsPerPage) * grid2.RowsPerPage * grid2.PageIndex));
+
+    gridColumns2.Add(grid2.Column("Name", "نام فلزرویه", @<text>
+        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
+        {
+            <span id="Name" class="display-mode">@item.Name</span>
+            <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
+        }
+        else
+        {
+            <span id="Name" class="display-mode">@item.Name</span>
+            <span id="iName" class="edit-mode">@item.Name</span>
+        }
+    </text>));
+
+    gridColumns2.Add(grid2.Column("Description", "شرح", @<text>
+        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
+        {
+            <span id="Description" class="display-mode">@item.Description</span>
+            <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
+        }
+        else
+        {
+            <span id="Description" class="display-mode">@item.Description</span>
+            <span id="iDescription" class="edit-mode">@item.Description</span>
+        }
+    </text>));
+
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+    {
+        gridColumns2.Add(grid2.Column("Cost", "بهای هر برگ بلند (ریال)", @<text>
+            <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
+            <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
+        </text>));
+    }
+
+    gridColumns2.Add(grid2.Column("ProductFactor", "ضریب", @<text>
+        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
+        {
+            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+            <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
+        }
+        else
+        {
+            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+            <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
+        }
+    </text>));
+
+    gridColumns2.Add(grid2.Column("Available", "موجود", @<text>
+        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+        {
+            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
+        }
+        else
+        {
+            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
+        }
+    </text>));
+
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CabinPanel_Edit))
+    {
+        gridColumns2.Add(grid2.Column("Edit", "ویرایش", @<text>
+            <button class="btn btn-primary edit-item2 display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
+            <button class="btn btn-success save-item2 edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
+        </text>));
+    }
+    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CabinPanel_Delete))
+    {        
+        gridColumns2.Add(grid2.Column("Delete", "حذف", @<text>
+            @if (item.Id>10)
+            {
+                <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#SurfaceMetalDeleteModal" name="SurfaceMetalDelete" id="@item.Id">حذف</button>
+            }
+            else
+            {
+                <button class="btn btn-danger" style="font-size:smaller;" id="@item.Id" disabled>حذف</button>
+            }
+        </text>));
+    }
+}
+
+<div class="row DivList" id="metalList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid2.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+                headerStyle: "tblGridHeader",
+                mode: WebGridPagerModes.All,
+                firstText: " اولین ",
+                previousText: " قبلی ",
+                nextText: " بعدی ",
+                lastText: " آخرین ",
+                columns: grid2.Columns(gridColumns2.ToArray()))
+        </div>
+    </div>
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="SurfaceMetalDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف فلز رویه</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف فلز رویه مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("_DeleteSurfaceMetal", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*#################################END Delete Modal #################################################*@
+
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("Li#PrimaryInfo").css("background-color", "#524d4d");
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+
+        //تغییر رنگ بکگراند فلز رویه
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[5];
+        if (LinkHref == "Index" || LinkHref == null || LinkHref == "") {
+            $("a[ID='SurfaceMetal']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+        
+        ////////////////////// SurfaceMetal //////////////////
+        $("button[name=SurfaceMetalDelete]").click(function () {
+            var id = $(this).prop('id');
+            if (id != null && id != "") {
+                $('#SurfaceMetalDeleteModal #ItemId').val(id);
+            }
+        });
+
+        $('.edit-mode').hide();
+        $('.edit-item2').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+        });
+        $('.save-item2').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            var itemId = $(this).prop('id');
+            var name = tr.find('#iName').val();
+            var description = tr.find('#iDescription').val();
+            var cost = tr.find('#iCost').val();
+            var productFactor = tr.find('#iProductFactor').val();
+            var available = tr.find('#iAvailable').prop("checked");
+
+            $.ajax({
+                url: "@Url.Action("_EditSurfaceMetal", "Information")",
+                type: "Post",
+                dataType: "json",
+                data: { ItemId: itemId, ItemName: name, ItemDescription: description, ItemCost: cost, ItemProductFactor: productFactor, ItemAvailable: available, ItemStartFrom: 1 },
+                success: function (data) {
+                    tr.find('#Name').text(data.Name);
+                    tr.find('#Description').text(data.Description);
+                    tr.find('#Cost').autoNumeric('set', data.Cost);
+                    tr.find('#ProductFactor').text(data.ProductFactor);
+                    tr.find('#Available').prop("checked", data.Available);
+
+                    tr.find('.edit-mode, .display-mode').toggle();
+                }
+            });
+        });
+    });
+</script>

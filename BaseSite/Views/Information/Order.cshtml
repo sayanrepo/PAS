@@ -1,0 +1,500 @@
+﻿@{
+    ViewBag.Title = "سفارشات";
+    Layout = "~/Views/Shared/LayoutBase.cshtml";
+}
+
+<div class="row">
+    <div id="DivDetail">
+        <div class="col-xs-4 col-md-offset-2 col-xs-offset-2" id="DivBoxing">
+            <p class="TopText">نوع بسته بندی</p>
+            <div class="row col-xs-12 nopadding">
+                <form method="post" action="@Url.Action("AddPack", "Information")" id="formAddPack" class="formAdd">
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control alert-dismissible" id="PackName" name="PackName" placeholder="نام بسته بندی">
+                    </div>
+                    <div class="col-xs-4">
+                        <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblPack">
+                    @if (ViewBag.Pack != null)
+                    {
+                        foreach (var item in ViewBag.Pack)
+                        {
+                            <tr>
+                                <td id="@string.Format("Pack{0}", item.Id)" class="PackName">@item.Name</td>
+                                <td>
+                                    <a data-toggle="modal" href="#PackEditeModal" id="@string.Format("PackEdite{0}", item.Id)">ویرایش</a>
+                                </td>
+                                <td>
+                                    <a data-toggle="modal" href="#PackDeleteModal" id="@string.Format("PackDel{0}", item.Id)">حذف</a>
+                                </td>
+                                <td style="display:none;">@item.Id</td>
+                            </tr>
+                        }
+                    }
+
+                </table>
+            </div>
+        </div>
+
+        <div class="col-xs-4 col-xs-offset-2" id="DivPanel">
+            <p class="TopText">نوع تابلو</p>
+            <div class="row col-xs-12 nopadding">
+                <form method="post" action="@Url.Action("AddElevatorBoard", "Information")" id="formAddElevatorBoard" class="formAdd">
+                    <div class="col-xs-8">
+                        <input type="text" class="form-control alert-dismissible" id="ElevatorBoardName" name="ElevatorBoardName" placeholder="نام تابلو">
+                    </div>
+                    <div class="col-xs-4">
+                        <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblElevatorBoard">
+                    @if (ViewBag.ElevatorBoard != null)
+                    {
+                        foreach (var item in ViewBag.ElevatorBoard)
+                        {
+                            <tr>
+                                <td id="@string.Format("ElevatorBoard{0}", item.Id)" class="ElevatorBoardName">@item.Name</td>
+                                <td>
+                                    <a data-toggle="modal" href="#ElevatorBoardEditModal" id="@string.Format("ElevatorBoardEdit{0}", item.Id)">ویرایش</a>
+                                </td>
+                                <td>
+                                    <a data-toggle="modal" href="#ElevatorBoardDeleteModal" id="@string.Format("ElevatorBoardDel{0}", item.Id)">حذف</a>
+                                </td>
+                                <td style="display:none;">@item.Id</td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row" style="margin-top:13px;">
+    <div id="DivDetail">
+        <div class="col-xs-4 col-md-offset-2 col-xs-offset-2" id="DivDeduction">
+            <p class="TopText">کسورات</p>
+            <div class="row col-xs-12 nopadding">
+                <form method="post" action="@Url.Action("AddDeduction", "Information")" id="formAddDeduction" class="formAdd">
+                    <div class="col-xs-8">
+                        @*<input type="text" style="display:none;" id="DeductionId" name="DeductionId" value="@ViewBag.ID">*@
+                        <input type="text" class="form-control alert-dismissible" id="DeductionName" name="DeductionName" placeholder="نام کسورات">
+                    </div>
+                    <div class="col-xs-4">
+                        <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblDeduction">
+                    @if (ViewBag.Deduction != null)
+                    {
+                        foreach (var item in ViewBag.Deduction)
+                        {
+                            <tr>
+                                <td id="@string.Format("Deduction{0}", item.Id)" class="DeductionName"> @item.Name </td>
+                                <td>
+                                    <a data-toggle="modal" href="#DeductionEditModal" id="@string.Format("DeductionEdit{0}", item.Id)">ویرایش</a>
+                                </td>
+                                <td>
+                                    <a data-toggle="modal" href="#DeductionDeleteModal" id="@string.Format("DeductionDel{0}", item.Id)">حذف</a>
+                                </td>
+                                <td style="display:none;">@item.Id</td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+
+        <div class="col-xs-4 col-xs-offset-2" id="DivAddition">
+            <p class="TopText">اضافات</p>
+            <div class="row col-xs-12 nopadding">
+                <form method="post" action="@Url.Action("AddAddition", "Information")" id="formAddAddition" class="formAdd">
+                    <div class="col-xs-8">
+                        @*<input type="text" style="display:none;" id="AdditionName" name="AdditionName" value="@ViewBag.Name">*@
+                        <input type="text" class="form-control alert-dismissible" id="AdditionName" name="AdditionName" placeholder="نام اضافات">
+                    </div>
+                    <div class="col-xs-4">
+                        <button class="btn btn-warning AddBtn" type="submit">افزودن</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-12 DivBox">
+                <table class="table table-responsive table-condensed" id="tblAddition">
+                    @if (ViewBag.Addition != null)
+                    {
+                        foreach (var item in ViewBag.Addition)
+                        {
+                            <tr>
+                                <td id="@string.Format("Addition{0}", item.Id)"><a class="AdditionName" href="#">@item.Name</a></td>
+                                <td>
+                                    <a data-toggle="modal" href="#AdditionEditModal" id="@string.Format("AdditionEdit{0}", item.Id)">ویرایش</a>
+                                </td>
+                                <td>
+                                    <a data-toggle="modal" href="#AdditionDeleteModal" id="@string.Format("AdditionDel{0}", item.Id)">حذف</a>
+                                </td>
+                                <td style="display:none;">@item.Id</td>
+                            </tr>
+                        }
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*############################################# MODALS PART ####################################################*@
+@*##############################################################################################################*@
+@*####################################Start Pack Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="PackDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف بسته بندی</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف بسته بندی مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeletePack", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="PackId" name="PackId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END Box Delete Modal #################################################*@
+
+@*#################################Start Box Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="PackEditeModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام بسته</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("EditPack", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="PackId" name="PackId" />
+                            <input type="text" class="form-control" id="PackName" name="PackName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END Box Delete Modal ###################################################*@
+
+
+@*####################################Start ElevatorBoard Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ElevatorBoardDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف تابلو</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف تابلو مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeleteElevatorBoard", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="ElevatorBoardId" name="ElevatorBoardId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END ElevatorBoard Delete Modal #################################################*@
+
+@*#################################Start ElevatorBoard Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="ElevatorBoardEditModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام تابلو</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("EditElevatorBoard", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="ElevatorBoardId" name="ElevatorBoardId" />
+                            <input type="text" class="form-control" id="ElevatorBoardName" name="ElevatorBoardName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END ElevatorBoard Delete Modal ###################################################*@
+
+
+@*####################################Start Deduction Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="DeductionDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف کسورات</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف کسورات مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("DeductionDelete", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="DeductionId" name="DeductionId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END Deduction Delete Modal #################################################*@
+
+@*#################################Start Deduction Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="DeductionEditModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام کسورات</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("DeductionEdit", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="DeductionId" name="DeductionId" />
+                            <input type="text" class="form-control" id="DeductionName" name="DeductionName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END Deduction Delete Modal ###################################################*@
+
+
+@*####################################Start Addition Delete Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="AdditionDeleteModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">حذف اضافات</h4>
+                </div>
+                <div class="modal-body">
+                    <p>آیا از حذف اضافات مطمئن هستید؟</p>
+                    <form method="post" action="@Url.Action("AdditionDelete", "Information")" class="formDelete">
+                        <input type="text" style="display:none;" id="AdditionId" name="AdditionId" />
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary btndelete">حذف</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*#################################END Addition Delete Modal #################################################*@
+
+@*#################################Start Addition Edite Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="AdditionEditModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">ویرایش نام اضافات</h4>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="@Url.Action("AdditionEdit", "Information")" class="formDelete">
+                        <div class="form-group has-success">
+                            <input type="text" style="display:none;" id="AdditionId" name="AdditionId" />
+                            <input type="text" class="form-control" id="AdditionName" name="AdditionName">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                            <button type="submit" class="btn btn-primary">اعمال تغییرات</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+</div><!-- /.modal -->
+@*################################END Addition edit Modal ###################################################*@
+
+
+@*########################################## JAVA SCRIPT PART #############################################*@
+@*$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        //$("Li#PrimaryInfo").css("background-color", "#524d4d");
+        $("Li#PrimaryInfo a").css("color", "#fff");
+        $("Li#PrimaryInfo a").css("background-color", "transparent");
+        $("Li#PrimaryInfo a").css("font-size", "12px");
+        $("Li#PrimaryInfo a").css("font-weight", "bolder");
+        var CountryID = '@ViewBag.CountryID';
+        var ProvinceID = '@ViewBag.ProvinceID';
+
+        //$("table#tblCountry tr td#Country" + CountryID).css('background-color', 'rgba(189, 182, 182, 0.78)');
+        //$("table#tblProvince tr td#Province" + ProvinceID).css('background-color', 'rgba(189, 182, 182, 0.78)');
+
+        //تغییر رنگ بکگراند شهرها و اشخاص
+        var PageHref = window.location.href;
+        var PageHrefSplits = PageHref.split('/');
+        var LinkHref = PageHrefSplits[5];
+        if (LinkHref == "Index" || LinkHref == null || LinkHref == "") {
+            $("a[ID='Order']").css("background-color", "rgba(0, 0, 0, 0.19)");
+        }
+        //////////// PACK ////////
+        $("a[id^='PackDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            $('#PackDeleteModal #PackId').val(id);
+        });
+        $("a[ID^='PackEdite']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#PackEditeModal #PackId').val(id);
+            $('#PackEditeModal #PackName').val(name);
+        });
+
+        $("#formAddPack").submit(function (e) {
+            var Pack = $("#PackName").val();
+            if (Pack == "" || Pack == null) {
+                $("#formAddPack #PackName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+        $("#PackName").click(function () {
+            $("#formAddPack #PackName").css("background-color", "white");
+        });
+
+
+        ////////// ElevatorBoard //////////////
+        $("#formAddElevatorBoard").submit(function (e) {
+            var Elevator = $("#ElevatorBoardName").val();
+            if (Elevator == "" || Elevator == null) {
+                $("#formAddElevatorBoard #ElevatorBoardName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+        $("#ElevatorBoardName").click(function () {
+            $("#formAddElevatorBoard #ElevatorBoardName").css("background-color", "white");
+        });
+
+        $("a[id^='ElevatorBoardDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            $('#ElevatorBoardDeleteModal #ElevatorBoardId').val(id);
+        });
+        $("a[ID^='ElevatorBoardEdit']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#ElevatorBoardEditModal #ElevatorBoardId').val(id);
+            $('#ElevatorBoardEditModal #ElevatorBoardName').val(name);
+        });
+
+        //////////////////////////// Deduction ////////////////////////////////
+        $("#formAddDeduction").submit(function (e) {
+            var Deduction = $("#DeductionName").val();
+            if (Deduction == "" || Deduction == null) {
+                $("#formAddDeduction #DeductionName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+        $("#DeductionName").click(function () {
+            $("#formAddDeduction #DeductionName").css("background-color", "white");
+        });
+
+        $("a[ID^='DeductionDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var id2 = $(this).closest("tr").find("td:eq(3)").val();
+            if (id2 != null && id2 != "") {
+                $('#DeductionDeleteModal #DeductionId').val(id2);
+            }
+            else if (id != null && id != "") {
+                $('#DeductionDeleteModal #DeductionId').val(id);
+            }
+        });
+        $("a[ID^='DeductionEdit']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#DeductionEditModal #DeductionId').val(id);
+            $('#DeductionEditModal #DeductionName').val(name);
+        });
+        //######################### Addition #########################################
+        $("#formAddAddition").submit(function (e) {
+            var Addition = $("#AdditionName").val();
+            if (Addition == "" || Addition == null) {
+                $("#formAddAddition #AdditionName").css("background-color", "#eb6a6a");
+                return false;
+                e.preventDefault();
+            }
+        });
+        $("#AdditionName").click(function () {
+            $("#formAddAddition #AdditionName").css("background-color", "white");
+        });
+
+        $("a[ID^='AdditionDel']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var id2 = $(this).closest("tr").find("td:eq(3)").val();
+            if (id2 != null && id2 != "") {
+                $('#AdditionDeleteModal #AdditionId').val(id2);
+            }
+            else if (id != null && id != "") {
+                $('#AdditionDeleteModal #AdditionId').val(id);
+            }
+        });
+        $("a[ID^='AdditionEdit']").click(function () {
+            var id = $(this).closest("tr").find("td:eq(3)").text();
+            var name = $(this).closest("tr").find("td:eq(0)").text();
+            $('#AdditionEditModal #AdditionId').val(id);
+            $('#AdditionEditModal #AdditionName').val(name);
+        });
+
+    });
+</script>
+

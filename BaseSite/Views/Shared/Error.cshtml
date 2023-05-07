@@ -1,0 +1,17 @@
+﻿@model string
+@using System.Globalization
+@{
+    ViewBag.Title = "خطا";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+
+<div class="row text-center">
+    @if(string.IsNullOrEmpty(Model))
+    {
+        <p class="text-danger">تبادل اطلاعات دچار مشکل شده است</p>
+    }
+    else
+    {
+        <p class="text-danger">@Model</p>
+    }
+</div>

@@ -1,0 +1,132 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Order_Order>
+@{
+    ViewBag.Title = "کارتابل تولید";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    <div class="alert alert-success alert-dismissible" role="alert" style="display:none;" id="SuccessedEdit">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong><i class="fa fa-hand-peace-o fa-2x"></i></strong> ویرایش اطلاعات با موفقیت انجام شد .
+    </div>
+</div>
+@*##################### Search Div #############################*@
+<div class="row">
+    @*<div class="col-md-1 col-xs-12">
+            <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت سفارش" href="@Url.Action("AddOrder")" target="_blank"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
+        </div>*@
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Search))
+    {
+        <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+            <form method="post" action="@Url.Action("SearchCartable")">
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">مشتری</span>
+                            @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer" })
+                        </div>
+                        @Html.Hidden("customerId", (int?)ViewBag.customerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تاریخ سفارش از</span>
+                            <input type="text" name="orderDateFrom" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.orderDateFrom"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تا</span>
+                            <input type="text" name="orderDateTo" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.orderDateTo"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">شماره سند</span>
+                            <input type="text" name="docNumber" class="form-control text-center text-left" value="@ViewBag.docNumber" />
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تاریخ تحویل از</span>
+                            <input type="text" name="deliveryDateFrom" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.deliveryDateFrom"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تا</span>
+                            <input type="text" class="form-control text-center text-left" dir="ltr"
+                                   name="deliveryDateTo"
+                                   value="@ViewBag.deliveryDateTo"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-1 col-md-1 col-xs-offset-5 col-md-offset-5"> <button class="btn btn-sm btn-primary">جستجو</button> </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("DocNumber", header: "شماره سند", format: item => item.DocNumber),
+            grid.Column("ShDateOrder", header: "تاریخ سفارش", format: item => item.ShDateOrder),
+            grid.Column("Account_Users.FullName", header: "مشتری", format: item => item.Account_Users.FullName),
+            grid.Column("ShDateFactor", header: "تاریخ تحویل", format: item => item.ShDateFactor),
+            grid.Column("ProjectName", header: "نام پروژه", format: item => item.ProjectName),
+            grid.Column("Order_Status.Name", header: "وضعیت سفارش", format: item => item.Order_Status.Name),
+            grid.Column("Tb_OrderTypes.Name", header: "نوع سفارش", format: item => item.Tb_OrderTypes.Name),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Detail))
+                {
+                    <a data-value="@item.Id" href="@Url.Action("CartableDetail", new { OrderId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+                                                                 ))
+        </div>
+    </div>
+</div>

@@ -1,0 +1,210 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.CRM_Activity>
+@{
+    ViewBag.Title = "فعالیت ها";
+    Layout = "~/Views/Shared/LayoutCRM.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 20);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    <div class="alert alert-success alert-dismissible" role="alert" style="display:none;" id="SuccessedEdit">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <strong><i class="fa fa-hand-peace-o fa-2x"></i></strong> ویرایش اطلاعات با موفقیت انجام شد .
+    </div>
+</div>
+@*##################### Search Div #############################*@
+<div class="row">
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+    {
+        <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+            <form method="post" action="@Url.Action("SearchActivity")">
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">مشتری</span>
+                            @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                            <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@((int?)ViewBag.customerId)"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                        </div>
+                        @Html.Hidden("customerId", (int?)ViewBag.customerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تاریخ شروع از</span>
+                            <input type="text" name="startDateFrom" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.startDateFrom"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تا</span>
+                            <input type="text" name="startDateTo" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.startDateTo"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">محول شده به</span>
+                            @Html.TextBox("Employee", (string)(ViewBag.AssignedToName), new { @Class = "form-control MyControl", @Id = "Employee", @Lang = "fa-IR" })
+                        </div>
+                        @Html.Hidden("assignedToId", (int?)ViewBag.assignedToId, new { @Class = "form-control MyControl", @Id = "EmployeeId" })
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تاریخ پایان از</span>
+                            <input type="text" name="endDateFrom" class="form-control text-center text-left" dir="ltr"
+                                   value="@ViewBag.endDateFrom"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">تا</span>
+                            <input type="text" class="form-control text-center text-left" dir="ltr"
+                                   name="endDateTo"
+                                   value="@ViewBag.endDateTo"
+                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">نوع</span>
+                            <select id="typeId" name="typeId" class="form-control text-center text-left">
+                                <option selected> </option>
+                                @foreach (var item in BaseSite.Models.Cache.CRM_ActivityTypes)
+                                {
+                                    if (item.Key == ViewBag.typeId)
+                                    {
+                                        <option value="@item.Key" selected="selected">@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">وضعیت</span>
+                            <select id="status" name="status" class="form-control text-center text-left">
+                                <option selected> </option>
+                                @foreach (var item in BaseSite.Models.Cache.CRM_ActivityStates)
+                                {
+                                    if (item.Key == ViewBag.activityStatus)
+                                    {
+                                        <option value="@item.Key" selected="selected">@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">اولویت</span>
+                            <select id="priorityId" name="priorityId" class="form-control text-center text-left">
+                                <option selected> </option>
+                                @foreach (var item in BaseSite.Models.Cache.CRM_Priorities)
+                                {
+                                    if (item.Key == ViewBag.priorityId)
+                                    {
+                                        <option value="@item.Key" selected="selected">@item.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@item.Key">@item.Value</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8 col-xs-12 formdiv">
+                        <div class="input-group">
+                            <span class="input-group-addon">عنوان/توضیح</span>
+                            <input type="text" class="form-control" dir="rtl" name="term" value="@ViewBag.term" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-xs-12 text-center" style="padding-top:5px;"> <button class="btn btn-sm btn-primary">جستجو</button> </div>
+                </div>
+            </form>
+        </div>
+    }
+</div>
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            //grid.Column("ShStartDate", header: "تاریخ", format: item => item.ShDateOrder),
+            grid.Column("ShStartTime", header: "زمان شروع", format: @<span>@string.Format("{1}  {0}", item.ShStartDate, item.StartTime.ToString("HH:mm"))</span>),
+            //grid.Column("Account_Users.FullName", header: "ثبت کننده", format: item => item.Account_Users.FullName),
+            grid.Column("Account_Users1.FullName", header: "محول شده به", format: item => item.Account_Users1.FullName),
+            grid.Column("Account_Users2.FullName", header: "مشتری", format: item => item.Account_Users2.FullName),
+            grid.Column("Subject", header: "عنوان", format: item => item.Subject),
+            grid.Column("InOut", header: "ورودی/خروجی", format: @<span>@string.Format("{0}", item.InOut ? "ورودی" : "خروجی")</span>),
+            grid.Column("CRM_ActivityType.Name", header: "نوع", format: item => item.CRM_ActivityType.Name),
+            grid.Column("CRM_ActivityState.Name", header: "وضعیت", format: item => item.CRM_ActivityState.Name),
+            grid.Column("CRM_Priority.Name", header: "اولویت", format: item => item.CRM_Priority.Name),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                {
+                    <a data-value="@item.Id" href="@Url.Action("ActivityDetail", new { activityId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+            ))
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("a[ID='Activities']").css("background-color", "rgba(0, 0, 0, 0.19)");
+    });
+</script>

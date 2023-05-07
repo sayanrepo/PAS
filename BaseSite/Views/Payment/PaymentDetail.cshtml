@@ -1,0 +1,245 @@
+﻿@model BaseSite.Models.DBModel.Payment_Payment
+@using System.Globalization
+@{
+    ViewBag.Title = "ثبت سند";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row">
+    @using (Html.BeginForm("PaymentDetail", "Payment", FormMethod.Post))
+    {
+        <div class="panel-group">
+
+            @*#################################### TopPart ####################################*@
+            <div class="panel panel-success">
+                <div class="panel-heading MyHeader">
+                    <div class="row">
+                        <div class="col-xs-2"></div>
+                        <div class="col-xs-8 text-center">سند دریافتی</div>
+                        @if (Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Print))
+                        {
+                            <div class="col-xs-2 text-left">
+                                <a href="@Url.Action("Print", "Payment", new { doc = "payment-accounting", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ نسخه حسابداری"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                                <a href="@Url.Action("Print", "Payment", new { doc = "payment-customer", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ نسخه مشتری"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="panel-body CabinPanelDiv" style="padding:20px;">
+                    <input type="hidden" value="@Model.Id" name="Id" />
+                    <div class="row">
+                        <div class="col-md-3 col-md-offset-1 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                @Html.TextBoxFor(m => m.DocNumber, new { @Class = "form-control text-center MyControl", @Id = "DocNumber", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">مشتری</span>
+                                @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.CustomerId"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                            </div>
+                            @Html.HiddenFor(m => m.CustomerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                        </div>
+                        <div class="col-md-4 col-sm-6 col-xs-12">
+                            <div class="input-group">
+                                <span class="input-group-addon MySpan">وضعیت</span>
+                                <select class="form-control MyControl" name="StatusId">
+                                    <option value="@Model.StatusId" selected="selected">@Model.Payment_Status.Name</option>
+                                </select>
+                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ChangeStatus))
+                                {
+                                    <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3  col-md-offset-1 col-sm-6 col-xs-12" style="padding-top:15px;">
+                            <div class="row">
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">نحوه وصول</span>
+                                        @Html.DropDownListFor(m => m.PaymentTypeId, BaseSite.Models.Cache.Payment_Types.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.PaymentTypeId) }), new { @Class = "form-control MyControl", @Id = "PaymentType" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan" id="OrderType">بابت</span>
+                                        @Html.DropDownListFor(m => m.PaymentBabatId, BaseSite.Models.Cache.Payment_Babats.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.PaymentBabatId) }), new { @Class = "form-control MyControl", @Id = "PaymentBabat", aria_describedby = "PaymentBabat" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">تاریخ سند</span>
+                                        <input type="text" id="ShDateSanad" name="ShDateSanad" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSanad"
+                                               onclick="PersianDatePicker.Show(this,'@today');" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan" id="DeliverDate">سررسید</span>
+                                        <input type="text" id="ShDateSarresid" name="ShDateSarresid" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSarresid"
+                                               onclick="PersianDatePicker.Show(this,'@today');" />
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">مبلغ</span>
+                                        @Html.TextBoxFor(m => m.Amount, new { @Class = "form-control text-center MyControl autoNumber", @Id = "Amount", @ariadescribedby = "Amount", @style = "direction:ltr;" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-sm-6 col-xs-12" style="padding-top:15px;">
+                            <div class="row">
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan" id="BankId">بانک</span>
+                                        @Html.DropDownListFor(m => m.BankId, BaseSite.Models.Cache.Payment_Banks.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.BankId) }), new { @Class = "form-control MyControl", @Id = "BankId", aria_describedby = "BankId" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">کد شعبه</span>
+                                        @Html.TextBoxFor(m => m.BankBranchCode, new { @Class = "form-control text-center MyControl", @Id = "BankBranch", @ariadescribedby = "BankBranch", @style = "direction:ltr;" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">شماره حساب</span>
+                                        @Html.TextBoxFor(m => m.ShomareHesab, new { @Class = "form-control text-center MyControl", @Id = "ShomareHesab", @ariadescribedby = "ShomareHesab", @style = "direction:ltr;" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">شماره چک/حواله</span>
+                                        @Html.TextBoxFor(m => m.ShomareSanad, new { @Class = "form-control text-center MyControl", @Id = "ShomareSanad", @ariadescribedby = "ShomareSanad", @style = "direction:ltr;" })
+                                    </div>
+                                </div>
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">شناسه صیاد</span>
+                                        @Html.TextBoxFor(m => m.ProjectName, new { @Class = "form-control text-center MyControl", @Id = "ProjectName", @style = "direction:ltr;" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 col-sm-6 col-xs-12" style="padding-top:15px;">
+                            <div class="row">
+                                <div class="col-xs-12" style="padding-top:5px;">
+                                    <div class="input-group">
+                                        <span class="input-group-addon MySpan">توضیحات</span>
+                                        @Html.TextAreaFor(m => m.Comment, new { @rows = 9, @Class = "form-control MyControl", @Id = "Comment", @Lang = "fa-IR", style = "resize:vertical;" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @*<div class="col-md-2 col-sm-6 col-xs-12">
+                                <div class="input-group">
+                                    <input type="text" class="form-control MyControl" aria-label="Text input with checkbox" value="برگشتی" disabled="disabled">
+                                    <span class="input-group-addon MySpan">@Html.CheckBoxFor(m => m.Bargashti, new { @Class = "form-control MyControl MyCheckbox", @name = "Bargashti" })</span>
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </div>
+        //################################## Submit Button ###################################
+        <div class="row" style="text-align:center;margin-bottom:10px;">
+            @if (Model.Id == 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Add))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+            }
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ForoshConfirm))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="foroshconfirm">تایید واحد فروش</button>
+            }
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidForosh && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_MaliConfirm))
+            {
+                <button type="submit" class="btn btn-success" name="submit" value="maliconfirm" style="margin:5px;">تایید واحد مالی</button>
+                <button type="submit" class="btn btn-warning" name="submit" value="malireject" style="margin:5px;">برگشت به واحد فروش</button>
+            }
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Delete))
+            {
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#PaymentDeleteModal" style="margin-right:10px;">حذف سند</button>
+            }
+        </div>
+        //###################################### end of body ###############################
+    }
+</div>
+
+
+@*####################################Start Delete Modal ###############################################*@
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Delete))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="PaymentDeleteModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">حذف سند دریافتی</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>آیا از حذف سند دریافتی مطمئن هستید؟</p>
+                        <form method="post" action="@Url.Action("PaymentDelete", "Payment", new { paymentId = Model.Id })" class="formDelete">
+                            <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                <button type="submit" class="btn btn-danger btndelete">حذف</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ChangeStatus))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">تغییر وضعیت سند دریافتی</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="@Url.Action("PaymentChangeStatus", "Payment", new { paymentId = Model.Id })" class="formDelete">
+                            <div>
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">وضعیت جدید</span>
+                                    @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Payment_PaymentStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <p style="display:inline-block;">آیا از تغییر وضعیت سند دریافتی مطمئن هستید؟</p>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
+                                <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

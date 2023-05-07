@@ -1,0 +1,467 @@
+﻿@import url("Fonts.css");
+
+@media print {
+    @page {
+        size: A4 landscape;
+    }
+
+    #divPrint {
+        width: 275mm;
+        height: 210mm;
+        /*width: 100%;
+        height: 100%;
+        padding: 12px 15px 15px 15px;*/
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+        /*background-image: url('../../Images/pishfactor.png');
+        background-size: auto;
+        background-repeat: no-repeat;
+        background-position: center center;*/
+    }
+
+    input {
+        border: none;
+        padding: 0;
+    }
+
+    pre {
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+        border: none;
+        padding: 1px 0;
+    }
+
+    .text-monospace {
+        letter-spacing: 2.2mm;
+    }
+
+    .bg-text {
+        color: #f7d9b5 !important;
+    }
+
+    .box {
+        border: 2px solid;
+        padding: 1px;
+    }
+
+    .boxThin {
+        border: 1px solid;
+        padding: 1px;
+    }
+
+    .box > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 12px;
+    }
+
+    .boxThin > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 12px;
+    }
+
+    .boxBottom {
+        border-bottom: 1px solid;
+        padding: 1px 1px 0px 1px;
+    }
+
+        .boxBottom > div {
+            padding: 1px;
+        }
+
+    .rotate {
+        writing-mode: vertical-lr;
+        /* FF3.5+ */
+        /*-moz-transform: rotate(-90.0deg);*/
+        /* Opera 10.5 */
+        /*-o-transform: rotate(-90.0deg);*/
+        /* Saf3.1+, Chrome */
+        /*-webkit-transform: rotate(-90.0deg);*/
+        /* IE6,IE7 */
+        /*filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=0.083);*/
+        /* IE8 */
+        /*-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)";*/
+        /* Standard */
+        /*transform: rotate(-90.0deg);*/
+    }
+
+    .col1 {
+        width: 8mm;
+    }
+
+        .col1 input {
+            width: 7mm;
+            text-align: center;
+        }
+
+    .col2 {
+        width: 15mm;
+    }
+
+        .col2 input {
+            width: 14mm;
+            text-align: center;
+        }
+
+    .col3 {
+        width: 60mm;
+    }
+
+        .col3 input {
+            width: 59mm;
+            text-align: right;
+        }
+
+    .col4 {
+        width: 11mm;
+    }
+
+        .col4 input {
+            width: 10mm;
+            text-align: center;
+        }
+
+    .col5 {
+        width: 15mm;
+    }
+
+        .col5 input {
+            width: 14mm;
+            text-align: center;
+        }
+
+    .col6 {
+        width: 22mm;
+    }
+
+        .col6 input {
+            width: 21mm;
+            text-align: center;
+        }
+
+    .col7 {
+        width: 26mm;
+    }
+
+        .col7 input {
+            width: 25mm;
+            text-align: center;
+        }
+
+    .col8 {
+        width: 20mm;
+    }
+
+        .col8 input {
+            width: 19mm;
+            text-align: center;
+        }
+
+    .col9 {
+        width: 36mm;
+    }
+
+        .col9 input {
+            width: 35mm;
+            text-align: center;
+        }
+
+    .col10 {
+        width: 23mm;
+    }
+
+        .col10 input {
+            width: 22mm;
+            text-align: center;
+        }
+
+    .col11 {
+        width: 33mm;
+    }
+
+        .col11 input {
+            width: 32mm;
+            text-align: center;
+        }
+
+    p.field {
+        font-size: 17px;
+    }
+
+        p.field b {
+            padding-right: 2px;
+            padding-left: 2px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        p.field input {
+            padding-right: 2px;
+            padding-left: 2px;
+            font-weight: bold;
+            font-size: 15.5px;
+            height: 19px;
+        }
+
+    .digits > span {
+        padding: 4px 3px 4px 3px;
+        border: 1px solid;
+        float: left;
+    }
+
+    .digits > input {
+        padding: 4px 3px 4px 3px;
+        border: 1px solid;
+        border-radius: 0;
+        float: left;
+        width: 4mm;
+        height: 19px;
+    }
+
+    .boxRow {
+        border-top: 1px solid;
+        border-right: 2px solid;
+        border-bottom: 2px solid;
+        border-left: 2px solid;
+        max-height: 8mm;
+        padding: 0;
+    }
+
+        .boxRow p {
+            margin: 0;
+        }
+
+    .boxCell {
+        height: 8mm;
+        border-left: 2px solid;
+        padding: 1px;
+    }
+}
+
+@media not print {
+    #divPrint {
+        width: 275mm;
+        height: 210mm;
+        /*width: 90%;
+        height: 100%;
+        padding: 12px 15px 15px 15px;*/
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+    }
+
+    input {
+        /* border: none;*/
+        padding: 0;
+    }
+
+    pre {
+        font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
+        font-size: 15px;
+        border: none;
+        padding: 1px 0;
+    }
+
+    .text-monospace {
+        letter-spacing: 2.2mm;
+    }
+
+    .bg-text {
+        color: #f7d9b5 !important;
+    }
+
+    .box {
+        border: 2px solid;
+        padding: 1px;
+    }
+
+    .boxThin {
+        border: 1px solid;
+        padding: 1px;
+    }
+
+    .box > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 12px;
+    }
+
+    .boxThin > div {
+        padding: 2px 3px 2px 3px;
+        line-height: 12px;
+    }
+
+    .boxBottom {
+        border-bottom: 1px solid;
+        padding: 1px 1px 0px 1px;
+    }
+
+        .boxBottom > div {
+            padding: 1px;
+        }
+
+    .rotate {
+        writing-mode: vertical-lr;
+        /* FF3.5+ */
+        /*-moz-transform: rotate(-90.0deg);*/
+        /* Opera 10.5 */
+        /*-o-transform: rotate(-90.0deg);*/
+        /* Saf3.1+, Chrome */
+        /*-webkit-transform: rotate(-90.0deg);*/
+        /* IE6,IE7 */
+        /*filter: progid: DXImageTransform.Microsoft.BasicImage(rotation=0.083);*/
+        /* IE8 */
+        /*-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083)";*/
+        /* Standard */
+        /*transform: rotate(-90.0deg);*/
+    }
+
+    .col1 {
+        width: 8mm;
+    }
+
+        .col1 input {
+            width: 7mm;
+            text-align: center;
+        }
+
+    .col2 {
+        width: 15mm;
+    }
+
+        .col2 input {
+            width: 14mm;
+            text-align: center;
+        }
+
+    .col3 {
+        width: 60mm;
+    }
+
+        .col3 input {
+            width: 59mm;
+            text-align: right;
+        }
+
+    .col4 {
+        width: 11mm;
+    }
+
+        .col4 input {
+            width: 10mm;
+            text-align: center;
+        }
+
+    .col5 {
+        width: 15mm;
+    }
+
+        .col5 input {
+            width: 14mm;
+            text-align: center;
+        }
+
+    .col6 {
+        width: 22mm;
+    }
+
+        .col6 input {
+            width: 21mm;
+            text-align: center;
+        }
+
+    .col7 {
+        width: 26mm;
+    }
+
+        .col7 input {
+            width: 25mm;
+            text-align: center;
+        }
+
+    .col8 {
+        width: 20mm;
+    }
+
+        .col8 input {
+            width: 19mm;
+            text-align: center;
+        }
+
+    .col9 {
+        width: 36mm;
+    }
+
+        .col9 input {
+            width: 35mm;
+            text-align: center;
+        }
+
+    .col10 {
+        width: 23mm;
+    }
+
+        .col10 input {
+            width: 22mm;
+            text-align: center;
+        }
+
+    .col11 {
+        width: 33mm;
+    }
+
+        .col11 input {
+            width: 32mm;
+            text-align: center;
+        }
+
+    p.field {
+        font-size: 17px;
+    }
+
+        p.field b {
+            padding-right: 2px;
+            padding-left: 2px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        p.field input {
+            padding-right: 2px;
+            padding-left: 2px;
+            font-weight: bold;
+            font-size: 15.5px;
+            height: 19px;
+        }
+
+    .digits > span {
+        padding: 4px 3px 4px 3px;
+        border: 1px solid;
+        float: left;
+    }
+
+    .digits > input {
+        padding: 4px 3px 4px 3px;
+        border: 1px solid;
+        border-radius: 0;
+        float: left;
+        width: 4mm;
+        height: 19px;
+    }
+
+    .boxRow {
+        border-top: 1px solid;
+        border-right: 2px solid;
+        border-bottom: 2px solid;
+        border-left: 2px solid;
+        max-height: 8mm;
+        padding: 0;
+    }
+
+        .boxRow p {
+            margin: 0;
+        }
+
+    .boxCell {
+        height: 8mm;
+        border-left: 2px solid;
+        padding: 1px;
+    }
+}

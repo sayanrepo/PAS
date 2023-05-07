@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="sayan, SAYAN, sayantech, SAYANTECH, sayan-tech, SAYAN-TECH, software, SOFTWARE, سایان, سایان تک, گروه نرم افزاری, شرکت سایان, گروه نرم افزاری سایان, نرم افزار, کامپیوتر, اتوماسیون">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <link href="@Url.Content("~/Contents/css/bootstrap.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/bootstrap-rtl.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/AweSome/font-awesome.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/jqueryui/jquery-ui.css")" rel="stylesheet">
+    <link href="@Url.Content("~/Contents/css/MyStyle/Main.css")" rel="stylesheet">
+
+    <link href="~/Contents/css/DatePicker/PersianDatePicker.min.css" rel="stylesheet" />
+    <script src="~/Contents/js/DatePicker/PersianDatePicker.min.js"></script>
+
+    <title>@ViewBag.Title</title>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body class="container-fluid">
+    <script src="@Url.Content("~/Contents/js/jquery-3.1.1.js")"></script>
+    <script src="@Url.Content("~/Contents/jqueryui/jquery-ui.js")"></script>
+    <script src="@Url.Content("~/Contents/js/bootstrap.js")"></script>
+    <script src="@Url.Content("~/Contents/js/FarsiType.js")"></script>
+    @*<div class="row">
+            <div id="Topjumbotron" class="jumbotron text-center Mjumbotron">
+                <h1>اتوماسیون فروش و تولید پنتا</h1>
+            </div>
+        </div>*@
+    <div id="topDiv" class="row" style="font-size:14px;">
+        <nav id="topNav" class="navbar navbar-inverse MyMenu">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar1" aria-expanded="false">
+                    <span class="sr-only"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#" style="padding:5px;background-color:white;"><img style="height:100%" src="/Images/logo-final.jpg" @*src="/Images/logo.svg"*@ /></a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar1">
+                <ul class="nav navbar-nav">
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Order))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Order")? "active" : "")"><a href="@Url.Action("OrderList", "Order")"><span class="fa fa-reorder fa-lg" aria-hidden="true"></span> سفارشات</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Sale))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Sale") ? "active" : "")"><a href="@Url.Action("SaleList", "Sale")"><span class="fa fa-shopping-basket fa-lg" aria-hidden="true"></span> فروش کالا</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Store))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Store") ? "active" : "")"><a href="@Url.Action("SaleList", "Store")"><span class="fa fa-shopping-cart fa-lg" aria-hidden="true"></span> پنتا شاپ</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Service))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Service") ? "active" : "")"><a href="@Url.Action("ServiceList", "Service")"><span class="fa fa-wrench fa-lg" aria-hidden="true"></span> خدمات</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Payment))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Payment")? "active" : "")"><a href="@Url.Action("PaymentList", "Payment")"><span class="fa fa-file-text fa-lg" aria-hidden="true"></span> اسناد دریافتی</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Cartable))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Cartable") ? "active" : "")"><a href="@Url.Action("CartableList", "Cartable")"><span class="fa fa-list-ol fa-lg" aria-hidden="true"></span> کارتابل تولید</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Plan))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Plan") ? "active" : "")"><a href="@Url.Action("PlanList", "Plan")"><span class="fa fa-industry fa-lg" aria-hidden="true"></span> برنامه تولید</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Product))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Product") ? "active" : "")"><a href="@Url.Action("ProductList", "Product")"><span class="fa fa-random fa-lg" aria-hidden="true"></span> کنترل ماتریسی تولید</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Process))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Process") ? "active" : "")"><a href="@Url.Action("Index", "Process")"><span class="fa fa-wrench fa-lg" aria-hidden="true"></span> مراحل تولید</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Process_Project))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["action"].ToString().Equals("Project") ? "active" : "")"><a href="@Url.Action("Project", "Process")"><span class="fa fa-linode fa-lg" aria-hidden="true"></span> پروژه های تولید</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Delivery))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Delivery") ? "active" : "")"><a href="@Url.Action("DeliveryList", "Delivery")"><span class="fa fa-truck fa-lg" aria-hidden="true"></span> تحویل</a></li>
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") ? "active" : "")"><a href="@Url.Action("ReportList", "Report")"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
+                        @*if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_CustomerBill))
+                        {
+                            <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") || ViewContext.RouteData.Values["controller"].ToString().Equals("Log") ? "active" : "")"><a href="@Url.Action("ReportTemplate", "Report", new { ReportName = "RCustomerBill", ReportDescription = "گزارشات", Width = 100, Height = 650 })"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
+                        }
+                        else if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_ProductFactor))
+                        {
+                            <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") || ViewContext.RouteData.Values["controller"].ToString().Equals("Log") ? "active" : "")"><a href="@Url.Action("ProductFactors", "Report")"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
+                        }*@
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Setting))
+                    {
+                        if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Setting_Cities))
+                        {
+                            <li id="PrimaryInfo"><a href="@Url.Action("Cities", "Information")"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> اطلاعات پایه</a></li>
+                        }
+                        else
+                        {
+                            <li id="PrimaryInfo"><a href="@Url.Action("Persons", "Account")"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> اطلاعات پایه</a></li>
+                        }
+                    }
+                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.CRM))
+                    {
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().ToLower().Equals("crm") ? "active" : "")"><a href="@Url.Action("Persons", "Crm")"><span class="glyphicon glyphicon-headphones" aria-hidden="true"></span> ارتباط با مشتریان</a></li>
+                    }
+                </ul>
+                <ul class="nav navbar-nav navbar-left" style="margin-left: 20px;">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@((Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Name + " " + (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).LastName) <span class="caret"></span></a>
+                        <ul class="dropdown-menu" style="font-size:13px;">
+                            <li><a href="@Url.Action("ChangePassword", "Account")">تغییر نام کاربری و رمزعبور</a></li>
+                            <li><a href="@Url.Action("ChangeImage", "Account")">تغییر عکس پروفایل</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="@Url.Action("LogOut", "Account")">خروج</a></li>
+                        </ul>
+                    </li>
+                    <li><img style="height:50px;width:50px; border-radius:10px;" src="@Url.Content("~/Images/System/" + (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).ImagePath)" /></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <div id="MainPart" class="MainDiv container">
+        @RenderBody()
+    </div>
+</body>
+</html>
+@*<script type="text/javascript">
+    $(function () {
+        var TopjumbotronHeight = $('#Topjumbotron').outerHeight();
+        $(window).scroll(function () {
+            if ($(window).scrollTop() > TopjumbotronHeight) {
+                $('#topNav').addClass("navbar-fixed-top");
+                $('#MainPart').css('margin-top', 72);
+                $('#navbar1').css('padding-right', 15);
+                $('#navbar1').css('padding-left', 15);
+            } else {
+                $('#topNav').removeClass("navbar-fixed-top");
+                $('#MainPart').css('margin-top', 0);
+            }
+        });
+    });
+</script>*@
+
+<!-- Floating Social Media bar Starts -->
+<div class="floatingbar">
+    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Help_Help))
+    {
+        <div class="item">
+            <i class="icon fa fa-book"></i>
+            <a href="@Url.Action("guide", "home")" target="_blank">راهنما</a>
+        </div>
+    }
+</div>
+<!-- Floating Social Media bar Ends -->
+
+
+@*#################################PersonInfo Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="PersonInfoModal">
+    <div class="row">
+        <div class="col-xs-pull-3 col-xs-6 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">مشخصات</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:2px; padding:5px;">
+                        <div style="width: 100%; display: table;" id="PersonTable">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*################################END Modal ###################################################*@
+
+<script src="@Url.Content("~/Contents/js/autoNumeric.js")"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#Customer").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteUsers","Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#CustomerId").val(ui.item.id);
+                $("#personLink").data("userid", ui.item.id);
+            },
+            minLength: 1
+        });
+
+        $("#Employee").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "@Url.Action("AutoCompleteEmployees", "Order")",
+                    type: "POST",
+                    dataType: "json",
+                    data: { Prefix: request.term },
+                    success: function (data) {
+                        response($.map(data, function (item) {
+                            return { label: item.Name, value: item.Name, id: item.Id };
+                        }))
+                    }
+                })
+            },
+            select: function (event, ui) {
+                $("#EmployeeId").val(ui.item.id);
+                //$("#personLink").data("userid", ui.item.id);
+            },
+            minLength: 1
+        });
+    })
+
+    $(function () {
+        $('.autoNumber').autoNumeric(
+             'init', {
+                 aSep: ',',
+                 aSign: '',
+                 lZero: 'deny',
+                 vMin: '-999999999999999',
+                 vMax: '999999999999999',
+                 //vMin: '-999999999999999.00',
+                 //vMax: '999999999999999.00',
+             });
+    });
+    $(function () {
+        $('.autoIntNumber').autoNumeric(
+             'init', {
+                 aSep: ',',
+                 aSign: '',
+                 vMin: '00',
+                 vMax: '999999999999999',
+             });
+    });
+    $(function () {
+        $('.autoPercent').autoNumeric(
+             'init', {
+                 aSign: '',
+                 vMin: '00.00',
+                 vMax: '100.00',
+             });
+    });
+    $(function () {
+        $('.autoInt').autoNumeric(
+             'init', {
+                 aSign: '',
+                 vMin: '00',
+                 vMax: '1000',
+             });
+    });
+    $(function () {
+        $('.autoYear').autoNumeric(
+             'init', {
+                 aSign: '',
+                 dGroup: '4',
+                 vMin: '0000',
+                 vMax: '2000',
+
+             });
+    });
+
+    $('form').submit(function () {
+        var form = $(this);
+        $('input').each(function (i) {
+            var self = $(this);
+            try {
+                var v = self.autoNumeric('get');
+                self.autoNumeric('destroy');
+                self.val(v);
+            } catch (err) {
+                console.log("Not an autonumeric field: " + self.attr("name"));
+            }
+        });
+        return true;
+    });
+
+    function addCommas(x) {
+        var parts = x.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    }
+
+    function fnPrint(element) {
+        $("#divPrint").printThis();
+    }
+
+
+    $('#PersonInfoModal').on('show.bs.modal', function (event) {
+        var clickedLink = $(event.relatedTarget); // Button that triggered the modal
+        var vuserId = clickedLink.data("userid"); // Extract info from data-* attributes
+
+        var modal = $(this);
+        //modal.find('.modal-title').text('جزئیات کارکرد (' + vuserFullName + ')');
+
+        $.ajax({
+            url: "@Url.Action("GetPersonInfo", "Order")",
+            type: "GET",
+        dataType: "json",
+        data: { userId: vuserId},
+        success: function (data) {
+                contentHtml = "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>نام: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.FullName + "</b></p></div>" +
+                                "</div>" +                                
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>شماره تماس: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Phone1 + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>فکس: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Fax + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>مدیرعامل: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Responsible1 + "&nbsp;&nbsp;(" + data.ResponsiblePhone1 + ")</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>آدرس محل سکونت /دفتر مرکزی: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Address1 + "</b></p></div>" +
+                                "</div>" +
+                                "<div style='display: table-row'>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>آدرس محل کار /کارخانه: </b></p></div>" +
+                                "<div class='box text-right' style='display: table-cell;'><p><b>" + data.Address2 + "</b></p></div>" +
+                                "</div>";
+                $('#PersonTable').html(contentHtml);
+        }
+    })
+    })
+       
+</script>

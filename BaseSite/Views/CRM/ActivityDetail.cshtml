@@ -1,0 +1,185 @@
+﻿@model BaseSite.Models.DBModel.CRM_Activity
+@using System.Globalization
+@{
+    ViewBag.Title = string.Format("ثبت {0}", Model.TypeId > 0 ? BaseSite.Models.Cache.CRM_ActivityTypes[Model.TypeId] : "فعالیت");
+    Layout = "~/Views/Shared/LayoutCRM.cshtml";
+}
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+<div class="row" style="margin-top:-19px;">
+    @using (Html.BeginForm("ActivityDetail", "CRM", FormMethod.Post))
+    {
+        @*#################################### TopPart ####################################*@
+        <div class="panel panel-success" style="margin-bottom:10px;margin-top:0;">
+            <div class="panel-heading MyHeader">
+                <div class="row">
+                    <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">@(Model.TypeId > 0 ? BaseSite.Models.Cache.CRM_ActivityTypes[Model.TypeId] : "فعالیت")</div>
+                </div>
+            </div>
+            <div class="panel-body TopPart" style="padding-bottom:15px;">
+                <input type="hidden" value="@Model.Id" name="Id" />
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">ایجاد کننده</span>
+                                    @Html.TextBoxFor(m => m.Account_Users.FullName, new { @Class = "form-control text-center MyControl", @Id = "Createdby", @Lang = "fa-IR", @readonly = "readonly" })
+                                </div>
+                                @Html.HiddenFor(m => m.OwnerId)
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">محول شده به</span>
+                                    @Html.TextBox("Employee", (string)(Model.Account_Users1.FullName), new { @Class = "form-control MyControl", @Id = "Employee", @Lang = "fa-IR" })
+                                </div>
+                                @Html.Hidden("AssignedToId", Model.AssignedToId, new { @Class = "form-control MyControl", @Id = "EmployeeId" })
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">مشتری</span>
+                                    @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                                    <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@Model.CustomerId"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                                </div>
+                                @Html.HiddenFor(m => m.CustomerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6 col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">وضعیت</span>
+                                    @Html.DropDownListFor(m => m.StateId, BaseSite.Models.Cache.CRM_ActivityStates.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StateId) }), new { @Class = "form-control MyControl", @Id = "ActivityState" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">نوع</span>
+                                    @Html.DropDownListFor(m => m.TypeId, BaseSite.Models.Cache.CRM_ActivityTypes.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.TypeId) }), new { @Class = "form-control MyControl", @Id = "ActivityType", aria_describedby = "ActivityType" })
+                                </div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">اولویت</span>
+                                    @Html.DropDownListFor(m => m.PriorityId, BaseSite.Models.Cache.CRM_Priorities.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.PriorityId) }), new { @Class = "form-control MyControl", @Id = "ActivityPriority", aria_describedby = "ActivityPriority" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <div class="row">
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">تاریخ شروع</span>
+                                    <input type="text" id="ShStartDate" name="ShStartDate" class="form-control text-center MyControl" value="@Model.ShStartDate"
+                                           onclick="PersianDatePicker.Show(this,'@today');" />
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">زمان شروع</span>
+                                    <input type="time" id="ShStartTime" name="ShStartTime" class="form-control text-center MyControl" value="@Model.ShStartTime" />
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">تاریخ پایان</span>
+                                    <input type="text" id="ShEndDate" name="ShEndDate" class="form-control text-center MyControl" value="@Model.ShEndDate"
+                                           onclick="PersianDatePicker.Show(this,'@today');" />
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">زمان پایان</span>
+                                    <input type="time" id="ShEndTime" name="ShEndTime" class="form-control text-center MyControl" value="@Model.ShEndTime" />
+                                </div>
+                            </div>
+                            <div class="col-xs-6 text-center" style="padding:5px;">
+                                @if (Model.InOut)
+                                {
+                                    <label class="radio-inline"><input type="radio" name="InOut" value="false">فعالیت خروجی</label>
+                                    <label class="radio-inline"><input type="radio" name="InOut" value="true" checked>فعالیت ورودی</label>
+                                }
+                                else
+                                {
+                                    <label class="radio-inline"><input type="radio" name="InOut" value="false" checked>فعالیت خروجی</label>
+                                    <label class="radio-inline"><input type="radio" name="InOut" value="true">فعالیت ورودی</label>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding:10px 0;">
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon MySpan">عنوان</span>
+                            @Html.TextBoxFor(m => m.Subject, new { @Class = "form-control text-center MyControl", @Id = "Subject", @Lang = "fa-IR", required = "required" })
+                        </div>
+                    </div><br /><br />
+                    <div class="col-md-6 col-sm-12 col-xs-12">
+                        <div class="input-group">
+                            <span class="input-group-addon MySpan">توضیحات</span>
+                            <textarea rows="4" cols="50" name="Description" id="Description" class="form-control MyControl" style="padding:10px; resize:vertical;">@Model.Description</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="text-align:center; padding-top:10px;padding-bottom:10px;">
+                    @if (Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+                    {
+                        <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
+                    }
+                    @if (Model.Id > 0 && Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open &&
+                Model.OwnerId == BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Id &&
+                BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+                    {
+                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#ActivityDeleteModal" style="margin-right:10px;">حذف فعالیت</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@*####################################Start Delete Modal ###############################################*@
+@if (Model.Id > 0 && Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="ActivityDeleteModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">حذف فعالیت</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>آیا از حذف فعالیت مطمئن هستید؟</p>
+                        <form method="post" action="@Url.Action("ActivityDelete", "CRM", new { activityId = Model.Id })" class="formDelete">
+                            <input type="text" style="display:none;" id="ItemId" name="ItemId" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">بستن</button>
+                                <button type="submit" class="btn btn-danger btndelete">حذف</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("a[ID='Activities']").css("background-color", "rgba(0, 0, 0, 0.19)");
+    });
+</script>

@@ -1,0 +1,57 @@
+﻿@font-face {
+  font-family: 'BLotus';
+  src: url('/Contents/fonts/eot/BLotus.eot');
+  src: url('/Contents/fonts/eot/BLotus.eot?#iefix') format('embedded-opentype'),
+       url('/Contents/fonts/woff/BLotus.woff') format('woff'), 
+       url('/Contents/fonts/ttf/BLotus.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'IRANSans';
+  src: url('/Contents/fonts/eot/IRANSansWeb(FaNum).eot?');
+  src: url('/Contents/fonts/eot/IRANSansWeb(FaNum).eot?#iefix') format('embedded-opentype'),
+       url('/Contents/fonts/woff/IRANSansWeb(FaNum).woff?') format('woff'), 
+       url('/Contents/fonts/ttf/IRANSansWeb(FaNum).ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BDavat';
+  src: url('/Contents/fonts/eot/BDavat.eot?');
+  src: url('/Contents/fonts/eot/BDavat.eot?#iefix') format('embedded-opentype'),
+       url('/Contents/fonts/woff/BDavat.woff?') format('woff'), 
+       url('/Contents/fonts/ttf/BDavat.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BFarnaz';
+  src: url('/Contents/fonts/eot/BFarnaz.eot?');
+  src: url('/Contents/fonts/eot/BFarnaz.eot?#iefix') format('embedded-opentype'),
+       url('/Contents/fonts/woff/BFarnaz.woff?') format('woff'), 
+       url('/Contents/fonts/ttf/BFarnaz.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BJadidBold';
+  src: url('/Contents/fonts/eot/BJadidBold.eot?');
+  src: url('/Contents/fonts/eot/BJadidBold.eot?#iefix') format('embedded-opentype'),
+       url('/Contents/fonts/woff/BJadidBold.woff?') format('woff'), 
+       url('/Contents/fonts/ttf/BJadidBold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'BNazanin';
+  src: url('/Contents/fonts/woff/BNazanin.woff?') format('woff'), 
+       url('/Contents/fonts/ttf/BNazanin.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

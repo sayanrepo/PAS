@@ -1,0 +1,642 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\FastReport.OpenSource.2022.2.12\build\FastReport.OpenSource.props" Condition="Exists('..\packages\FastReport.OpenSource.2022.2.12\build\FastReport.OpenSource.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1C9573C4-3405-4901-8ACC-5863DB10331D}</ProjectGuid>
+    <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BaseSite</RootNamespace>
+    <AssemblyName>BaseSite</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Accessibility" />
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="FastReport, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.dll</HintPath>
+    </Reference>
+    <Reference Include="FastReport.Bars, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Bars.dll</HintPath>
+    </Reference>
+    <Reference Include="FastReport.Compat, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=406e1f4c3c8ef97e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Compat.dll</HintPath>
+    </Reference>
+    <Reference Include="FastReport.DataVisualization, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=5ceb240df42bf6e8, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.DataVisualization.dll</HintPath>
+    </Reference>
+    <Reference Include="FastReport.Web, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="Kavenegar">
+      <HintPath>..\packages\kavenegar.1.1.2\lib\net40\Kavenegar.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.Common, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Report.Viewer.11.0.0.0\lib\net\Microsoft.ReportViewer.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.DataVisualization, Version=12.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Windows\assembly\GAC_MSIL\Microsoft.ReportViewer.DataVisualization\11.0.0.0__89845dcd8080cc91\Microsoft.ReportViewer.DataVisualization.DLL</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.ProcessingObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Report.Viewer.11.0.0.0\lib\net\Microsoft.ReportViewer.ProcessingObjectModel.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Report.Viewer.11.0.0.0\lib\net\Microsoft.ReportViewer.WebForms.DLL</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SqlServer.Types, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.SqlServer.Types.11.0.0\lib\net20\Microsoft.SqlServer.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="PersianDateTime, Version=1.0.4898.42135, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\PersianDateTime.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Security">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.DynamicData">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Entity">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.ApplicationServices">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Core">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Extensions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Abstractions">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Routing">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Configuration">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.EnterpriseServices">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.4.5.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20710.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CartableController.cs" />
+    <Compile Include="Controllers\CRMController.cs" />
+    <Compile Include="Controllers\CustomAuthorize.cs" />
+    <Compile Include="Controllers\DeliveryController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InformationController.cs" />
+    <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Controllers\OrderController.cs" />
+    <Compile Include="Controllers\PaymentController.cs" />
+    <Compile Include="Controllers\PlanController.cs" />
+    <Compile Include="Controllers\ProcessController.cs" />
+    <Compile Include="Controllers\ProductController.cs" />
+    <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\SaleController.cs" />
+    <Compile Include="Controllers\ServiceController.cs" />
+    <Compile Include="Controllers\StoreController.cs" />
+    <Compile Include="Data\PantaEntities.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Account\AccountManager.cs" />
+    <Compile Include="Models\Account\User.cs" />
+    <Compile Include="Models\DBModel\CRM_Activity.cs" />
+    <Compile Include="Models\DBModel\CRM_ActivityState.cs" />
+    <Compile Include="Models\DBModel\CRM_ActivityType.cs" />
+    <Compile Include="Models\DBModel\CRM_Comments.cs" />
+    <Compile Include="Models\DBModel\CRM_Priority.cs" />
+    <Compile Include="Models\DBModel\Account_Categories.cs" />
+    <Compile Include="Models\DBModel\Account_Operations.cs" />
+    <Compile Include="Models\DBModel\Account_PartnerTypes.cs" />
+    <Compile Include="Models\DBModel\Account_PersonTypes.cs" />
+    <Compile Include="Models\DBModel\Account_PostOperation.cs" />
+    <Compile Include="Models\DBModel\Account_Posts.cs" />
+    <Compile Include="Models\DBModel\Account_UserPost.cs" />
+    <Compile Include="Models\DBModel\Account_Users.cs" />
+    <Compile Include="Models\DBModel\Account_UserStatus.cs" />
+    <Compile Include="Models\DBModel\BaseSystem_EntityStatus.cs" />
+    <Compile Include="Models\DBModel\BaseSystem_Tables.cs" />
+    <Compile Include="Models\Cache.cs" />
+    <Compile Include="Models\CRM\ActivityManager.cs" />
+    <Compile Include="Models\CRM\CommentManager.cs" />
+    <Compile Include="Models\DBModel\Report_Report.cs" />
+    <Compile Include="Models\DBModel\Tb_EmergencyLights.cs" />
+    <Compile Include="Models\Delivery\DeliveryManager.cs" />
+    <Compile Include="Models\DBModel\Delivery_Delivery.cs" />
+    <Compile Include="Models\DBModel\Delivery_DeliveryLocations.cs" />
+    <Compile Include="Models\DBModel\Delivery_Status.cs" />
+    <Compile Include="Models\DBModel\Delivery_VehicleTypes.cs" />
+    <Compile Include="Models\DBModel\Document_Categories.cs" />
+    <Compile Include="Models\DBModel\Document_Documents.cs" />
+    <Compile Include="Models\DBModel\Document_FileTypes.cs" />
+    <Compile Include="Models\General.cs" />
+    <Compile Include="Models\Information\InformationManager.cs" />
+    <Compile Include="Models\DBModel\Location_Cities.cs" />
+    <Compile Include="Models\DBModel\Location_Countries.cs" />
+    <Compile Include="Models\DBModel\Location_Provinces.cs" />
+    <Compile Include="Models\Log\LogManager.cs" />
+    <Compile Include="Models\DBModel\Log_LogActivity.cs" />
+    <Compile Include="Models\DBModel\Log_Logs.cs" />
+    <Compile Include="Models\DBModel\Log_Stages.cs" />
+    <Compile Include="Models\DBModel\Order_Cabin.cs" />
+    <Compile Include="Models\DBModel\Order_Deduction.cs" />
+    <Compile Include="Models\DBModel\Order_DoorTop.cs" />
+    <Compile Include="Models\DBModel\Order_Hall.cs" />
+    <Compile Include="Models\DBModel\Order_Order.cs" />
+    <Compile Include="Models\DBModel\Order_Panel_Addition.cs" />
+    <Compile Include="Models\DBModel\Order_Panel_Attachment.cs" />
+    <Compile Include="Models\DBModel\Order_Process.cs" />
+    <Compile Include="Models\DBModel\Order_ProductStatus.cs" />
+    <Compile Include="Models\DBModel\Order_Status.cs" />
+    <Compile Include="Models\DBModel\Others.cs" />
+    <Compile Include="Models\DBModel\Payment_Babats.cs" />
+    <Compile Include="Models\DBModel\Payment_Banks.cs" />
+    <Compile Include="Models\DBModel\Payment_Payment.cs" />
+    <Compile Include="Models\DBModel\Payment_Status.cs" />
+    <Compile Include="Models\DBModel\Payment_Types.cs" />
+    <Compile Include="Models\DBModel\Sale_Goods.cs" />
+    <Compile Include="Models\DBModel\Sale_Sale.cs" />
+    <Compile Include="Models\DBModel\Service_Service.cs" />
+    <Compile Include="Models\DBModel\Tb_Additions.cs" />
+    <Compile Include="Models\DBModel\Tb_Attachments.cs" />
+    <Compile Include="Models\DBModel\Tb_CabinPanels.cs" />
+    <Compile Include="Models\DBModel\Tb_CabinSurfaceMetals.cs" />
+    <Compile Include="Models\DBModel\Tb_CollectiveProducePercent.cs" />
+    <Compile Include="Models\DBModel\Tb_Costs.cs" />
+    <Compile Include="Models\DBModel\Tb_Deductions.cs" />
+    <Compile Include="Models\DBModel\Tb_DoorTopPanels.cs" />
+    <Compile Include="Models\DBModel\Tb_DoorTopSurfaceMetals.cs" />
+    <Compile Include="Models\DBModel\Tb_ElevatorBoards.cs" />
+    <Compile Include="Models\DBModel\Tb_ElevatorCounts.cs" />
+    <Compile Include="Models\DBModel\Tb_HallPanels.cs" />
+    <Compile Include="Models\DBModel\Tb_HallPushButtonCounts.cs" />
+    <Compile Include="Models\DBModel\Tb_HallSurfaceMetals.cs" />
+    <Compile Include="Models\DBModel\Tb_InstallationTypes.cs" />
+    <Compile Include="Models\DBModel\Tb_Monitors.cs" />
+    <Compile Include="Models\DBModel\Tb_OrderTypes.cs" />
+    <Compile Include="Models\DBModel\Tb_PackTypes.cs" />
+    <Compile Include="Models\DBModel\Tb_ProductFactorCost.cs" />
+    <Compile Include="Models\DBModel\Tb_Products.cs" />
+    <Compile Include="Models\DBModel\Tb_PushButtons.cs" />
+    <Compile Include="Models\DBModel\Tb_Speakers.cs" />
+    <Compile Include="Models\DBModel\Tb_Stores.cs" />
+    <Compile Include="Models\DBModel\Tb_SurfaceMetals.cs" />
+    <Compile Include="Models\DBModel\Tb_TradeTypes.cs" />
+    <Compile Include="Models\DBModel\Tb_Truth.cs" />
+    <Compile Include="Models\NumberWord.cs" />
+    <Compile Include="Models\Order\OrderManager.cs" />
+    <Compile Include="Models\Payment\PaymentManager.cs" />
+    <Compile Include="Models\Sale\SaleManager.cs" />
+    <Compile Include="Models\Service\ServiceManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reports\ReportTemplate.aspx.cs">
+      <DependentUpon>ReportTemplate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Reports\ReportTemplate.aspx.designer.cs">
+      <DependentUpon>ReportTemplate.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Services\SmsService\ISmsService.cs" />
+    <Compile Include="Services\SmsService\SmsKavenegar.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Contents\css\AweSome\font-awesome.css" />
+    <Content Include="Contents\css\AweSome\font-awesome.min.css" />
+    <Content Include="Contents\css\bootstrap-rtl.css" />
+    <Content Include="Contents\css\bootstrap-theme.css" />
+    <Content Include="Contents\css\bootstrap-theme.min.css" />
+    <Content Include="Contents\css\bootstrap.css" />
+    <Content Include="Contents\css\bootstrap.min.css" />
+    <Content Include="Contents\css\DatePicker\PersianDatePicker.css" />
+    <Content Include="Contents\css\DatePicker\PersianDatePicker.min.css" />
+    <Content Include="Contents\css\MyStyle\Fonts.css" />
+    <Content Include="Contents\css\MyStyle\Main.css" />
+    <Content Include="Contents\css\MyStyle\PrintBill.css" />
+    <Content Include="Contents\css\MyStyle\PrintLA5.css" />
+    <Content Include="Contents\css\MyStyle\PrintPA4.css" />
+    <Content Include="Contents\css\partdanafoss.css" />
+    <Content Include="Contents\fonts\AweSome\fontawesome-webfont.svg" />
+    <Content Include="Contents\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Contents\jqueryui\AUTHORS.txt" />
+    <Content Include="Contents\jqueryui\external\jquery\jquery.js" />
+    <Content Include="Contents\jqueryui\images\ui-icons_444444_256x240.png" />
+    <Content Include="Contents\jqueryui\images\ui-icons_555555_256x240.png" />
+    <Content Include="Contents\jqueryui\images\ui-icons_777620_256x240.png" />
+    <Content Include="Contents\jqueryui\images\ui-icons_777777_256x240.png" />
+    <Content Include="Contents\jqueryui\images\ui-icons_cc0000_256x240.png" />
+    <Content Include="Contents\jqueryui\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Contents\jqueryui\index.html" />
+    <Content Include="Contents\jqueryui\jquery-ui.css" />
+    <Content Include="Contents\jqueryui\jquery-ui.js" />
+    <Content Include="Contents\jqueryui\jquery-ui.min.css" />
+    <Content Include="Contents\jqueryui\jquery-ui.min.js" />
+    <Content Include="Contents\jqueryui\jquery-ui.structure.css" />
+    <Content Include="Contents\jqueryui\jquery-ui.structure.min.css" />
+    <Content Include="Contents\jqueryui\jquery-ui.theme.css" />
+    <Content Include="Contents\jqueryui\jquery-ui.theme.min.css" />
+    <Content Include="Contents\jqueryui\LICENSE.txt" />
+    <Content Include="Contents\js\autoNumeric.js" />
+    <Content Include="Contents\js\bootstrap.js" />
+    <Content Include="Contents\js\DatePicker\PersianDatePicker.js" />
+    <Content Include="Contents\js\DatePicker\PersianDatePicker.min.js" />
+    <Content Include="Contents\js\FarsiType v1.3.6   تایپ ساده‌ی فارسی در فرم‌های وب.html" />
+    <Content Include="Contents\js\FarsiType.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Contents\js\jquery-3.1.1.js" />
+    <Content Include="Contents\js\JsBarcode.all.min.js" />
+    <Content Include="Contents\js\npm.js" />
+    <Content Include="Contents\js\printThis-old.js" />
+    <Content Include="Contents\js\printThis.js" />
+    <Content Include="Dlls\PersianDateTime.dll" />
+    <Content Include="Global.asax" />
+    <Content Include="GuideBook\files\changestatus.jpg" />
+    <Content Include="GuideBook\files\delivery.JPG" />
+    <Content Include="GuideBook\guidebook.html" />
+    <Content Include="GuideBook\themes\middle-east-day.css" />
+    <Content Include="GuideBook\themes\middle-east-night.css" />
+    <Content Include="GuideBook\themes\middle-east\code-3024-day.css" />
+    <Content Include="GuideBook\themes\middle-east\code-dracula.css" />
+    <Content Include="Images\Elevator.jpg" />
+    <Content Include="Images\logo-final.jpg" />
+    <Content Include="Images\logo.svg" />
+    <Content Include="Images\pishfactor.png" />
+    <Content Include="Images\System\profile.png" />
+    <Content Include="Images\System\small_loading.gif" />
+    <Content Include="Reports\ReportTemplate.aspx" />
+    <Content Include="SqlServerTypes\x64\SqlServerSpatial110.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="SqlServerTypes\x86\SqlServerSpatial110.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Views\CRM\Comment.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="bin\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\LayoutBase.cshtml" />
+    <Content Include="Contents\css\bootstrap-theme.css.map" />
+    <Content Include="Contents\css\bootstrap-theme.min.css.map" />
+    <Content Include="Contents\css\bootstrap.css.map" />
+    <Content Include="Contents\css\bootstrap.min.css.map" />
+    <Content Include="Contents\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Contents\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Contents\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Contents\fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="Contents\fonts\eot\IRANSans%28FaNum%29_Medium.eot" />
+    <Content Include="Contents\fonts\eot\IRANSansWeb%28FaNum%29.eot" />
+    <Content Include="Contents\fonts\eot\IRANSansWeb%28FaNum%29_Bold.eot" />
+    <Content Include="Contents\fonts\ttf\IRANSansWeb%28FaNum%29.ttf" />
+    <Content Include="Contents\fonts\ttf\IRANSansWeb%28FaNum%29_Bold.ttf" />
+    <Content Include="Contents\fonts\ttf\IRANSansWeb%28FaNum%29_Medium.ttf" />
+    <Content Include="Contents\fonts\woff\IRANSansWeb%28FaNum%29.woff" />
+    <Content Include="Contents\fonts\woff\IRANSansWeb%28FaNum%29_Bold.woff" />
+    <Content Include="Contents\fonts\woff\IRANSansWeb%28FaNum%29_Medium.woff" />
+    <Content Include="Contents\fonts\eot\BLotus.eot" />
+    <Content Include="Contents\fonts\ttf\BLotus.ttf" />
+    <Content Include="Contents\fonts\woff\BLotus.woff" />
+    <Content Include="Contents\fonts\AweSome\fontawesome-webfont.eot" />
+    <Content Include="Contents\fonts\AweSome\fontawesome-webfont.ttf" />
+    <Content Include="Contents\fonts\AweSome\fontawesome-webfont.woff" />
+    <Content Include="Contents\fonts\AweSome\fontawesome-webfont.woff2" />
+    <Content Include="Contents\fonts\AweSome\FontAwesome.otf" />
+    <Content Include="Contents\fonts\eot\BDavat.eot" />
+    <Content Include="Contents\fonts\ttf\BDavat.ttf" />
+    <Content Include="Contents\fonts\woff\BDavat.woff" />
+    <Content Include="Contents\fonts\eot\BFarnaz.eot" />
+    <Content Include="Contents\fonts\ttf\BFarnaz.ttf" />
+    <Content Include="Contents\fonts\woff\BFarnaz.woff" />
+    <Content Include="Contents\fonts\eot\BJadidBold.eot" />
+    <Content Include="Contents\fonts\ttf\BJadidBold.ttf" />
+    <Content Include="Contents\fonts\woff\BJadidBold.woff" />
+    <Content Include="Contents\jqueryui\package.json" />
+    <Content Include="Contents\fonts\ttf\BNazanin.ttf" />
+    <Content Include="Contents\fonts\ttf\BNaznnBd.ttf" />
+    <Content Include="Contents\fonts\woff\BNazanin.woff" />
+    <Content Include="Contents\fonts\woff\BNaznnBd.woff" />
+    <Content Include="GuideBook\themes\middle-east\Cousine-Regular.woff" />
+    <Content Include="GuideBook\themes\middle-east\Vazir-Bold.eot" />
+    <Content Include="GuideBook\themes\middle-east\Vazir-Bold.ttf" />
+    <Content Include="GuideBook\themes\middle-east\Vazir-Bold.woff" />
+    <Content Include="GuideBook\themes\middle-east\Vazir-Bold.woff2" />
+    <Content Include="GuideBook\themes\middle-east\Vazir.eot" />
+    <Content Include="GuideBook\themes\middle-east\Vazir.ttf" />
+    <Content Include="GuideBook\themes\middle-east\Vazir.woff" />
+    <Content Include="GuideBook\themes\middle-east\Vazir.woff2" />
+    <Content Include="Diagrams\CodeMap_DBModel.dgml" />
+    <None Include="Properties\PublishProfiles\panta.pubxml" />
+    <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\AboutUs.cshtml" />
+    <Content Include="Views\Home\ContactUs.cshtml" />
+    <Content Include="Views\Information\Cities.cshtml" />
+    <Content Include="Views\Account\Persons.cshtml" />
+    <Content Include="Views\Account\PersonDetail.cshtml" />
+    <Content Include="Views\Shared\LayoutMain.cshtml" />
+    <Content Include="Views\Information\Order.cshtml" />
+    <Content Include="Views\Information\CabinPanel.cshtml" />
+    <Content Include="Views\Information\HallPanel.cshtml" />
+    <Content Include="Views\Information\DoorTopPanel.cshtml" />
+    <Content Include="Views\Order\OrderDetail.cshtml" />
+    <Content Include="Views\Order\OrderList.cshtml" />
+    <Content Include="Views\Shared\LayoutLogin.cshtml" />
+    <Content Include="Views\Sale\SaleList.cshtml" />
+    <Content Include="Views\Sale\SaleDetail.cshtml" />
+    <Content Include="Views\Payment\PaymentList.cshtml" />
+    <Content Include="Views\Payment\PaymentDetail.cshtml" />
+    <Content Include="Views\Process\Index.cshtml" />
+    <Content Include="Views\Plan\PlanList.cshtml" />
+    <Content Include="Views\Product\ProductList.cshtml" />
+    <Content Include="Views\Plan\PlanDetail.cshtml" />
+    <Content Include="Views\Plan\PrintOrder.cshtml" />
+    <Content Include="Views\Plan\PrintCabin.cshtml" />
+    <Content Include="Views\Plan\PrintHall.cshtml" />
+    <Content Include="Views\Shared\Error.cshtml" />
+    <Content Include="Views\Order\PrintOrder.cshtml" />
+    <Content Include="Views\Shared\AccessDenied.cshtml" />
+    <Content Include="Views\Sale\PrintSale.cshtml" />
+    <Content Include="Views\Payment\PrintPayment.cshtml" />
+    <Content Include="Views\Shared\Message.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
+    <Content Include="Views\Account\ChangeImage.cshtml" />
+    <Content Include="Views\Delivery\DeliveryList.cshtml" />
+    <Content Include="Views\Delivery\DeliveryDetail.cshtml" />
+    <Content Include="Views\Information\PushButton.cshtml" />
+    <Content Include="Views\Information\Monitor.cshtml" />
+    <Content Include="Views\Information\Attachment.cshtml" />
+    <Content Include="Views\Delivery\PrintDelivery.cshtml" />
+    <Content Include="Views\Delivery\PrintDeliveryPack.cshtml" />
+    <Content Include="Views\Information\Partial_ItemAdd.cshtml" />
+    <Content Include="Views\Shared\LayoutReport.cshtml" />
+    <Content Include="Views\Report\ProductFactors.cshtml" />
+    <Content Include="Views\Information\ProductFactor.cshtml" />
+    <Content Include="Views\Plan\PrintDoorTop.cshtml" />
+    <Content Include="Views\Report\ReportTemplate.cshtml" />
+    <Content Include="Views\Report\PrintProductFactors.cshtml" />
+    <Content Include="Reports\RCustomerBill.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Cartable\CartableList.cshtml" />
+    <Content Include="Reports\RCustomersBill.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Process\Project.cshtml" />
+    <Content Include="Views\Service\ServiceList.cshtml" />
+    <Content Include="Views\Service\ServiceDetail.cshtml" />
+    <Content Include="Views\Service\PrintService.cshtml" />
+    <Content Include="Reports\RSaleControlling.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\RStatistic.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\ROrders_Monthly_FactorDate.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\ROrders_Monthly_OrderDate.rdl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Information\SurfaceMetal.cshtml" />
+    <Content Include="Views\Information\TruthTable.cshtml" />
+    <Content Include="Views\Information\TruthTableFull.cshtml" />
+    <Content Include="Views\Log\LogList.cshtml" />
+    <Content Include="Reports\RStatistic2.rdl" />
+    <Content Include="Views\Information\Partial_ChangeCost.cshtml" />
+    <Content Include="Views\Information\Partial_ChangeCost2.cshtml" />
+    <Content Include="Views\CRM\Persons.cshtml" />
+    <Content Include="Views\Shared\LayoutCRM.cshtml" />
+    <Content Include="Views\CRM\PersonDetail.cshtml" />
+    <Content Include="Views\CRM\CommentInsert.cshtml" />
+    <Content Include="Views\CRM\Comments.cshtml" />
+    <Content Include="Views\CRM\OrderHistory.cshtml" />
+    <Content Include="Views\CRM\Activities.cshtml" />
+    <Content Include="Views\CRM\ActivityDetail.cshtml" />
+    <Content Include="Views\CRM\Cartable.cshtml" />
+    <Content Include="Views\CRM\Reminders.cshtml" />
+    <Content Include="Views\CRM\Messages.cshtml" />
+    <Content Include="Views\CRM\Notes.cshtml" />
+    <Content Include="Views\Order\PrintBill.cshtml" />
+    <Content Include="Views\Sale\PrintBill.cshtml" />
+    <Content Include="Views\Log\Partial_LogTable.cshtml" />
+    <Content Include="Views\Information\Product.cshtml" />
+    <Content Include="Views\Store\SaleList.cshtml" />
+    <Content Include="Views\Store\PrintBill.cshtml" />
+    <Content Include="Views\Store\PrintSale.cshtml" />
+    <Content Include="Views\Store\SaleDetail.cshtml" />
+    <Content Include="Reports\RSales_Payments_Monthly.rdl" />
+    <Content Include="Reports\RLending.rdl" />
+    <Content Include="Views\Report\ReportTemplate2.cshtml" />
+    <Content Include="Reports\RNewCustomers.frx" />
+    <Content Include="Reports\RSalesToNewCustomers.frx" />
+    <Content Include="Reports\RBuyersRank.frx" />
+    <Content Include="Reports\RSalesByUsers.frx" />
+    <Content Include="Views\Report\ReportList.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:11496/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\FastReport.OpenSource.2022.2.12\build\FastReport.OpenSource.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\FastReport.OpenSource.2022.2.12\build\FastReport.OpenSource.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>
