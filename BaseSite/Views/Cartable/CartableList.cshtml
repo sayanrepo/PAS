@@ -1,10 +1,25 @@
 ﻿@using System.Globalization
 @model List<BaseSite.Models.DBModel.Order_Order>
+
 @{
     ViewBag.Title = "کارتابل تولید";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 20);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+
+    List<int> printed = new List<int>();
+    if (Request.Cookies["printed"] != null)
+    {
+        var list = Request.Cookies["Printed"].Value.Split(',').ToList();
+        int tmp;
+        foreach (var item in list)
+        {
+            if (int.TryParse(item, out tmp))
+            {
+                printed.Add(tmp);
+            }
+        }
+    }
 }
 
 @{
@@ -117,16 +132,24 @@
             grid.Column("Tb_OrderTypes.Name", header: "نوع سفارش", format: item => item.Tb_OrderTypes.Name),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Detail))
-                {
-                    <a data-value="@item.Id" href="@Url.Action("CartableDetail", new { OrderId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
-                }
-                else
-                {
-                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
-                }
+                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Detail))
+                        {
+                            if (printed.Contains(item.Id))
+                            {
+                                <a style="color:red;" data-value="@item.Id" href="@Url.Action("CartableDetail", new { OrderId = item.Id })"><i class="fa fa-warning fa-lg" title="جزئیات"></i></a>
+                            }
+                            else
+                            {
+                                <a data-value="@item.Id" href="@Url.Action("CartableDetail", new { OrderId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                            }
+
+                        }
+                        else
+                        {
+                            <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                        }
                 </text>)
-                                                                 ))
+            ))
         </div>
     </div>
 </div>

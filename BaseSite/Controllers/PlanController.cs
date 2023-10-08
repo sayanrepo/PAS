@@ -94,28 +94,48 @@ namespace BaseSite.Controllers
         [CustomAuthorize(OPERATIONS.Plan_Print)]
         public ActionResult Print(string doc, int id)
         {
+            List<int> printed = new List<int>();
+            if (Request.Cookies["printed"] != null)
+            {
+                var list = Request.Cookies["Printed"].Value.Split(',').ToList();
+                int tmp;
+                foreach (var item in list)
+                {
+                    if (int.TryParse(item, out tmp))
+                        printed.Add(tmp);
+                }
+            }
+
             if (doc == "order")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
                 LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند بزرگ");
+                printed.Add(id);
+                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
                 return View("PrintOrder", order);
             }
             else if (doc == "cabin")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
                 LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل داخل کابین");
+                printed.Add(id);
+                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
                 return View("PrintCabin", order);
             }
             else if (doc == "hall")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
                 LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل طبقات");
+                printed.Add(id);
+                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
                 return View("PrintHall", order);
             }
             else if (doc == "doortop")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
                 LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل سردرب");
+                printed.Add(id);
+                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
                 return View("PrintDoorTop", order);
             }
             else
