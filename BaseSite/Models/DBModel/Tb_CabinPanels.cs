@@ -5,6 +5,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseSite.Models.DBModel
 {
+    //public partial class Tb_Panel
+    //{
+    //    public int Height { get; set; }
+    //    public int Width { get; set; }
+    //    public int Depth { get; set; }
+    //}
+
     public partial class Tb_CabinPanels
     {
         public Tb_CabinPanels()

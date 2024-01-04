@@ -159,55 +159,59 @@ namespace BaseSite.Models.Order
             {
                 if (order.Id == 0)
                 {
-                    Order_Order neworder = new Order_Order();
-                    neworder.TableId = 14;
-                    neworder.DocNumber = Order_GenerateDocNumber();
-                    neworder.CustomerId = order.CustomerId;
-                    neworder.ClienteleName = order.ClienteleName;
-                    neworder.ProjectName = order.ProjectName;
-                    neworder.OrderTypeId = order.OrderTypeId;
-                    neworder.ElevatorBoardId = order.ElevatorBoardId;
-                    neworder.PackTypeId = order.PackTypeId;
-                    neworder.DeliveryCityId = order.DeliveryCityId;
-                    neworder.DeliveryAddress = order.DeliveryAddress;
-                    neworder.Tax = order.Tax;
-                    neworder.DiscountRate = order.DiscountRate;
-                    neworder.StatusId = (byte)OrderStatus.PishFactor;
-                    neworder.DateOrder = DateTime.Now;              // order.DateOrder;
-                    neworder.DateDelivery = null;                   // order.DateDelivery;
-                    neworder.DateFactor = null; // DateTime.Now.AddDays(10); // order.DateFactor;
-                    neworder.DeliveryCost = order.DeliveryCost;
-                    neworder.Cost = 0;
-                    neworder.Comment = order.Comment;
-                    neworder.AccepterId = order.AccepterId;
-                    neworder.StoreId = order.StoreId;
-                    neworder.TradeTypeId = order.TradeTypeId;
+                    Order_Order neworder = new Order_Order
+                    {
+                        TableId = 14,
+                        DocNumber = Order_GenerateDocNumber(),
+                        CustomerId = order.CustomerId,
+                        ClienteleName = order.ClienteleName,
+                        ProjectName = order.ProjectName,
+                        OrderTypeId = order.OrderTypeId,
+                        ElevatorBoardId = order.ElevatorBoardId,
+                        PackTypeId = order.PackTypeId,
+                        DeliveryCityId = order.DeliveryCityId,
+                        DeliveryAddress = order.DeliveryAddress,
+                        Tax = order.Tax,
+                        DiscountRate = order.DiscountRate,
+                        StatusId = (byte)OrderStatus.PishFactor,
+                        DateOrder = DateTime.Now,              // order.DateOrder;
+                        DateDelivery = null,                   // order.DateDelivery;
+                        DateFactor = null, // DateTime.Now.AddDays(10); // order.DateFactor;
+                        DeliveryCost = order.DeliveryCost,
+                        Cost = 0,
+                        Comment = order.Comment,
+                        AccepterId = order.AccepterId,
+                        StoreId = order.StoreId,
+                        TradeTypeId = order.TradeTypeId
+                    };
 
                     for (int i = 0; i < order.Order_Cabin.Count; i++)
                     {
-                        Order_Cabin c = new Order_Cabin();
-                        c.TableId = 15;
-                        c.DocNumber = neworder.DocNumber + ((2 + i) * 1000000);
-                        c.Count = order.Order_Cabin.ElementAt(i).Count;
-                        c.CabinPanelId = order.Order_Cabin.ElementAt(i).CabinPanelId;
-                        c.SpeakerId = order.Order_Cabin.ElementAt(i).SpeakerId;
-                        c.EmergencyLightId = order.Order_Cabin.ElementAt(i).EmergencyLightId;
-                        c.FloorCount = order.Order_Cabin.ElementAt(i).FloorCount;
-                        c.FloorNames = order.Order_Cabin.ElementAt(i).FloorNames;
-                        c.UGFloorCount = order.Order_Cabin.ElementAt(i).UGFloorCount;
-                        c.UGFloorNames = order.Order_Cabin.ElementAt(i).UGFloorNames;
-                        c.PushButtonId = order.Order_Cabin.ElementAt(i).PushButtonId;
-                        c.SurfaceMetalId = order.Order_Cabin.ElementAt(i).SurfaceMetalId;
-                        c.SurfaceMetalId2 = order.Order_Cabin.ElementAt(i).SurfaceMetalId2;
-                        c.InstallationTypeId = order.Order_Cabin.ElementAt(i).InstallationTypeId;
-                        c.MonitorId = order.Order_Cabin.ElementAt(i).MonitorId;
-                        c.SheetNumber = order.Order_Cabin.ElementAt(i).SheetNumber;
-                        c.PhoneCallButton = order.Order_Cabin.ElementAt(i).PhoneCallButton;
-                        c.DO = order.Order_Cabin.ElementAt(i).DO;
-                        c.DC = order.Order_Cabin.ElementAt(i).DC;
-                        c.LaserCuttingText = order.Order_Cabin.ElementAt(i).LaserCuttingText;
-                        c.LaserEngravingText = order.Order_Cabin.ElementAt(i).LaserEngravingText;
-                        c.Comment = order.Order_Cabin.ElementAt(i).Comment;
+                        Order_Cabin c = new Order_Cabin
+                        {
+                            TableId = 15,
+                            DocNumber = neworder.DocNumber + ((2 + i) * 1000000),
+                            Count = order.Order_Cabin.ElementAt(i).Count,
+                            CabinPanelId = order.Order_Cabin.ElementAt(i).CabinPanelId,
+                            SpeakerId = order.Order_Cabin.ElementAt(i).SpeakerId,
+                            EmergencyLightId = order.Order_Cabin.ElementAt(i).EmergencyLightId,
+                            FloorCount = order.Order_Cabin.ElementAt(i).FloorCount,
+                            FloorNames = order.Order_Cabin.ElementAt(i).FloorNames,
+                            UGFloorCount = order.Order_Cabin.ElementAt(i).UGFloorCount,
+                            UGFloorNames = order.Order_Cabin.ElementAt(i).UGFloorNames,
+                            PushButtonId = order.Order_Cabin.ElementAt(i).PushButtonId,
+                            SurfaceMetalId = order.Order_Cabin.ElementAt(i).SurfaceMetalId,
+                            SurfaceMetalId2 = order.Order_Cabin.ElementAt(i).SurfaceMetalId2,
+                            InstallationTypeId = order.Order_Cabin.ElementAt(i).InstallationTypeId,
+                            MonitorId = order.Order_Cabin.ElementAt(i).MonitorId,
+                            SheetNumber = order.Order_Cabin.ElementAt(i).SheetNumber,
+                            PhoneCallButton = order.Order_Cabin.ElementAt(i).PhoneCallButton,
+                            DO = order.Order_Cabin.ElementAt(i).DO,
+                            DC = order.Order_Cabin.ElementAt(i).DC,
+                            LaserCuttingText = order.Order_Cabin.ElementAt(i).LaserCuttingText,
+                            LaserEngravingText = order.Order_Cabin.ElementAt(i).LaserEngravingText,
+                            Comment = order.Order_Cabin.ElementAt(i).Comment
+                        };
                         c.ProductStatusId = (byte)Information.InformationManager.Cabin_Panel_Get(c.CabinPanelId).StartFrom;
 
                         int buttons = c.FloorCount + (c.DC ? 1 : 0) + (c.DO ? 1 : 0) + (c.PhoneCallButton ? 1 : 0) + 2;
@@ -230,11 +234,13 @@ namespace BaseSite.Models.Order
                         {
                             if (c.CabinPanelId > 0 && order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId > 0)
                             {
-                                Order_Panel_Attachment a = new Order_Panel_Attachment();
-                                a.CabinPanelId = order.Order_Cabin.ElementAt(i).Id;
-                                a.Count = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count;
-                                a.AttachmentId = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId;
-                                a.Cost = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+                                Order_Panel_Attachment a = new Order_Panel_Attachment
+                                {
+                                    CabinPanelId = order.Order_Cabin.ElementAt(i).Id,
+                                    Count = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count,
+                                    AttachmentId = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId,
+                                    Cost = order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost
+                                };
 
                                 a.Cost = (
                                     (Cache.Order_Attachments.ContainsKey(a.AttachmentId) ? Cache.Order_Attachments[a.AttachmentId].Cost : 0)
@@ -249,10 +255,12 @@ namespace BaseSite.Models.Order
                         {
                             if (c.CabinPanelId > 0 && order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId > 0)
                             {
-                                Order_Panel_Addition a = new Order_Panel_Addition();
-                                a.CabinPanelId = order.Order_Cabin.ElementAt(i).Id;
-                                a.AdditionId = order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId;
-                                a.Cost = order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost;
+                                Order_Panel_Addition a = new Order_Panel_Addition
+                                {
+                                    CabinPanelId = order.Order_Cabin.ElementAt(i).Id,
+                                    AdditionId = order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId,
+                                    Cost = order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost
+                                };
 
                                 c.Cost += a.Cost;
                                 c.Order_Panel_Addition.Add(a);
@@ -264,21 +272,23 @@ namespace BaseSite.Models.Order
 
                     for (int i = 0; i < order.Order_Hall.Count; i++)
                     {
-                        Order_Hall h = new Order_Hall();
-                        h.TableId = 16;
-                        h.DocNumber = neworder.DocNumber + ((3 + i) * 1000000);
-                        h.Count = order.Order_Hall.ElementAt(i).Count;
-                        h.ElevatorTypeId = order.Order_Hall.ElementAt(i).ElevatorTypeId;
-                        h.PushButtonCountId = order.Order_Hall.ElementAt(i).PushButtonCountId;
-                        h.HallPanelId = order.Order_Hall.ElementAt(i).HallPanelId;
-                        h.PushButtonId = order.Order_Hall.ElementAt(i).PushButtonId;
-                        h.SurfaceMetalId = order.Order_Hall.ElementAt(i).SurfaceMetalId;
-                        h.MonitorId = order.Order_Hall.ElementAt(i).MonitorId;
-                        h.FloorCount = order.Order_Hall.ElementAt(i).FloorCount;
-                        h.FloorNames = order.Order_Hall.ElementAt(i).FloorNames;
-                        h.UGFloorCount = order.Order_Hall.ElementAt(i).UGFloorCount;
-                        h.UGFloorNames = order.Order_Hall.ElementAt(i).UGFloorNames;
-                        h.Comment = order.Order_Hall.ElementAt(i).Comment;
+                        Order_Hall h = new Order_Hall
+                        {
+                            TableId = 16,
+                            DocNumber = neworder.DocNumber + ((3 + i) * 1000000),
+                            Count = order.Order_Hall.ElementAt(i).Count,
+                            ElevatorTypeId = order.Order_Hall.ElementAt(i).ElevatorTypeId,
+                            PushButtonCountId = order.Order_Hall.ElementAt(i).PushButtonCountId,
+                            HallPanelId = order.Order_Hall.ElementAt(i).HallPanelId,
+                            PushButtonId = order.Order_Hall.ElementAt(i).PushButtonId,
+                            SurfaceMetalId = order.Order_Hall.ElementAt(i).SurfaceMetalId,
+                            MonitorId = order.Order_Hall.ElementAt(i).MonitorId,
+                            FloorCount = order.Order_Hall.ElementAt(i).FloorCount,
+                            FloorNames = order.Order_Hall.ElementAt(i).FloorNames,
+                            UGFloorCount = order.Order_Hall.ElementAt(i).UGFloorCount,
+                            UGFloorNames = order.Order_Hall.ElementAt(i).UGFloorNames,
+                            Comment = order.Order_Hall.ElementAt(i).Comment
+                        };
                         h.ProductStatusId = (byte)Information.InformationManager.Hall_Panel_Get(h.HallPanelId).StartFrom;
 
                         if (h.HallPanelId == 0)
@@ -302,11 +312,13 @@ namespace BaseSite.Models.Order
                         {
                             if (h.HallPanelId > 0 && order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId > 0)
                             {
-                                Order_Panel_Attachment a = new Order_Panel_Attachment();
-                                a.HallPanelId = order.Order_Hall.ElementAt(i).Id;
-                                a.Count = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count;
-                                a.AttachmentId = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId;
-                                a.Cost = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+                                Order_Panel_Attachment a = new Order_Panel_Attachment
+                                {
+                                    HallPanelId = order.Order_Hall.ElementAt(i).Id,
+                                    Count = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count,
+                                    AttachmentId = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId,
+                                    Cost = order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost
+                                };
 
                                 a.Cost = (
                                     (Cache.Order_Attachments.ContainsKey(a.AttachmentId) ? Cache.Order_Attachments[a.AttachmentId].Cost : 0)
@@ -321,10 +333,12 @@ namespace BaseSite.Models.Order
                         {
                             if (h.HallPanelId > 0 && order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId > 0)
                             {
-                                Order_Panel_Addition a = new Order_Panel_Addition();
-                                a.HallPanelId = order.Order_Hall.ElementAt(i).Id;
-                                a.AdditionId = order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId;
-                                a.Cost = order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost;
+                                Order_Panel_Addition a = new Order_Panel_Addition
+                                {
+                                    HallPanelId = order.Order_Hall.ElementAt(i).Id,
+                                    AdditionId = order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId,
+                                    Cost = order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost
+                                };
 
                                 h.Cost += a.Cost;
                                 h.Order_Panel_Addition.Add(a);
@@ -337,14 +351,16 @@ namespace BaseSite.Models.Order
 
                     for (int i = 0; i < order.Order_DoorTop.Count; i++)
                     {
-                        Order_DoorTop d = new Order_DoorTop();
-                        d.TableId = 17;
-                        d.DocNumber = neworder.DocNumber + ((4 + i) * 1000000);
-                        d.Count = order.Order_DoorTop.ElementAt(i).Count;
-                        d.DoorTopPanelId = order.Order_DoorTop.ElementAt(i).DoorTopPanelId;
-                        d.MonitorId = order.Order_DoorTop.ElementAt(i).MonitorId;
-                        d.SurfaceMetalId = order.Order_DoorTop.ElementAt(i).SurfaceMetalId;
-                        d.Comment = order.Order_DoorTop.ElementAt(i).Comment;
+                        Order_DoorTop d = new Order_DoorTop
+                        {
+                            TableId = 17,
+                            DocNumber = neworder.DocNumber + ((4 + i) * 1000000),
+                            Count = order.Order_DoorTop.ElementAt(i).Count,
+                            DoorTopPanelId = order.Order_DoorTop.ElementAt(i).DoorTopPanelId,
+                            MonitorId = order.Order_DoorTop.ElementAt(i).MonitorId,
+                            SurfaceMetalId = order.Order_DoorTop.ElementAt(i).SurfaceMetalId,
+                            Comment = order.Order_DoorTop.ElementAt(i).Comment
+                        };
                         d.ProductStatusId = (byte)Information.InformationManager.DoorTop_Panel_Get(d.DoorTopPanelId).StartFrom;
 
                         if (d.DoorTopPanelId == 0)
@@ -365,11 +381,13 @@ namespace BaseSite.Models.Order
                         {
                             if (d.DoorTopPanelId > 0 && order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId > 0)
                             {
-                                Order_Panel_Attachment a = new Order_Panel_Attachment();
-                                a.DoorTopPanelId = order.Order_DoorTop.ElementAt(i).Id;
-                                a.Count = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count;
-                                a.AttachmentId = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId;
-                                a.Cost = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+                                Order_Panel_Attachment a = new Order_Panel_Attachment
+                                {
+                                    DoorTopPanelId = order.Order_DoorTop.ElementAt(i).Id,
+                                    Count = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count,
+                                    AttachmentId = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).AttachmentId,
+                                    Cost = order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost
+                                };
 
                                 a.Cost = (
                                     (Cache.Order_Attachments.ContainsKey(a.AttachmentId) ? Cache.Order_Attachments[a.AttachmentId].Cost : 0)
@@ -384,10 +402,12 @@ namespace BaseSite.Models.Order
                         {
                             if (d.DoorTopPanelId > 0 && order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId > 0)
                             {
-                                Order_Panel_Addition a = new Order_Panel_Addition();
-                                a.DoorTopPanelId = order.Order_DoorTop.ElementAt(i).Id;
-                                a.AdditionId = order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId;
-                                a.Cost = order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost;
+                                Order_Panel_Addition a = new Order_Panel_Addition
+                                {
+                                    DoorTopPanelId = order.Order_DoorTop.ElementAt(i).Id,
+                                    AdditionId = order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).AdditionId,
+                                    Cost = order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost
+                                };
 
                                 d.Cost += a.Cost;
                                 d.Order_Panel_Addition.Add(a);
@@ -402,9 +422,11 @@ namespace BaseSite.Models.Order
                     {
                         if (order.Order_Deduction.ElementAt(i).DeductionId > 0)
                         {
-                            Order_Deduction a = new Order_Deduction();
-                            a.DeductionId = order.Order_Deduction.ElementAt(i).DeductionId;
-                            a.Cost = order.Order_Deduction.ElementAt(i).Cost;
+                            Order_Deduction a = new Order_Deduction
+                            {
+                                DeductionId = order.Order_Deduction.ElementAt(i).DeductionId,
+                                Cost = order.Order_Deduction.ElementAt(i).Cost
+                            };
 
                             neworder.Cost -= a.Cost;
                             neworder.Order_Deduction.Add(a);
@@ -413,14 +435,14 @@ namespace BaseSite.Models.Order
 
                     neworder.Cost -= (neworder.Cost * (neworder.DiscountRate / 100));
                     neworder.Cost += (neworder.Cost * (neworder.Tax / 100));
-                    neworder.Cost += order.DeliveryCost.HasValue ? order.DeliveryCost.Value : 0;
+                    neworder.Cost += order.DeliveryCost ?? 0;
                     context.Order_Order.Add(neworder);
                     context.SaveChanges();
                     return Order_Order_Get(neworder.Id);
                 }
                 else
                 {
-                    //context.Entry<Order_Order>(order).State = System.Data.EntityState.Modified;
+                    //context.Entry<Order_Order>(order).State = EntityState.Modified;
                     //context.Order_Order.Attach(order);
                     //var entry = context.Entry(order);
 
@@ -517,16 +539,16 @@ namespace BaseSite.Models.Order
                             for (int j = 0; j < c.Order_Panel_Attachment.Count; j++)
                             {
                                 Order_Panel_Attachment a = c.Order_Panel_Attachment.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
                             for (int j = 0; j < c.Order_Panel_Addition.Count; j++)
                             {
                                 Order_Panel_Addition a = c.Order_Panel_Addition.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
-                            context.Entry(c).State = System.Data.EntityState.Deleted;
+                            context.Entry(c).State = EntityState.Deleted;
                         }
                         else
                         {
@@ -679,16 +701,16 @@ namespace BaseSite.Models.Order
                             for (int j = 0; j < h.Order_Panel_Attachment.Count; j++)
                             {
                                 Order_Panel_Attachment a = h.Order_Panel_Attachment.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
                             for (int j = 0; j < h.Order_Panel_Addition.Count; j++)
                             {
                                 Order_Panel_Addition a = h.Order_Panel_Addition.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
-                            context.Entry(h).State = System.Data.EntityState.Deleted;
+                            context.Entry(h).State = EntityState.Deleted;
                         }
                         else
                         {
@@ -834,16 +856,16 @@ namespace BaseSite.Models.Order
                             for (int j = 0; j < d.Order_Panel_Attachment.Count; j++)
                             {
                                 Order_Panel_Attachment a = d.Order_Panel_Attachment.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
                             for (int j = 0; j < d.Order_Panel_Addition.Count; j++)
                             {
                                 Order_Panel_Addition a = d.Order_Panel_Addition.ElementAt(j);
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                                 j--;
                             }
-                            context.Entry(d).State = System.Data.EntityState.Deleted;
+                            context.Entry(d).State = EntityState.Deleted;
                         }
                         else
                         {
@@ -990,7 +1012,7 @@ namespace BaseSite.Models.Order
                             a = neworder.Order_Deduction.Where(m => m.Id == order.Order_Deduction.ElementAt(j).Id).SingleOrDefault();
                             if (order.Order_Deduction.ElementAt(j).DeductionId == 0) // حذف نامعلوم
                             {
-                                context.Entry(a).State = System.Data.EntityState.Deleted;
+                                context.Entry(a).State = EntityState.Deleted;
                             }
                             else // ویرایش
                             {
@@ -1005,7 +1027,7 @@ namespace BaseSite.Models.Order
 
                     neworder.Cost -= (neworder.Cost * (neworder.DiscountRate / 100));
                     neworder.Cost += (neworder.Cost * (neworder.Tax / 100));
-                    neworder.Cost += order.DeliveryCost.HasValue ? order.DeliveryCost.Value : 0;
+                    neworder.Cost += order.DeliveryCost ?? 0;
 
                     //context.Order_Order.Add(neworder);
                     context.SaveChanges();
@@ -1354,15 +1376,17 @@ namespace BaseSite.Models.Order
                 foreach (Order_Process p in currentStatusList)
                     sumPercent += p.Percent;
 
-                Order_Process newPrc = new Order_Process();
-                newPrc.PTime = process.PTime;
-                newPrc.UserId = process.UserId;
-                newPrc.ProductStatusId = process.ProductStatusId;
-                newPrc.ProductFactorCost = pf_Cost;
-                newPrc.CollectiveProducePercent = cp_Percent;
-                newPrc.Percent = process.Percent;
-                newPrc.Description = null;
-                newPrc.CalculatedFactor = 0;
+                Order_Process newPrc = new Order_Process
+                {
+                    PTime = process.PTime,
+                    UserId = process.UserId,
+                    ProductStatusId = process.ProductStatusId,
+                    ProductFactorCost = pf_Cost,
+                    CollectiveProducePercent = cp_Percent,
+                    Percent = process.Percent,
+                    Description = null,
+                    CalculatedFactor = 0
+                };
                 sumPercent += process.Percent;
 
                 newPrc.ProductDocNumber = process.ProductDocNumber;
@@ -1404,7 +1428,7 @@ namespace BaseSite.Models.Order
                                 {
                                     newPrc.ProductFactor += (attachment.Tb_Attachments.ProductFactor * attachment.Count);
                                 }
-                                newPrc.ProductFactor = newPrc.ProductFactor / c.Count;
+                                newPrc.ProductFactor /= c.Count;
 
                                 int cnt = newPrc.Count;
                                 if (cnt > 12)
@@ -1470,7 +1494,7 @@ namespace BaseSite.Models.Order
                                 {
                                     newPrc.ProductFactor += (attachment.Tb_Attachments.ProductFactor * attachment.Count);
                                 }
-                                newPrc.ProductFactor = newPrc.ProductFactor / c.Count;
+                                newPrc.ProductFactor /= c.Count;
 
                                 int cnt = newPrc.Count;
                                 if (cnt > 50)
@@ -1536,7 +1560,7 @@ namespace BaseSite.Models.Order
                                 {
                                     newPrc.ProductFactor += (attachment.Tb_Attachments.ProductFactor * attachment.Count);
                                 }
-                                newPrc.ProductFactor = newPrc.ProductFactor / c.Count;
+                                newPrc.ProductFactor /= c.Count;
 
                                 int cnt = newPrc.Count;
                                 if (cnt > 50)
@@ -1585,20 +1609,22 @@ namespace BaseSite.Models.Order
 
             using (var context = new PantaEntities())
             {
-                Order_Process newPrc = new Order_Process();
-                newPrc.OrderId = 0;
-                newPrc.ProductDocNumber = process.ProductTableId == 3 ? 20 : process.ProductTableId == 7 ? 30 : process.ProductTableId == 10 ? 40 : 0;
-                newPrc.ProductTableId = process.ProductTableId;
-                newPrc.Description = process.Description;
-                newPrc.UserId = process.UserId;
-                newPrc.ProductStatusId = process.ProductStatusId;
-                newPrc.PTime = process.PTime;
-                newPrc.Percent = process.Percent;
-                newPrc.Count = process.Count;
-                newPrc.ProductFactor = process.ProductFactor;
-                newPrc.ProductFactorCost = pf_Cost;
-                newPrc.CollectiveProducePercent = cp_Percent;
-                newPrc.CalculatedFactor = 0;
+                Order_Process newPrc = new Order_Process
+                {
+                    OrderId = 0,
+                    ProductDocNumber = process.ProductTableId == 3 ? 20 : process.ProductTableId == 7 ? 30 : process.ProductTableId == 10 ? 40 : 0,
+                    ProductTableId = process.ProductTableId,
+                    Description = process.Description,
+                    UserId = process.UserId,
+                    ProductStatusId = process.ProductStatusId,
+                    PTime = process.PTime,
+                    Percent = process.Percent,
+                    Count = process.Count,
+                    ProductFactor = process.ProductFactor,
+                    ProductFactorCost = pf_Cost,
+                    CollectiveProducePercent = cp_Percent,
+                    CalculatedFactor = 0
+                };
 
                 if (newPrc.ProductTableId == 3) //Cabin panel
                 {

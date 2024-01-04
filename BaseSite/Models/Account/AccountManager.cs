@@ -665,7 +665,7 @@ namespace BaseSite.Models.Account
         {
             using (var context = new PantaEntities())
             {
-                context.Entry(user).State = EntityState.Modified;
+                context.Entry(user).State = System.Data.Entity.EntityState.Modified;
                 context.SaveChanges();
             }
         }

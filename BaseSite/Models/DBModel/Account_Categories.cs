@@ -13,7 +13,7 @@ namespace BaseSite.Models.DBModel
     
         public int TableId { get; set; }
 
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public int Id { get; set; }
 
         [MaxLength(255)]

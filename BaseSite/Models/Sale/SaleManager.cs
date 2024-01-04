@@ -189,7 +189,7 @@ namespace BaseSite.Models.Sale
                             if (string.IsNullOrWhiteSpace(sale.Sale_Goods.ElementAt(i).Name)) // حذف نامعلوم
                             {
                                 //newsale.Sale_Goods.Remove(c);
-                                context.Entry(c).State = System.Data.EntityState.Deleted;
+                                context.Entry(c).State = System.Data.Entity.EntityState.Deleted;
                             }
                             else // ویرایش
                             {
