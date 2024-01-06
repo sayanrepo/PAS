@@ -262,7 +262,10 @@
                             <div class="panel panel-info">
                                 <div class="panel-heading MyHeader">
                                     <div class="row">
-                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل شاسی داخل کابین</div>
+                                        <div class="col-xs-5 col-md-5 text-right">
+                                            مرحله تولید:&nbsp; @Model.Order_Cabin.ElementAt(i).Order_ProductStatus.Name
+                                        </div>
+                                        <div class="col-xm-2 col-md-2 text-center">پنل شاسی داخل کابین</div>
                                         <div class="col-xs-5 col-md-5 text-left">
                                             @string.Format("{0:n0}", Model.Order_Cabin.ElementAt(i).Count > 0 ? (Model.Order_Cabin.ElementAt(i).Cost / Model.Order_Cabin.ElementAt(i).Count) : 0) &nbsp; ريال
                                         </div>
@@ -498,7 +501,10 @@
                             <div class="panel panel-info">
                                 <div class="panel-heading MyHeader">
                                     <div class="row">
-                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل شاسی طبقات</div>
+                                        <div class="col-xs-5 col-md-5 text-right">
+                                            مرحله تولید:&nbsp; @Model.Order_Hall.ElementAt(i).Order_ProductStatus.Name
+                                        </div>
+                                        <div class="col-xm-2 col-md-2 text-center">پنل شاسی طبقات</div>
                                         <div class="col-xs-5 col-md-5 text-left">
                                             @string.Format("{0:n0}", Model.Order_Hall.ElementAt(i).Count > 0 ? (Model.Order_Hall.ElementAt(i).Cost / Model.Order_Hall.ElementAt(i).Count) : 0) &nbsp; ريال
                                         </div>
@@ -685,7 +691,10 @@
                             <div class="panel panel-info">
                                 <div class="panel-heading MyHeader">
                                     <div class="row">
-                                        <div class="col-xm-offset-5 col-md-offset-5 col-xm-2 col-md-2 text-center">پنل سردرب</div>
+                                        <div class="col-xs-5 col-md-5 text-right">
+                                            مرحله تولید:&nbsp; @Model.Order_DoorTop.ElementAt(i).Order_ProductStatus.Name
+                                        </div>
+                                        <div class="col-xm-2 col-md-2 text-center">پنل سردرب</div>
                                         <div class="col-xs-5 col-md-5 text-left">
                                             @string.Format("{0:n0}", Model.Order_DoorTop.ElementAt(i).Count > 0 ? (Model.Order_DoorTop.ElementAt(i).Cost / Model.Order_DoorTop.ElementAt(i).Count) : 0) &nbsp; ريال
                                         </div>
