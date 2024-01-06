@@ -49,104 +49,141 @@
     gridColumns.Add(grid.Column("ردیف", format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex));
 
     gridColumns.Add(grid.Column("Name", "نام پنل طبقات", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
-        {
-            <span id="Name" class="display-mode">@item.Name</span>
-            <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
-        }
-        else
-        {
-            <span id="Name" class="display-mode">@item.Name</span>
-            <span id="iName" class="edit-mode">@item.Name</span>
-        }
-    </text>));
-
-    gridColumns.Add(grid.Column("Description", "شرح", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
-        {
-            <span id="Description" class="display-mode">@item.Description</span>
-            <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
-        }
-        else
-        {
-            <span id="Description" class="display-mode">@item.Description</span>
-            <span id="iDescription" class="edit-mode">@item.Description</span>
-        }
-    </text>));
-
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
     {
-        gridColumns.Add(grid.Column("Cost", "قیمت", @<text>
-            <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
-            <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
-        </text>));
+        <span id="Name" class="display-mode">@item.Name</span>
+        <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
     }
-
-    gridColumns.Add(grid.Column("ProductFactor", "ضریب", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
-        {
-            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
-            <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
-        }
-        else
-        {
-            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
-            <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
-        }
-    </text>));
-           
-    gridColumns.Add(grid.Column("Order_ProductStatus.Name", "شروع تولید", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
-        {
-             <span id="StartFrom" class="display-mode">@item.Order_ProductStatus.Name</span>
-             @Html.DropDownList("iStartFrom", BaseSite.Models.Cache.Order_ProductStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == item.StartFrom) }), new { @Class = "edit-mode", @Id = "iStartFrom" })
-        }
-        else
-        {
-            <span id="StartFrom" class="display-mode">@item.Order_ProductStatus.Name</span>
-            @Html.DropDownList("iStartFrom", BaseSite.Models.Cache.Order_ProductStatus.Where(s => s.Key == item.StartFrom).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == item.StartFrom) }), new { @Class = "edit-mode", @Id = "iStartFrom" })
-        }
-    </text>));
-
-    gridColumns.Add(grid.Column("Available", "موجود", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
-        {
-            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
-            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
-        }
-        else
-        {
-            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
-            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
-        }
-    </text>));
-
-    gridColumns.Add(grid.Column("SurfaceArea", "ضریب مصرف فلزرویه", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_SurfaceArea))
-        {
-            <span id="SurfaceArea" class="display-mode">@item.SurfaceArea</span>
-            <input id="iSurfaceArea" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.SurfaceArea" />
-        }
-        else
-        {
-            <span id="SurfaceArea" class="display-mode">@item.SurfaceArea</span>
-            <span id="iSurfaceArea" class="edit-mode">@item.SurfaceArea</span>
-        }
-    </text>));
-
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Edit))
+    else
     {
-        gridColumns.Add(grid.Column("Edit", "ویرایش", @<text>
-            <button class="btn btn-primary edit-item display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
-            <button class="btn btn-success save-item edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
-        </text>));
+        <span id="Name" class="display-mode">@item.Name</span>
+        <span id="iName" class="edit-mode">@item.Name</span>
     }
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Delete))
+    </text>));
+
+gridColumns.Add(grid.Column("Description", "شرح", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
     {
-        gridColumns.Add(grid.Column("Delete", "حذف", @<text>
-            <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#PanelModelDeleteModal" name="PanelModelDelete" id="@item.Id">حذف</button>
-        </text>));
+        <span id="Description" class="display-mode">@item.Description</span>
+        <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
     }
+    else
+    {
+        <span id="Description" class="display-mode">@item.Description</span>
+        <span id="iDescription" class="edit-mode">@item.Description</span>
+    }
+</text>));
+
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+{
+gridColumns.Add(grid.Column("Cost", "قیمت", @<text>
+    <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
+    <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
+</text>));
+}
+
+gridColumns.Add(grid.Column("ProductFactor", "ضریب", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
+    {
+        <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+        <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
+    }
+    else
+    {
+        <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+        <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
+    }
+</text>));
+
+gridColumns.Add(grid.Column("Order_ProductStatus.Name", "شروع تولید", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
+    {
+        <span id="StartFrom" class="display-mode">@item.Order_ProductStatus.Name</span>
+        @Html.DropDownList("iStartFrom", BaseSite.Models.Cache.Order_ProductStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == item.StartFrom) }), new { @Class = "edit-mode", @Id = "iStartFrom" })
+    }
+    else
+    {
+        <span id="StartFrom" class="display-mode">@item.Order_ProductStatus.Name</span>
+        @Html.DropDownList("iStartFrom", BaseSite.Models.Cache.Order_ProductStatus.Where(s => s.Key == item.StartFrom).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == item.StartFrom) }), new { @Class = "edit-mode", @Id = "iStartFrom" })
+    }
+</text>));
+
+gridColumns.Add(grid.Column("Available", "موجود", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+    {
+        @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+        @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
+    }
+    else
+    {
+        @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+        @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
+    }
+</text>));
+
+gridColumns.Add(grid.Column("SurfaceArea", "ضریب مصرف فلزرویه", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_SurfaceArea))
+    {
+        <span id="SurfaceArea" class="display-mode">@item.SurfaceArea</span>
+        <input id="iSurfaceArea" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.SurfaceArea" />
+    }
+    else
+    {
+        <span id="SurfaceArea" class="display-mode">@item.SurfaceArea</span>
+        <span id="iSurfaceArea" class="edit-mode">@item.SurfaceArea</span>
+    }
+</text>));
+
+gridColumns.Add(grid.Column("Height", "ارتفاع", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+    {
+        <span id="Height" class="display-mode">@item.Height</span>
+        <input id="iHeight" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Height" />
+    }
+    else
+    {
+        <span id="Height" class="display-mode">@item.Height</span>
+        <span id="iHeight" class="edit-mode">@item.Height</span>
+    }
+</text>));
+gridColumns.Add(grid.Column("Width", "عرض", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+    {
+        <span id="Width" class="display-mode">@item.Width</span>
+        <input id="iWidth" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Width" />
+    }
+    else
+    {
+        <span id="Width" class="display-mode">@item.Width</span>
+        <span id="iWidth" class="edit-mode">@item.Width</span>
+    }
+</text>));
+gridColumns.Add(grid.Column("Depth", "عمق", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+    {
+        <span id="Depth" class="display-mode">@item.Depth</span>
+        <input id="iDepth" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Depth" />
+    }
+    else
+    {
+        <span id="Depth" class="display-mode">@item.Depth</span>
+        <span id="iDepth" class="edit-mode">@item.Depth</span>
+    }
+</text>));
+
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Edit))
+{
+gridColumns.Add(grid.Column("Edit", "ویرایش", @<text>
+    <button class="btn btn-primary edit-item display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
+    <button class="btn btn-success save-item edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
+</text>));
+}
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Delete))
+{
+gridColumns.Add(grid.Column("Delete", "حذف", @<text>
+    <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#PanelModelDeleteModal" name="PanelModelDelete" id="@item.Id">حذف</button>
+</text>));
+}
 }
 
 <div class="row DivList" id="panelList">
@@ -192,78 +229,78 @@
     gridColumns2.Add(grid2.Column("ردیف", format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid2.TotalRowCount / grid2.PageCount) / grid2.RowsPerPage) * grid2.RowsPerPage * grid2.PageIndex));
 
     gridColumns2.Add(grid2.Column("Name", "نام فلزرویه", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
-        {
-            <span id="Name" class="display-mode">@item.Name</span>
-            <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
-        }
-        else
-        {
-            <span id="Name" class="display-mode">@item.Name</span>
-            <span id="iName" class="edit-mode">@item.Name</span>
-        }
-    </text>));
-
-    gridColumns2.Add(grid2.Column("Description", "شرح", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
-        {
-            <span id="Description" class="display-mode">@item.Description</span>
-            <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
-        }
-        else
-        {
-            <span id="Description" class="display-mode">@item.Description</span>
-            <span id="iDescription" class="edit-mode">@item.Description</span>
-        }
-    </text>));
-
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
     {
-        gridColumns2.Add(grid2.Column("Cost", "قیمت", @<text>
-            <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
-            <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
-        </text>));
+        <span id="Name" class="display-mode">@item.Name</span>
+        <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
     }
-
-    gridColumns2.Add(grid2.Column("ProductFactor", "ضریب", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
-        {
-            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
-            <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
-        }
-        else
-        {
-            <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
-            <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
-        }
+    else
+    {
+        <span id="Name" class="display-mode">@item.Name</span>
+        <span id="iName" class="edit-mode">@item.Name</span>
+    }
     </text>));
 
-    gridColumns2.Add(grid2.Column("Available", "موجود", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
-        {
-            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
-            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
-        }
-        else
-        {
-            @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
-            @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
-        }
-    </text>));
+gridColumns2.Add(grid2.Column("Description", "شرح", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
+    {
+        <span id="Description" class="display-mode">@item.Description</span>
+        <input id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />
+    }
+    else
+    {
+        <span id="Description" class="display-mode">@item.Description</span>
+        <span id="iDescription" class="edit-mode">@item.Description</span>
+    }
+</text>));
 
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Edit))
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+{
+gridColumns2.Add(grid2.Column("Cost", "قیمت", @<text>
+    <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
+    <input id="iCost" class="iCost edit-mode autoNumber" type="text" style="width: 97%; text-align: center;" value="@item.Cost" />
+</text>));
+}
+
+gridColumns2.Add(grid2.Column("ProductFactor", "ضریب", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
     {
-        gridColumns2.Add(grid2.Column("Edit", "ویرایش", @<text>
-            <button class="btn btn-primary edit-item2 display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
-            <button class="btn btn-success save-item2 edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
-        </text>));
+        <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+        <input id="iProductFactor" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.ProductFactor" />
     }
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Delete))
+    else
     {
-        gridColumns2.Add(grid2.Column("Delete", "حذف", @<text>
-            <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#SurfaceMetalDeleteModal" name="SurfaceMetalDelete" id="@item.Id">حذف</button>
-        </text>));
+        <span id="ProductFactor" class="display-mode">@item.ProductFactor</span>
+        <span id="iProductFactor" class="edit-mode">@item.ProductFactor</span>
     }
+</text>));
+
+gridColumns2.Add(grid2.Column("Available", "موجود", @<text>
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+    {
+        @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+        @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
+    }
+    else
+    {
+        @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
+        @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode", disabled = "true" })
+    }
+</text>));
+
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Edit))
+{
+gridColumns2.Add(grid2.Column("Edit", "ویرایش", @<text>
+    <button class="btn btn-primary edit-item2 display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
+    <button class="btn btn-success save-item2 edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
+</text>));
+}
+if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_HallPanel_Delete))
+{
+gridColumns2.Add(grid2.Column("Delete", "حذف", @<text>
+    <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#SurfaceMetalDeleteModal" name="SurfaceMetalDelete" id="@item.Id">حذف</button>
+</text>));
+}
 }
 
 <div class="row DivList" id="metalList">
@@ -369,12 +406,15 @@
             var startFrom = tr.find('#iStartFrom').find(":selected").val();
             var available = tr.find('#iAvailable').prop("checked");
             var surfaceArea = tr.find('#iSurfaceArea').val();
+            var height = tr.find('#iHeight').val();
+            var width = tr.find('#iWidth').val();
+            var depth = tr.find('#iDepth').val();
 
             $.ajax({
                 url: "@Url.Action("EditHallPanelModel", "Information")",
                 type: "Post",
                 dataType: "json",
-                data: { ItemId: itemId, ItemName: name, ItemDescription: description, ItemCost: cost, ItemProductFactor: productFactor, ItemAvailable: available, ItemSurfaceArea: surfaceArea, ItemStartFrom: startFrom },
+                data: { ItemId: itemId, ItemName: name, ItemDescription: description, ItemCost: cost, ItemProductFactor: productFactor, ItemAvailable: available, ItemSurfaceArea: surfaceArea, ItemStartFrom: startFrom, ItemHeight: height, ItemWidth: width, ItemDepth: depth },
                 success: function (data) {
                     tr.find('#Name').text(data.Name);
                     tr.find('#Description').text(data.Description);
@@ -384,6 +424,9 @@
                     tr.find('#StartFrom').text(tr.find('#iStartFrom').find(":selected").text());
                     tr.find('#Available').prop("checked", data.Available);
                     tr.find('#SurfaceArea').text(data.SurfaceArea);
+                    tr.find('#Height').text(data.Height);
+                    tr.find('#Width').text(data.Width);
+                    tr.find('#Depth').text(data.Depth);
 
                     tr.find('.edit-mode, .display-mode').toggle();
                 }

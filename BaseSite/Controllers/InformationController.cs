@@ -608,13 +608,16 @@ namespace BaseSite.Controllers
 
         [HttpPost]
         [CustomAuthorize(OPERATIONS.Setting_CabinPanel_Edit)]
-        public JsonResult EditPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom)
+        public JsonResult EditPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom, int? ItemHeight, int? ItemWidth, int? ItemDepth)
         {
             double? cost = null;
             double? facotr = null;
             double? surfaceArea = null;
             bool? available = null;
             byte? startfrom = null;
+            int? height = null;
+            int? width = null;
+            int? depth = null;
             if (!CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
             {
                 ItemName = null;
@@ -641,10 +644,16 @@ namespace BaseSite.Controllers
                 if (ItemAvailable.HasValue) available = ItemAvailable.Value;
                 else available = false;
             }
+            if (CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+            {
+                if (ItemHeight.HasValue) height = ItemHeight.Value;
+                if (ItemWidth.HasValue) width = ItemWidth.Value;
+                if (ItemDepth.HasValue) depth = ItemDepth.Value;
+            }
 
-            InformationManager.Cabin_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom);
+            InformationManager.Cabin_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom, height, width, depth);
             var res = from u in InformationManager.Cabin_Panel_Get().Where(m => m.Id == int.Parse(ItemId))
-                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom };
+                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom, u.Height, u.Width, u.Depth };
 
             LogManager.Log_Logs_Add((int)DB_Table.Tb_CabinPanels, int.Parse(ItemId), CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, InformationManager.Cabin_Panel_Get(int.Parse(ItemId)).ToString());
 
@@ -768,13 +777,16 @@ namespace BaseSite.Controllers
 
         [HttpPost]
         [CustomAuthorize(OPERATIONS.Setting_HallPanel_Edit)]
-        public JsonResult EditHallPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom)
+        public JsonResult EditHallPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom, int? ItemHeight, int? ItemWidth, int? ItemDepth)
         {
             double? cost = null;
             double? facotr = null;
             double? surfaceArea = null;
             bool? available = null;
             byte? startfrom = null;
+            int? height = null;
+            int? width = null;
+            int? depth = null;
             if (!CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
             {
                 ItemName = null;
@@ -801,9 +813,16 @@ namespace BaseSite.Controllers
                 if (ItemAvailable.HasValue) available = ItemAvailable.Value;
                 else available = false;
             }
-            InformationManager.Hall_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom);
+            if (CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+            {
+                if (ItemHeight.HasValue) height = ItemHeight.Value;
+                if (ItemWidth.HasValue) width = ItemWidth.Value;
+                if (ItemDepth.HasValue) depth = ItemDepth.Value;
+            }
+
+            InformationManager.Hall_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom, height, width, depth);
             var res = from u in InformationManager.Hall_Panel_Get().Where(m => m.Id == int.Parse(ItemId))
-                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom };
+                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom, u.Height, u.Width, u.Depth };
 
             LogManager.Log_Logs_Add((int)DB_Table.Tb_HallPanels, int.Parse(ItemId), CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, InformationManager.Hall_Panel_Get(int.Parse(ItemId)).ToString());
 
@@ -925,13 +944,16 @@ namespace BaseSite.Controllers
 
         [HttpPost]
         [CustomAuthorize(OPERATIONS.Setting_DoorTopPanel_Edit)]
-        public JsonResult EditDoorTopPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom)
+        public JsonResult EditDoorTopPanelModel(string ItemId, string ItemName, string ItemDescription, string ItemCost, string ItemProductFactor, bool? ItemAvailable, string ItemSurfaceArea, byte? ItemStartFrom, int? ItemHeight, int? ItemWidth, int? ItemDepth)
         {
             double? cost = null;
             double? facotr = null;
             double? surfaceArea = null;
             bool? available = null;
             byte? startfrom = null;
+            int? height = null;
+            int? width = null;
+            int? depth = null;
             if (!CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
             {
                 ItemName = null;
@@ -958,9 +980,16 @@ namespace BaseSite.Controllers
                 if (ItemAvailable.HasValue) available = ItemAvailable.Value;
                 else available = false;
             }
-            InformationManager.DoorTop_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom);
+            if (CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Size))
+            {
+                if (ItemHeight.HasValue) height = ItemHeight.Value;
+                if (ItemWidth.HasValue) width = ItemWidth.Value;
+                if (ItemDepth.HasValue) depth = ItemDepth.Value;
+            }
+
+            InformationManager.DoorTop_Panel_Edit(int.Parse(ItemId), ItemName, ItemDescription, cost, facotr, available, surfaceArea, startfrom, height, width, depth);
             var res = from u in InformationManager.DoorTop_Panel_Get().Where(m => m.Id == int.Parse(ItemId))
-                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom };
+                      select new { u.Id, u.Name, u.Description, u.Cost, u.Available, u.ProductFactor, u.SurfaceArea, u.StartFrom, u.Height, u.Width, u.Depth };
 
             LogManager.Log_Logs_Add((int)DB_Table.Tb_DoorTopPanels, int.Parse(ItemId), CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, InformationManager.DoorTop_Panel_Get(int.Parse(ItemId)).ToString());
 

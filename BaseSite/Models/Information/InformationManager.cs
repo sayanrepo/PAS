@@ -964,7 +964,7 @@ namespace BaseSite.Models.Information
                 Cache.Update();
             }
         }
-        public static void Cabin_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom)
+        public static void Cabin_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom, int? Height, int? Width, int? Depth)
         {
             try
             {
@@ -978,6 +978,9 @@ namespace BaseSite.Models.Information
                     if (ItemAvailable.HasValue) c.Available = ItemAvailable.Value;
                     if (ItemSurfaceArea.HasValue) c.SurfaceArea = ItemSurfaceArea.Value;
                     if (ItemStartFrom.HasValue) c.StartFrom = ItemStartFrom.Value;
+                    if (Height.HasValue) c.Height = Height.Value;
+                    if (Width.HasValue) c.Width = Width.Value;
+                    if (Depth.HasValue) c.Depth = Depth.Value;
                     context.SaveChanges();
                 }
             }
@@ -1130,7 +1133,7 @@ namespace BaseSite.Models.Information
                 Cache.Update();
             }
         }
-        public static void Hall_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom)
+        public static void Hall_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom, int? Height, int? Width, int? Depth)
         {
             try
             {
@@ -1144,6 +1147,9 @@ namespace BaseSite.Models.Information
                     if (ItemAvailable.HasValue) c.Available = ItemAvailable.Value;
                     if (ItemSurfaceArea.HasValue) c.SurfaceArea = ItemSurfaceArea.Value;
                     if (ItemStartFrom.HasValue) c.StartFrom = ItemStartFrom.Value;
+                    if (Height.HasValue) c.Height = Height.Value;
+                    if (Width.HasValue) c.Width = Width.Value;
+                    if (Depth.HasValue) c.Depth = Depth.Value;
                     context.SaveChanges();
                 }
             }
@@ -1296,7 +1302,7 @@ namespace BaseSite.Models.Information
                 Cache.Update();
             }
         }
-        public static void DoorTop_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom)
+        public static void DoorTop_Panel_Edit(int ItemId, string ItemName, string ItemDescription, double? ItemCost, double? ItemFactor, bool? ItemAvailable, double? ItemSurfaceArea, byte? ItemStartFrom, int? Height, int? Width, int? Depth)
         {
             try
             {
@@ -1310,6 +1316,9 @@ namespace BaseSite.Models.Information
                     if (ItemAvailable.HasValue) c.Available = ItemAvailable.Value;
                     if (ItemSurfaceArea.HasValue) c.SurfaceArea = ItemSurfaceArea.Value;
                     if (ItemStartFrom.HasValue) c.StartFrom = ItemStartFrom.Value;
+                    if (Height.HasValue) c.Height = Height.Value;
+                    if (Width.HasValue) c.Width = Width.Value;
+                    if (Depth.HasValue) c.Depth = Depth.Value;
                     context.SaveChanges();
                 }
             }

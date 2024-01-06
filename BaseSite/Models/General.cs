@@ -312,6 +312,7 @@ namespace BaseSite.Models
         Setting_ProductFactor,
         Setting_Available,
         Setting_SurfaceArea,
+        Setting_Size,
 
         Setting_TruthTable,
         Setting_TruthTable_Edit,

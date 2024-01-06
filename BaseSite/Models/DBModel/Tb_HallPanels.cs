@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseSite.Models.DBModel
 {
-    public partial class Tb_HallPanels
+    public partial class Tb_HallPanels: Tb_Panel
     {
         public Tb_HallPanels()
         {

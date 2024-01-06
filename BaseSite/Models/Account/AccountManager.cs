@@ -316,6 +316,7 @@ namespace BaseSite.Models.Account
                 res.Add(OPERATIONS.Setting_ProductFactor);
                 res.Add(OPERATIONS.Setting_Available);
                 res.Add(OPERATIONS.Setting_SurfaceArea);
+                res.Add(OPERATIONS.Setting_Size);
 
                 res.Add(OPERATIONS.Setting_Attachment);
                 res.Add(OPERATIONS.Setting_Attachment_Edit);

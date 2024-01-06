@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BaseSite.Models.DBModel
 {
-    public partial class Tb_DoorTopPanels
+    public partial class Tb_DoorTopPanels: Tb_Panel
     {
         public Tb_DoorTopPanels()
         {

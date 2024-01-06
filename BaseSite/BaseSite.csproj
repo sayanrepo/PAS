@@ -242,6 +242,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202401050602534_Initial.cs" />
+    <Compile Include="Migrations\202401050602534_Initial.designer.cs">
+      <DependentUpon>202401050602534_Initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202401050608095_m1.cs" />
+    <Compile Include="Migrations\202401050608095_m1.designer.cs">
+      <DependentUpon>202401050608095_m1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountManager.cs" />
     <Compile Include="Models\Account\User.cs" />
     <Compile Include="Models\DBModel\CRM_Activity.cs" />
@@ -598,6 +607,14 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\202401050602534_Initial.resx">
+      <DependentUpon>202401050602534_Initial.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202401050608095_m1.resx">
+      <DependentUpon>202401050608095_m1.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

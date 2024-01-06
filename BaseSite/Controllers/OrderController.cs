@@ -48,43 +48,45 @@ namespace BaseSite.Controllers
         [HttpPost]
         public JsonResult AutoCompletePushButtons(string Prefix, int containerTableId = 0, int containerId = 0)
         {
-            //List<Tb_PushButtons> ObjList = InformationManager.Cabin_PushButton_Get();
-            //List<Tb_Truth> truthList = InformationManager.TruthTable_Get2(containerTableId, containerId);
-
-            //var res = (from u in ObjList
-            //           join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId }
-            //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
-            //           select new { u.Name, u.Id, u.Cost, Color = t.TValue == 1 ? "#00ff21" : t.TValue == 0.5 ? "#ffd800" : "#ff0000" });//.Take(15);
-            //return Json(res, JsonRequestBehavior.AllowGet);
-
-
-            List<Tb_PushButtons> ObjList = InformationManager.Cabin_PushButton_Get();
+            List<Tb_PushButtons> ObjList = InformationManager.Cabin_PushButton_Get().Where(u => u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())).ToList();
+            List<Tb_Truth> truthList = InformationManager.TruthTable_Get2(containerTableId, containerId);
 
             var res = (from u in ObjList
-                       where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
-                       select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
+                       join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId } into t2
+                       //where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
+                       from t3 in t2.DefaultIfEmpty()
+                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#00ff21" : (t3.TValue == 0.75 ? "#12beb3" : (t3.TValue == 0.5 ? "#ffd800" : "#ff0000")) }).ToList();//.Take(15);
             return Json(res, JsonRequestBehavior.AllowGet);
+
+
+            //List<Tb_PushButtons> ObjList = InformationManager.Cabin_PushButton_Get();
+
+            //var res = (from u in ObjList
+            //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
+            //           select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
+            //return Json(res, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
         public JsonResult AutoCompleteMonitors(string Prefix, int containerTableId = 0, int containerId = 0)
         {
-            //List<Tb_Monitors> ObjList = InformationManager.Cabin_Monitor_Get();
-            //List<Tb_Truth> truthList = InformationManager.TruthTable_Get2(containerTableId, containerId);
-
-            //var res = (from u in ObjList
-            //           join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId }
-            //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
-            //           select new { u.Name, u.Id, u.Cost, Color = t.TValue == 1 ? "#00ff21" : t.TValue == 0.5 ? "#ffd800" : "#ff0000" });//.Take(15);
-            //return Json(res, JsonRequestBehavior.AllowGet);
-
-
             List<Tb_Monitors> ObjList = InformationManager.Cabin_Monitor_Get();
+            List<Tb_Truth> truthList = InformationManager.TruthTable_Get2(containerTableId, containerId);
 
             var res = (from u in ObjList
+                       join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId } into t2
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
-                       select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
+                       from t3 in t2.DefaultIfEmpty()
+                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#00ff21" : (t3.TValue == 0.75 ? "#12beb3" : (t3.TValue == 0.5 ? "#ffd800" : "#ff0000")) }).ToList();//.Take(15);
             return Json(res, JsonRequestBehavior.AllowGet);
+
+
+            //List<Tb_Monitors> ObjList = InformationManager.Cabin_Monitor_Get();
+
+            //var res = (from u in ObjList
+            //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
+            //           select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
+            //return Json(res, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
