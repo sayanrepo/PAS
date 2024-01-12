@@ -369,6 +369,7 @@
     <Content Include="Contents\css\MyStyle\Main.css" />
     <Content Include="Contents\css\MyStyle\PrintBill.css" />
     <Content Include="Contents\css\MyStyle\PrintLA5.css" />
+    <Content Include="Contents\css\MyStyle\PrintLabel.css" />
     <Content Include="Contents\css\MyStyle\PrintPA4.css" />
     <Content Include="Contents\css\partdanafoss.css" />
     <Content Include="Contents\fonts\AweSome\fontawesome-webfont.svg" />
@@ -604,6 +605,7 @@
     <Content Include="Reports\RBuyersRank.frx" />
     <Content Include="Reports\RSalesByUsers.frx" />
     <Content Include="Views\Report\ReportList.cshtml" />
+    <Content Include="Views\Delivery\PrintDeliveryPanel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

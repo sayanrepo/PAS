@@ -316,6 +316,12 @@ namespace BaseSite.Controllers
                 LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فرم محموله");
                 return View("PrintDeliveryPack", model);
             }
+            else if (doc == "deliveryPanel")
+            {
+                Delivery_Delivery model = DeliveryManager.Delivery_Delivery_Get(id);
+                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ لیبل پنل");
+                return View("PrintDeliveryPanel", model);
+            }
             else
                 return View("Error");
         }
