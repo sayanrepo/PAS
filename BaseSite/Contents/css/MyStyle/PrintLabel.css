@@ -2,8 +2,8 @@
 
 @media print {
     @page {
-        width: 50mm;
-        height: 35mm;
+        /* 2 values: width then height */
+        size: 50mm 35mm;
     }
 
     #divPrint {
@@ -71,11 +71,6 @@
 }
 
 @media not print {
-    @page {
-        width: 50mm;
-        height: 35mm;
-    }
-
     #divPrint {
         width: 50mm;
         height: 35mm;
