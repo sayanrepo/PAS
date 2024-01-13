@@ -68,6 +68,11 @@
         /* Standard */
         /*transform: rotate(-90.0deg);*/
     }
+
+    .pagebreak {
+        clear: both;
+        page-break-after: always;
+    }
 }
 
 @media not print {
