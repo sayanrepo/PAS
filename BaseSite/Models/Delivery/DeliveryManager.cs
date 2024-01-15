@@ -411,13 +411,13 @@ namespace BaseSite.Models.Delivery
                         {
                             if (!c.DeliveryId.HasValue || c.DeliveryId.Value == delivery.Id)
                             {
-                                delivery.Items.Add(new CheckableItem() { Type = 1, Id = c.Id, Checked = (c.DeliveryId.HasValue && c.DeliveryId.Value == delivery.Id), Name = "پنل داخل کابین: " + c.Tb_CabinPanels.Name + " " + c.Tb_CabinPanels.Description, Count = c.Count, Comment = c.DeliveryComment });
+                                delivery.Items.Add(new CheckableItem() { Type = 1, Id = c.Id, Checked = (c.DeliveryId.HasValue && c.DeliveryId.Value == delivery.Id), Model = c.Tb_CabinPanels.Name, Name = "پنل داخل کابین: " + c.Tb_CabinPanels.Name + " " + c.Tb_CabinPanels.Description, Count = c.Count, Comment = c.DeliveryComment });
                             }
                             foreach (var attach in c.Order_Panel_Attachment)
                             {
                                 if ((attach.Tb_Attachments.IsDeliveryItem || DeliveryManager.isDeliveryAttachment(attach.AttachmentId)) && (!attach.DeliveryId.HasValue || attach.DeliveryId == delivery.Id))
                                 {
-                                    delivery.Items.Add(new CheckableItem() { Type = 11, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Name = "ملحقات داخل کابین: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
+                                    delivery.Items.Add(new CheckableItem() { Type = 11, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Model = attach.Tb_Attachments.Name, Name = "ملحقات داخل کابین: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
                                 }
                             }
                         }
@@ -428,13 +428,13 @@ namespace BaseSite.Models.Delivery
                         {
                             if (!h.DeliveryId.HasValue || h.DeliveryId.Value == delivery.Id)
                             {
-                                delivery.Items.Add(new CheckableItem() { Type = 2, Id = h.Id, Checked = (h.DeliveryId.HasValue && h.DeliveryId.Value == delivery.Id), Name = "پنل طبقات: " + h.Tb_HallPanels.Name + " " + h.Tb_HallPanels.Description, Count = h.Count, Comment = h.DeliveryComment });
+                                delivery.Items.Add(new CheckableItem() { Type = 2, Id = h.Id, Checked = (h.DeliveryId.HasValue && h.DeliveryId.Value == delivery.Id), Model = h.Tb_HallPanels.Name, Name = "پنل طبقات: " + h.Tb_HallPanels.Name + " " + h.Tb_HallPanels.Description, Count = h.Count, Comment = h.DeliveryComment });
                             }
                             foreach (var attach in h.Order_Panel_Attachment)
                             {
                                 if ((attach.Tb_Attachments.IsDeliveryItem || DeliveryManager.isDeliveryAttachment(attach.AttachmentId)) && (!attach.DeliveryId.HasValue || attach.DeliveryId == delivery.Id))
                                 {
-                                    delivery.Items.Add(new CheckableItem() { Type = 12, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Name = "ملحقات طبقات: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
+                                    delivery.Items.Add(new CheckableItem() { Type = 12, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Model = attach.Tb_Attachments.Name, Name = "ملحقات طبقات: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
                                 }
                             }
                         }
@@ -445,13 +445,13 @@ namespace BaseSite.Models.Delivery
                         {
                             if (!d.DeliveryId.HasValue || d.DeliveryId.Value == delivery.Id)
                             {
-                                delivery.Items.Add(new CheckableItem() { Type = 3, Id = d.Id, Checked = (d.DeliveryId.HasValue && d.DeliveryId.Value == delivery.Id), Name = "پنل سردرب: " + d.Tb_DoorTopPanels.Name + " " + d.Tb_DoorTopPanels.Description, Count = d.Count, Comment = d.DeliveryComment });
+                                delivery.Items.Add(new CheckableItem() { Type = 3, Id = d.Id, Checked = (d.DeliveryId.HasValue && d.DeliveryId.Value == delivery.Id), Model = d.Tb_DoorTopPanels.Name, Name = "پنل سردرب: " + d.Tb_DoorTopPanels.Name + " " + d.Tb_DoorTopPanels.Description, Count = d.Count, Comment = d.DeliveryComment });
                             }
                             foreach (var attach in d.Order_Panel_Attachment)
                             {
                                 if ((attach.Tb_Attachments.IsDeliveryItem || DeliveryManager.isDeliveryAttachment(attach.AttachmentId)) && (!attach.DeliveryId.HasValue || attach.DeliveryId == delivery.Id))
                                 {
-                                    delivery.Items.Add(new CheckableItem() { Type = 13, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Name = "ملحقات سردرب: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
+                                    delivery.Items.Add(new CheckableItem() { Type = 13, Id = attach.Id, Checked = (attach.DeliveryId.HasValue && attach.DeliveryId == delivery.Id), Model = attach.Tb_Attachments.Name, Name = "ملحقات سردرب: " + attach.Tb_Attachments.Name + " " + attach.Tb_Attachments.Description, Count = attach.Count, Comment = attach.DeliveryComment });
                                 }
                             }
                         }
@@ -466,7 +466,7 @@ namespace BaseSite.Models.Delivery
                     {
                         if (!c.DeliveryId.HasValue || c.DeliveryId.Value == delivery.Id)
                         {
-                            delivery.Items.Add(new CheckableItem() { Type = 4, Id = c.Id, Checked = (c.DeliveryId.HasValue && c.DeliveryId.Value == delivery.Id), Name = c.Name, Count = c.Count, Comment = (!c.DeliveryId.HasValue ? c.Comment : c.DeliveryComment) });
+                            delivery.Items.Add(new CheckableItem() { Type = 4, Id = c.Id, Checked = (c.DeliveryId.HasValue && c.DeliveryId.Value == delivery.Id), Model = c.Name, Name = c.Name, Count = c.Count, Comment = (!c.DeliveryId.HasValue ? c.Comment : c.DeliveryComment) });
                         }
                     }
                 }

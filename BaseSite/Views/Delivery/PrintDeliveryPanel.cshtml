@@ -23,7 +23,7 @@
         {
             if (Model.Items.ElementAt(i).Checked)
             {
-                <div style="display: table; line-height: 14px; margin:1px; width: 100%; max-height: 33mm; height: 33mm;">
+                <div style="display: table; line-height: 14px; margin:1px; width: 49mm; height: 34mm;">
                     <div style="display: table-row">
                         <div class="boxThin text-center" style="display: table-cell;">
                             <p><b>شماره سند</b></p>
@@ -34,10 +34,18 @@
                     </div>
                     <div style="display: table-row">
                         <div class="boxThin text-center" style="display: table-cell;">
-                            <p><b>نام مشتری</b></p>
+                            <p><b>مشتری</b></p>
                         </div>
                         <div class="boxThin text-center" style="display: table-cell;">
-                            <p> @Model.RecieverName</p>
+                            <p> @(Model.Order_Order != null ? Model.Order_Order.Account_Users.FullName : Model.Sale_Sale.Account_Users.FullName)</p>
+                        </div>
+                    </div>
+                    <div style="display: table-row">
+                        <div class="boxThin text-center" style="display: table-cell;">
+                            <p><b>نوع</b></p>
+                        </div>
+                        <div class="boxThin text-center" style="display: table-cell;">
+                            <p> @Model.Items.ElementAt(i).TypeName()</p>
                         </div>
                     </div>
                     <div style="display: table-row">
@@ -45,15 +53,7 @@
                             <p><b>مدل</b></p>
                         </div>
                         <div class="boxThin text-center" style="display: table-cell;">
-                            <p> @Model.Items.ElementAt(i).Name</p>
-                        </div>
-                    </div>
-                    <div style="display: table-row">
-                        <div class="boxThin text-center" style="display: table-cell;">
-                            <p><b>ملحقات</b></p>
-                        </div>
-                        <div class="boxThin text-center" style="display: table-cell;">
-                            <p> @Model.Items.ElementAt(i).Comment</p>
+                            <p> @Model.Items.ElementAt(i).Model</p>
                         </div>
                     </div>
                 </div>

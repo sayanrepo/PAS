@@ -11,9 +11,22 @@ namespace BaseSite.Models.DBModel
         public byte Type { get; set; }
         public int Id { get; set; }
         public bool Checked { get; set; }
+        public string Model { get; set; }
         public string Name { get; set; }
         public int Count { get; set; }
         public string Comment { get; set; }
+
+        public string TypeName()
+        {
+            if (Type == 1) return "پنل داخل کابین";
+            else if (Type == 11) return "ملحقات داخل کابین";
+            else if (Type == 2) return "پنل طبقات";
+            else if (Type == 12) return "ملحقات طبقات";
+            else if (Type == 3) return "پنل سردرب";
+            else if (Type == 13) return "ملحقات سردرب";
+            else if (Type == 4) return "فروش قطعه";
+            else return "";
+        }
     }
 
     public class Delivery_Delivery
