@@ -56,8 +56,9 @@
                                 <th class="text-center firstcolumn">@pTable[pid].Name</th>
                                 @foreach (int sid in sTable.Keys)
                                 {
+                                    var cell = Model.Where(m => m.PrimaryId == pid && m.SecondaryId == sid).FirstOrDefault();
                                     <td class="text-center">
-                                        @if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 1))
+                                        @if (cell == null || cell.TValue == 1)
                                         {
                                             <select class="selectcolor" style="background-color: rgba(7, 194, 31, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
                                                 <option value="1" data-rgb="rgba(7, 194, 31, 0.75)" selected>سازگار</option>
@@ -66,7 +67,7 @@
                                                 <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
                                             </select>
                                         }
-                                        else if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 0.75))
+                                        else if (cell.TValue == 0.75)
                                         {
                                             <select class="selectcolor" style="background-color: rgba(18, 190, 179, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
                                                 <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>
@@ -75,7 +76,7 @@
                                                 <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
                                             </select>
                                         }
-                                        else if (Model.Any(m => m.PrimaryId == pid && m.SecondaryId == sid && m.TValue == 0.5))
+                                        else if (cell.TValue == 0.5)
                                         {
                                             <select class="selectcolor" style="background-color: rgba(216, 185, 12, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
                                                 <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>
@@ -84,7 +85,7 @@
                                                 <option value="0" data-rgb="rgba(217, 12, 12, 0.75)">ناسازگار</option>
                                             </select>
                                         }
-                                        else
+                                        else //if (cell.TValue == 0)
                                         {
                                             <select class="selectcolor" style="background-color: rgba(217, 12, 12, 0.75);" data-ptid="@ViewBag.PrimaryTableId" data-pid="@pid" data-stid="@ViewBag.SecondaryTableId" data-sid="@sid">
                                                 <option value="1" data-rgb="rgba(7, 194, 31, 0.75)">سازگار</option>

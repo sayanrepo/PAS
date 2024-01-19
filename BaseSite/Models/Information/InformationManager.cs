@@ -1493,33 +1493,16 @@ namespace BaseSite.Models.Information
                 if (context.Tb_Truth.Any(m => m.PrimaryTableId == ptableId && m.PrimaryId == pId && m.SecondaryTableId == stableId && m.SecondaryId == sId))
                 {
                     Tb_Truth obj = context.Tb_Truth.Where(m => m.PrimaryTableId == ptableId && m.PrimaryId == pId && m.SecondaryTableId == stableId && m.SecondaryId == sId).SingleOrDefault();
-
-                    if (value > 0)
-                    {
-                        obj.TValue = value;
-                        context.SaveChanges();
-                        return obj;
-                    }
-                    else
-                    {
-                        context.Tb_Truth.Remove(obj);
-                        context.SaveChanges();
-                        return new Tb_Truth() { PrimaryTableId = ptableId, PrimaryId = pId, SecondaryTableId = stableId, SecondaryId = sId, TValue = 0 };
-                    }
+                    obj.TValue = value;
+                    context.SaveChanges();
+                    return obj;
                 }
                 else
                 {
-                    if (value > 0)
-                    {
-                        Tb_Truth obj = new Tb_Truth() { PrimaryTableId = ptableId, PrimaryId = pId, SecondaryTableId = stableId, SecondaryId = sId, TValue = value };
-                        context.Tb_Truth.Add(obj);
-                        context.SaveChanges();
-                        return obj;
-                    }
-                    else
-                    {
-                        return new Tb_Truth() { PrimaryTableId = ptableId, PrimaryId = pId, SecondaryTableId = stableId, SecondaryId = sId, TValue = 0 };
-                    }
+                    Tb_Truth obj = new Tb_Truth() { PrimaryTableId = ptableId, PrimaryId = pId, SecondaryTableId = stableId, SecondaryId = sId, TValue = value };
+                    context.Tb_Truth.Add(obj);
+                    context.SaveChanges();
+                    return obj;
                 }
             }
         }

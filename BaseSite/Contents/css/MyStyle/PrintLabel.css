@@ -7,8 +7,8 @@
     }
 
     #divPrint {
-        width: 50mm;
-        height: 35mm;
+       /* width: 50mm;
+        height: 35mm;*/
         /*width: 100%;
         height: 100%;
         padding: 12px 15px 15px 15px;*/
@@ -20,6 +20,10 @@
         background-position: center center;*/
     }
 
+        #divPrint p {
+            margin: 0;
+        }
+
     .bg-text {
         color: #f7d9b5 !important;
     }
@@ -27,11 +31,13 @@
     .box {
         border: 2px solid;
         padding: 1px;
+        height:8mm;
     }
 
     .boxThin {
         border: 1px solid;
         padding: 1px;
+        height:8mm;
     }
 
     .box > div {
@@ -77,14 +83,18 @@
 
 @media not print {
     #divPrint {
-        width: 50mm;
-        height: 35mm;
+        /*width: 50mm;
+        height: 35mm;*/
         /*width: 90%;
         height: 100%;
         padding: 12px 15px 15px 15px;*/
         font-family: BNazanin, BFarnaz, BLotus, IRANSans, BDavat;
         font-size: 12px;
     }
+
+        #divPrint p {
+            margin: 0;
+        }
 
     .bg-text {
         color: #f7d9b5 !important;
@@ -93,11 +103,13 @@
     .box {
         border: 2px solid;
         padding: 1px;
+        height: 8mm;
     }
 
     .boxThin {
         border: 1px solid;
         padding: 1px;
+        height: 8mm;
     }
 
     .box > div {

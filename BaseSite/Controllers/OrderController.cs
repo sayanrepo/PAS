@@ -55,7 +55,7 @@ namespace BaseSite.Controllers
                        join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId } into t2
                        //where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        from t3 in t2.DefaultIfEmpty()
-                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#00ff21" : (t3.TValue == 0.75 ? "#12beb3" : (t3.TValue == 0.5 ? "#ffd800" : "#ff0000")) }).ToList();//.Take(15);
+                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#07c21fbf" : (t3.TValue == 0.75 ? "#12beb3bf" : (t3.TValue == 0.5 ? "#d8b90cbf" : "#d90c0cbf")) }).ToList();//.Take(15);
             return Json(res, JsonRequestBehavior.AllowGet);
 
 
@@ -77,7 +77,7 @@ namespace BaseSite.Controllers
                        join t in truthList on new { TId = u.TableId, Id = u.Id } equals new { TId = t.SecondaryTableId, Id = t.SecondaryId } into t2
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        from t3 in t2.DefaultIfEmpty()
-                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#00ff21" : (t3.TValue == 0.75 ? "#12beb3" : (t3.TValue == 0.5 ? "#ffd800" : "#ff0000")) }).ToList();//.Take(15);
+                       select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#07c21fbf" : (t3.TValue == 0.75 ? "#12beb3bf" : (t3.TValue == 0.5 ? "#d8b90cbf" : "#d90c0cbf")) }).ToList();//.Take(15);
             return Json(res, JsonRequestBehavior.AllowGet);
 
 
