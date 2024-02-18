@@ -7,9 +7,9 @@ namespace BaseSite.Models.DBModel
 {
     public partial class Tb_Panel
     {
-        public int Height { get; set; }
-        public int Width { get; set; }
-        public int Depth { get; set; }
+        public double Height { get; set; }
+        public double Width { get; set; }
+        public double Depth { get; set; }
     }
 
     public partial class Tb_CabinPanels:Tb_Panel
