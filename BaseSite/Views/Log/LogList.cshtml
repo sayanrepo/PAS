@@ -1,0 +1,223 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Log_Logs>
+@{
+    ViewBag.Title = "تاریخچه فعالیت";
+    Layout = "~/Views/Shared/LayoutMain.cshtml";
+    WebGrid grid = new WebGrid(null, rowsPerPage: 50);
+    grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
+}
+
+@{
+    Func<DateTime, string> toPersianDate = date =>
+    {
+        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
+        var persianCalendar = new PersianCalendar();
+        return persianCalendar.GetYear(dateTime) + "/" +
+               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
+               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
+    };
+    var today = toPersianDate(DateTime.Now);
+}
+
+@*##################### Search Div #############################*@
+<div class="row">
+    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Search))
+{
+    <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
+        <form method="post" action="@Url.Action("SearchLog")">
+            <div class="row">
+                <div class="col-md-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">کاربر</span>
+                        @Html.TextBox("Customer", (string)(ViewBag.CustomerName), new { @Class = "form-control MyControl", @Id = "Customer", @Lang = "fa-IR" })
+                        <span class="input-group-addon MySpan"><a data-toggle="modal" href="#PersonInfoModal" id="personLink" name="personLink" data-userid="@((int?)ViewBag.customerId)"><i class="fa fa-user-o fa-lg text-danger" title="مشخصات"></i></a></span>
+                    </div>
+                    @Html.Hidden("customerId", (int?)ViewBag.customerId, new { @Class = "form-control MyControl", @Id = "CustomerId" })
+                </div>
+                <div class="col-md-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">تاریخ از</span>
+                        <input type="text" name="eventTimeFrom" class="form-control text-center text-left" dir="ltr"
+                               value="@ViewBag.eventTimeFrom"
+                               onclick="PersianDatePicker.Show(this,'@today');" />
+                    </div>
+                </div>
+                <div class="col-md-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">تا</span>
+                        <input type="text" name="eventTimeTo" class="form-control text-center text-left" dir="ltr"
+                               value="@ViewBag.eventTimeTo"
+                               onclick="PersianDatePicker.Show(this,'@today');" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="Mobile1">دسته</span>
+                        <select id="tableId" name="tableId" class="form-control text-center text-left">
+                            <option selected value> </option>
+                            @foreach (var item in BaseSite.Models.Cache.Tables)
+                            {
+                                if (item.Id == ViewBag.tableId)
+                                {
+                                    <option value="@item.Id" selected="selected">@item.Label</option>
+                                }
+                                else
+                                {
+                                    <option value="@item.Id">@item.Label</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-xs-12 formdiv">
+                    <div class="input-group">
+                        <span class="input-group-addon">شماره سند</span>
+                        <input type="text" name="docNumber" class="form-control text-center text-left" value="@ViewBag.docNumber" />
+                    </div>
+                </div>
+                <div class="col-xs-1 col-md-1 col-md-offset-2 col-xs-offset-2 text-center" style="padding-top:3px;"> <button class="btn btn-sm btn-primary">جستجو</button> </div>
+            </div>
+        </form>
+    </div>
+}
+</div>
+
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("ShEventTime", header: "زمان", format: item => new MvcHtmlString("<p style='direction: ltr; margin:0;'>" + item.ShEventTime + "</p>")),
+            grid.Column("Account_Users.FullName", header: "کاربر", format: item => item.Account_Users.FullName),
+            grid.Column("BaseSystem_Tables.Label", header: "دسته", format: item => item.BaseSystem_Tables.Label),
+            grid.Column("EntityId", header: "شماره سند", format: item => item.EntityId),
+            grid.Column("Log_LogActivity.Name", header: "فعالیت", format: item => item.Log_LogActivity.Name),
+            grid.Column("Description", header: "شرح", format: item => item.Description),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Detail))
+                {
+                    <a data-toggle="modal" href="#LogModal" name="logLink" data-logid="@item.Id"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+            ))
+        </div>
+    </div>
+</div>
+
+@*#################################Start Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="LogModal">
+    <div class="row">
+        <div class="col-xs-pull-2 col-xs-8 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">جزئیات فعالیت</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">زمان</span>
+                                <p id="shEventTime" style="direction:ltr;">yyyy/mm/dd hh:mm:ss</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">کاربر</span>
+                                <p id="userFullName">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">آدرس IP</span>
+                                <p id="IPAddress">00.00.00.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">دسته</span>
+                                <p id="entityTable">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                <p id="entityId">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">فعالیت</span>
+                                <p id="activity">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">مبلغ کل پس از فعالیت</span>
+                                <p id="LogData1">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;margin-bottom:10px;">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">شرح</span>
+                                <p id="Description" style="white-space:pre-line;margin-top:0;text-align:right;padding:5px;line-height:30px;">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*################################END Modal ###################################################*@
+
+<script type="text/javascript">
+
+    $('#LogModal').on('show.bs.modal', function (event) {
+        var clickedLink = $(event.relatedTarget); // Button that triggered the modal
+        var vlogId = clickedLink.data("logid"); // Extract info from data-* attributes
+        var modal = $(this);
+
+        $.ajax({
+            url: "@Url.Action("GetLogDetail", "Log")",
+            type: "GET",
+            dataType: "json",
+            data: { logId: vlogId},
+            success: function (data) {
+                $('#shEventTime').text(data.shEventTime);
+                $('#userFullName').text(data.userFullName);
+                $('#IPAddress').text(data.IPAddress);
+                $('#entityTable').text(data.entityTable);
+                $('#entityId').text(data.entityId);
+                $('#activity').text(data.activity);
+                $('#LogData1').text(data.LogData1);
+                $('#Description').text(data.Description);
+            }
+        })
+    })
+</script>

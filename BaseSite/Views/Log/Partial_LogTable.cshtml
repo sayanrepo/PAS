@@ -1,0 +1,145 @@
+﻿@using System.Globalization
+@model List<BaseSite.Models.DBModel.Log_Logs>
+@{
+    WebGrid grid = new WebGrid(null, rowsPerPage: Model.Count > 0 ? Model.Count : 10);
+    grid.Bind(@Model, autoSortAndPage: false, rowCount: Model.Count);
+}
+
+@*########################### webgrid ##########################################*@
+<div class="row DivList">
+    <div id="DivDetail">
+        <div style="margin-top:20px;">
+            @grid.GetHtml(tableStyle: "table table-bordered table-responsive tblgrid",
+            headerStyle: "tblGridHeader",
+            mode: WebGridPagerModes.All,
+            numericLinksCount: 20,
+            firstText: " اولین ",
+            previousText: " قبلی ",
+            nextText: " بعدی ",
+            lastText: " آخرین ",
+            columns: grid.Columns(
+            grid.Column(header: "ردیف",
+            format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex),
+            grid.Column("ShEventTime", header: "زمان", format: item => new MvcHtmlString("<p style='direction: ltr; margin:0;'>" + item.ShEventTime + "</p>")),
+            grid.Column("Account_Users.FullName", header: "کاربر", format: item => item.Account_Users.FullName),
+            grid.Column("BaseSystem_Tables.Label", header: "دسته", format: item => item.BaseSystem_Tables.Label),
+            grid.Column("EntityId", header: "شماره سند", format: item => item.EntityId),
+            grid.Column("Log_LogActivity.Name", header: "فعالیت", format: item => item.Log_LogActivity.Name),
+            grid.Column("Description", header: "شرح", format: item => item.Description),
+            grid.Column(header: "جزئیات",
+                format: @<text>
+                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Detail))
+                {
+                    <a data-toggle="modal" href="#LogModal" name="logLink" data-logid="@item.Id"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
+                }
+                else
+                {
+                    <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
+                }
+                </text>)
+                         ))
+        </div>
+    </div>
+</div>
+
+@*#################################Start Modal ###############################################*@
+<div class="modal fade" tabindex="-1" role="dialog" id="LogModal">
+    <div class="row">
+        <div class="col-xs-pull-2 col-xs-8 modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header ModalHeader">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">جزئیات فعالیت</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">زمان</span>
+                                <p id="shEventTime" style="direction:ltr;">yyyy/mm/dd hh:mm:ss</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">کاربر</span>
+                                <p id="userFullName">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">آدرس IP</span>
+                                <p id="IPAddress">00.00.00.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">دسته</span>
+                                <p id="entityTable">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">شماره سند</span>
+                                <p id="entityId">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;">
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">فعالیت</span>
+                                <p id="activity">--</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">مبلغ کل پس از فعالیت</span>
+                                <p id="LogData1">--</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:15px;margin-bottom:10px;">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="input-group form-control text-center MyControl">
+                                <span class="input-group-addon MySpan">شرح</span>
+                                <p id="Description" style="white-space:pre-line;margin-top:0;text-align:right;padding:5px;line-height:30px;">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*################################END Modal ###################################################*@
+
+<script type="text/javascript">
+
+    $('#LogModal').on('show.bs.modal', function (event) {
+        var clickedLink = $(event.relatedTarget); // Button that triggered the modal
+        var vlogId = clickedLink.data("logid"); // Extract info from data-* attributes
+        var modal = $(this);
+
+        $.ajax({
+            url: "@Url.Action("GetLogDetail", "Log")",
+            type: "GET",
+            dataType: "json",
+            data: { logId: vlogId },
+            success: function (data) {
+                $('#shEventTime').text(data.shEventTime);
+                $('#userFullName').text(data.userFullName);
+                $('#IPAddress').text(data.IPAddress);
+                $('#entityTable').text(data.entityTable);
+                $('#entityId').text(data.entityId);
+                $('#activity').text(data.activity);
+                $('#LogData1').text(data.LogData1);
+                $('#Description').text(data.Description);
+            }
+        })
+    })
+</script>
+
