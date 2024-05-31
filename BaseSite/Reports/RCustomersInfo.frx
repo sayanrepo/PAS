@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/28/2022 02:37:15" ReportInfo.Modified="06/01/2024 02:08:42" ReportInfo.CreatorVersion="2021.3.12.0">
+  <Dictionary>
+    <MsSqlDataConnection Name="ConnectionPanta" ConnectionString="rijcmlqPFCJJdBgUw+TLUx4ICp5zrftGeNSmloz9+VrQdKLsEALDU/GUOpCn+auLHqoeoKS4gNRnb96ZA232KJBifd9SVwMJssE4RNylBt890xInOIPH2T72AcwQOs+lXo+zdU01stH9vVe0JD4e9mc248I5VguUhMyXSJ+ddQ+osXtYMXrlRVvlDD+8q6SHlUdrLwygtS/Hn77T1ct8VQSqF1Gig==">
+      <TableDataSource Name="Table" Alias="Data" DataType="System.Int32" Enabled="true" SelectCommand="exec RCustomersInfo">
+        <Column Name="Name" DataType="System.String"/>
+        <Column Name="LastName" DataType="System.String"/>
+        <Column Name="NationalNumber" DataType="System.String"/>
+        <Column Name="EconomicalNumber" DataType="System.String"/>
+        <Column Name="Fax" DataType="System.String"/>
+        <Column Name="Phone1" DataType="System.String"/>
+        <Column Name="Phone2" DataType="System.String"/>
+        <Column Name="Mobile1" DataType="System.String"/>
+        <Column Name="Mobile2" DataType="System.String"/>
+        <Column Name="Address1" DataType="System.String"/>
+        <Column Name="PostalCode1" DataType="System.String"/>
+        <Column Name="Address2" DataType="System.String"/>
+        <Column Name="PostalCode2" DataType="System.String"/>
+        <Column Name="Responsible1" DataType="System.String"/>
+        <Column Name="ResponsiblePhone1" DataType="System.String"/>
+        <Column Name="City1" DataType="System.String"/>
+        <Column Name="City2" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="shdatefrom" DataType="System.String"/>
+    <Parameter Name="shdateto" DataType="System.String"/>
+    <Parameter Name="customerid" DataType="System.Int32"/>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" LeftMargin="20" RightMargin="20" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="971.46" Height="75.6">
+      <TextObject Name="Text1" Left="-0.94" Width="973.35" Height="28.35" Text="اطلاعات مشتریان" HorzAlign="Center" VertAlign="Center" Font="Arial Narrow, 14.25pt"/>
+      <TextObject Name="Text23" Top="47.25" Width="132.3" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="آدرس کارخانه" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text21" Left="132.3" Top="47.25" Width="75.6" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="کارخانه" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text3" Left="850.5" Top="47.25" Width="85.05" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="نام مشتری" Padding="0, 0, 0, 0" HorzAlign="Center" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text7" Left="746.55" Top="47.25" Width="103.95" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="شماره ملی/ثبت" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text8" Left="935.55" Top="47.25" Width="37.8" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="ردیف" Padding="0, 0, 0, 0" HorzAlign="Center" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text11" Left="633.15" Top="47.25" Width="113.4" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="شماره شناسنامه/اقتصادی" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text14" Left="538.65" Top="47.25" Width="94.5" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="تلفن" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text15" Left="425.25" Top="47.25" Width="113.4" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="موبایل" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text17" Left="349.65" Top="47.25" Width="75.6" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="دفتر" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text19" Left="207.9" Top="47.25" Width="141.75" Height="28.35" Border.Lines="All" Fill.Color="Silver" Text="آدرس دفتر" Padding="0, 0, 0, 0" HorzAlign="Center" RightToLeft="true" Font="B Nazanin, 10pt"/>
+    </ReportTitleBand>
+    <DataBand Name="Data1" Top="79.6" Width="971.46" Height="28.35" DataSource="Table">
+      <TextObject Name="Text2" Left="850.5" Width="85.05" Height="28.35" Border.Lines="All" Text="[Data.Name] [Data.LastName]" Padding="1, 0, 1, 0" HorzAlign="Center" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text6" Left="746.55" Width="103.95" Height="28.35" Border.Lines="All" Text="[Data.NationalNumber]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" VertAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text10" Left="935.55" Width="37.8" Height="28.35" Border.Lines="All" Text="[Row#]" Padding="1, 0, 1, 0" HorzAlign="Center" Font="B Nazanin, 10pt"/>
+      <TextObject Name="Text13" Left="538.65" Width="94.5" Height="28.35" Border.Lines="All" Text="[Data.Phone1]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" VertAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text16" Left="425.25" Width="113.4" Height="28.35" Border.Lines="All" Text="[Data.Mobile1]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text18" Left="349.65" Width="75.6" Height="28.35" Border.Lines="All" Text="[Data.City1]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text20" Left="207.9" Width="141.75" Height="28.35" Border.Lines="All" Text="[Data.Address1]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" WordWrap="false" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text12" Left="633.15" Width="113.4" Height="28.35" Border.Lines="All" Text="[Data.EconomicalNumber]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" VertAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text22" Left="132.3" Width="75.6" Height="28.35" Border.Lines="All" Text="[Data.City2]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+      <TextObject Name="Text24" Width="132.3" Height="28.35" Border.Lines="All" Text="[Data.Address2]" Padding="1, 0, 1, 0" Format="Number" Format.UseLocale="true" Format.DecimalDigits="0" HorzAlign="Center" WordWrap="false" Font="B Nazanin, 10pt" Trimming="EllipsisCharacter"/>
+    </DataBand>
+  </ReportPage>
+</Report>

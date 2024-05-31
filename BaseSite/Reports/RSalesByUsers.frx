@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Report ScriptLanguage="CSharp" ReportInfo.Created="06/28/2022 02:37:15" ReportInfo.Modified="07/03/2022 02:02:35" ReportInfo.CreatorVersion="2021.3.12.0">
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/28/2022 02:37:15" ReportInfo.Modified="06/01/2024 02:11:15" ReportInfo.CreatorVersion="2021.3.12.0">
   <Dictionary>
-    <MsSqlDataConnection Name="ConnectionPanta" ConnectionString="rijcmlq+rW0RkboK+/8CKGGYUID3ctBV8q9SvKYxl3iiE7vBnh7Tgou0+4WFf3NfmPSvHVFLV3WHEXr3I59IXC1vExRaWNBSYN95H8IpKQNPiZyvkq8mQeG+chkFGSOgVQet4njebUHCBkh6mhlCvXywrCowxYmKDTCwXgCqZniR6KTyKwrpEi3C6o6K8wedTl+/3IM">
+    <MsSqlDataConnection Name="ConnectionPanta" ConnectionString="rijcmlqPFCJJdBgUw+TLUx4ICp5zrftGeNSmloz9+VrQdKLsEALDU/GUOpCn+auLHqoeoKS4gNRnb96ZA232KJBifd9SVwMJssE4RNylBt890xInOIPH2T72AcwQOs+lXo+zdU01stH9vVe0JD4e9mc248I5VguUhMyXSJ+ddQ+osXtYMXrlRVvlDD+8q6SHlUdrLwyBtFezjMnvNbxOUYsHuZVVA==">
       <TableDataSource Name="Table" Alias="Data" DataType="System.Int32" Enabled="true" SelectCommand="exec RSalesByUsers @_shdatefrom, @_shdateto">
         <Column Name="AccepterId" DataType="System.Int32"/>
         <Column Name="AccepterName" DataType="System.String"/>
