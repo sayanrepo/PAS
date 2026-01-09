@@ -73,6 +73,10 @@ namespace BaseSite.Models
         /// </summary>
         public static Dictionary<byte, string> Account_PartnerTypes;
         /// <summary>
+        /// راه های آشنایی با شرکت
+        /// </summary>
+        public static Dictionary<byte, string> Account_FindoutWays;
+        /// <summary>
         /// جداول اصلی سیستم
         /// </summary>
         public static List<BaseSystem_Tables> Tables;
@@ -249,6 +253,7 @@ namespace BaseSite.Models
                 Account_Users = context.Account_Users.Where(x => x.Id > 0).Where(x => x.Status != (byte)UserStatus.Deleted).OrderBy(x => x.Name).ToDictionary(x => x.Id, x => x.FullName);
                 Account_PersonTypes = context.Account_PersonTypes.ToDictionary(x => x.Id, x => x.Name);
                 Account_PartnerTypes = context.Account_PartnerTypes.ToDictionary(x => x.Id, x => x.Name);
+                Account_FindoutWays = context.Account_FindoutWays.ToDictionary(x => x.Id, x => x.Name);
                 Tables = context.BaseSystem_Tables.ToList();
 
                 ElevatorBoards = context.Tb_ElevatorBoards.Where(x => x.Deleted == false).ToDictionary(x => x.Id, x => x.Name);

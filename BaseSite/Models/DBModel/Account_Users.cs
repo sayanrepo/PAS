@@ -32,6 +32,7 @@ namespace BaseSite.Models.DBModel
         public int Id { get; set; }
         public byte PersonTypeId { get; set; }
         public byte PartnerTypeId { get; set; }
+        public string FindoutWay { get; set; }
         public Nullable<byte> DepartmentId { get; set; }
 
         [MaxLength(255)]

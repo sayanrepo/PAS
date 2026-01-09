@@ -14,6 +14,7 @@
         public DbSet<Account_Operations> Account_Operations { get; set; }
         public DbSet<Account_PartnerTypes> Account_PartnerTypes { get; set; }
         public DbSet<Account_PersonTypes> Account_PersonTypes { get; set; }
+        public DbSet<Account_FindoutWays> Account_FindoutWays { get; set; }
         public DbSet<Account_PostOperation> Account_PostOperation { get; set; }
         public DbSet<Account_Posts> Account_Posts { get; set; }
         public DbSet<Account_UserPost> Account_UserPost { get; set; }

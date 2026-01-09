@@ -193,7 +193,19 @@
                                 <span class="input-group-addon" id="PFax">فکس</span>
                                 @Html.TextBoxFor(m => m.Fax, new { @Class = "form-control text-center text-left", PlaceHolder = "با کد و بدون خط تیره و فاصله" })
                             </div>
+                            <div class="input-group">
+                                <span class="input-group-addon" id="FindoutWay">نحوه آشنایی</span>
+                                @Html.TextBoxFor(m => m.FindoutWay, new { @Class = "form-control text-center text-left", PlaceHolder = "انتخاب کن یا بنویس", list = "sourceList" })
+
+                                <datalist id="sourceList">
+                                    @foreach (var item in BaseSite.Models.Cache.Account_FindoutWays)
+                                    {
+                                        <option value="@item.Value" />
+                                    }
+                                </datalist>
+                            </div>
                         </div>
+
                         <div class="col-md-4 col-xs-12">
                             <div class="row">
                                 @if (Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_AssignAccess))

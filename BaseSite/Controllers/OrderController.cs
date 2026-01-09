@@ -225,7 +225,7 @@ namespace BaseSite.Controllers
 
         //*************************************************************************
         [CustomAuthorize(OPERATIONS.Order)]
-        public ActionResult OrderList(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
+        public ActionResult OrderList(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo, string projectName)
         {
             customerId = (int?)Session["customerId"];
 
@@ -238,13 +238,14 @@ namespace BaseSite.Controllers
             ViewBag.orderDateTo = orderDateTo;
             ViewBag.factorDateFrom = factorDateFrom;
             ViewBag.factorDateTo = factorDateTo;
+            ViewBag.projectName = projectName;
 
             List<Order_Order> OrderList = OrderManager.Order_Order_Search(docNumber, orderStatusId, orderTradeTypeId, customerId,
                 string.IsNullOrEmpty(orderDateFrom) ? null : (DateTime?)PersianDateTime.Parse(orderDateFrom.Replace('-', '/')).ToDateTime(),
                 string.IsNullOrEmpty(orderDateTo) ? null : (DateTime?)PersianDateTime.Parse(orderDateTo.Replace('-', '/')).ToDateTime(),
                 string.IsNullOrEmpty(factorDateFrom) ? null : (DateTime?)PersianDateTime.Parse(factorDateFrom.Replace('-', '/')).ToDateTime(),
                 string.IsNullOrEmpty(factorDateTo) ? null : (DateTime?)PersianDateTime.Parse(factorDateTo.Replace('-', '/')).ToDateTime(),
-                null, null);
+                null, null, projectName);
 
             ViewBag.RowCount = OrderList.Count();
             return View(OrderList);
@@ -353,7 +354,7 @@ namespace BaseSite.Controllers
         }
 
         [CustomAuthorize(OPERATIONS.Order_Search)]
-        public ActionResult SearchOrder(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
+        public ActionResult SearchOrder(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo, string projectName)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
             Session["customerId"] = customerId;
@@ -367,6 +368,7 @@ namespace BaseSite.Controllers
             if (!string.IsNullOrWhiteSpace(orderDateTo)) paramlist += ("orderDateTo=" + orderDateTo + "&");
             if (!string.IsNullOrWhiteSpace(factorDateFrom)) paramlist += ("factorDateFrom=" + factorDateFrom + "&");
             if (!string.IsNullOrWhiteSpace(factorDateTo)) paramlist += ("factorDateTo=" + factorDateTo + "&");
+            if (!string.IsNullOrWhiteSpace(projectName)) paramlist += ("projectName=" + projectName + "&");
 
             if (!string.IsNullOrWhiteSpace(paramlist)) paramlist = "?" + paramlist.Remove(paramlist.Length - 1);
 

@@ -1,6 +1,6 @@
 ﻿@model BaseSite.Models.DBModel.Account_Users
 @{
-    List<BaseSite.Models.DBModel.Order_Order> orderList = BaseSite.Models.Order.OrderManager.Order_Order_Search(null, null, null, Model.Id, null, null, null, null, null, null);
+    List<BaseSite.Models.DBModel.Order_Order> orderList = BaseSite.Models.Order.OrderManager.Order_Order_Search(null, null, null, Model.Id, null, null, null, null, null, null, string.Empty);
     List<BaseSite.Models.DBModel.Sale_Sale> saleList = BaseSite.Models.Sale.SaleManager.Sale_Sale_Search(null, null, null, null, Model.Id, null, null, null, null);
 }
 

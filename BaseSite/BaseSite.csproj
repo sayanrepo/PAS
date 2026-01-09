@@ -270,6 +270,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Account\AccountManager.cs" />
     <Compile Include="Models\Account\User.cs" />
+    <Compile Include="Models\DBModel\Account_FindoutWays.cs" />
     <Compile Include="Models\DBModel\CRM_Activity.cs" />
     <Compile Include="Models\DBModel\CRM_ActivityState.cs" />
     <Compile Include="Models\DBModel\CRM_ActivityType.cs" />

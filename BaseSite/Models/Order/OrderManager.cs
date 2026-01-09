@@ -1072,12 +1072,12 @@ namespace BaseSite.Models.Order
             }
         }
 
-        public static List<Order_Order> Order_Order_Search(int? docNumber, byte? status, byte? tradeTypeId, int? customerId, DateTime? orderDateFrom, DateTime? orderDateTo, DateTime? factorDateFrom, DateTime? factorDateTo, DateTime? deliveryDateFrom, DateTime? deliveryDateTo)
+        public static List<Order_Order> Order_Order_Search(int? docNumber, byte? status, byte? tradeTypeId, int? customerId, DateTime? orderDateFrom, DateTime? orderDateTo, DateTime? factorDateFrom, DateTime? factorDateTo, DateTime? deliveryDateFrom, DateTime? deliveryDateTo, string projectName)
         {
             using (var context = new PantaEntities())
             {
                 if (docNumber == null && status == null && tradeTypeId == null && customerId == null && orderDateFrom == null && orderDateTo == null &&
-                    factorDateFrom == null && factorDateTo == null && deliveryDateFrom == null && deliveryDateTo == null)
+                    factorDateFrom == null && factorDateTo == null && deliveryDateFrom == null && deliveryDateTo == null && string.IsNullOrEmpty(projectName))
                 {
                     List<Order_Order> result = context.Order_Order.Include(m => m.Account_Users).Include(m => m.Account_Users1).Include(m => m.Tb_OrderTypes).Include(m => m.Tb_TradeTypes).Include(m => m.Order_Status)
                                               .Where(o => o.Id > 0).OrderByDescending(m => m.Id).Take(1000).ToList();
@@ -1100,6 +1100,7 @@ namespace BaseSite.Models.Order
                     if (factorDateTo != null) list = list.Where(p => p.DateFactor <= factorDateTo);
                     if (deliveryDateFrom != null) list = list.Where(p => p.DateDelivery >= deliveryDateFrom);
                     if (deliveryDateTo != null) list = list.Where(p => p.DateDelivery <= deliveryDateTo);
+                    if (!string.IsNullOrEmpty(projectName)) list = list.Where(p => p.ProjectName.Contains(projectName));
                     list = list.OrderByDescending(p => p.Id);
 
                     // Execute the query

@@ -443,6 +443,7 @@ namespace BaseSite.Models.Account
                     person.EconomicalNumber = user.EconomicalNumber;
                     person.PersonTypeId = user.PersonTypeId;
                     person.PartnerTypeId = user.PartnerTypeId;
+                    person.FindoutWay = user.FindoutWay;
                     person.Website = user.Website;
                     person.Email = user.Email;
                     person.Fax = user.Fax;
@@ -492,6 +493,7 @@ namespace BaseSite.Models.Account
                     person.EconomicalNumber = user.EconomicalNumber;
                     person.PersonTypeId = user.PersonTypeId;
                     person.PartnerTypeId = user.PartnerTypeId;
+                    person.FindoutWay = user.FindoutWay;
                     person.Website = user.Website;
                     person.Email = user.Email;
                     person.Fax = user.Fax;
