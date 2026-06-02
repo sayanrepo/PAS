@@ -188,21 +188,21 @@ namespace BaseSite.Controllers
                     ReportId = 7,
                     ReportName = "ROrders_Monthly_OrderDate",
                     ReportType = ReportTypes.Sale,
-                    ReportURL = Url.Action("ReportTemplate", "Report", new { ReportName = "ROrders_Monthly_OrderDate", ReportDescription = "گزارشات", Width = 100, Height = 640 }),
-                    ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده -بر اساس تاریخ سفارش"
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "فروش/گزارش%20ماهانه%20سفارشات%20درحال%20تولید%20یا%20تحویل%20شده?rs:embed=true", ReportDescription = "گزارشات", Width = 100, Height = 640 }),
+                    ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_FactorDate))
-            {
-                ReportList.Add(new Report_Report()
-                {
-                    ReportId = 8,
-                    ReportName = "ROrders_Monthly_FactorDate",
-                    ReportType = ReportTypes.Sale,
-                    ReportURL = Url.Action("ReportTemplate", "Report", new { ReportName = "ROrders_Monthly_FactorDate", ReportDescription = "گزارشات", Width = 100, Height = 640 }),
-                    ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده -بر اساس تاریخ فاکتور"
-                });
-            }
+            //if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_FactorDate))
+            //{
+            //    ReportList.Add(new Report_Report()
+            //    {
+            //        ReportId = 8,
+            //        ReportName = "ROrders_Monthly_FactorDate",
+            //        ReportType = ReportTypes.Sale,
+            //        ReportURL = Url.Action("ReportTemplate", "Report", new { ReportName = "ROrders_Monthly_FactorDate", ReportDescription = "گزارشات", Width = 100, Height = 640 }),
+            //        ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده -بر اساس تاریخ فاکتور"
+            //    });
+            //}
             if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Sales_Payments_Monthly))
             {
                 ReportList.Add(new Report_Report()
@@ -245,7 +245,7 @@ namespace BaseSite.Controllers
                     ReportId = 12,
                     ReportName = "ROrder_PreparationDays",
                     ReportType = ReportTypes.KPI,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "ROrder_PreparationDays", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "KPI/مدت%20زمان%20تحویل%20سفارشات?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "مدت زمان تحویل سفارشات"
                 });
             }
@@ -256,7 +256,7 @@ namespace BaseSite.Controllers
                     ReportId = 13,
                     ReportName = "RSalesByUsers",
                     ReportType = ReportTypes.KPI,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "RSalesByUsers", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "KPI/نمودار%20رتبه%20بندی%20فروش%20کارشناسان%20فروش?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "نمودار رتبه بندی فروش کارشناسان فروش"
                 });
             }
@@ -267,7 +267,7 @@ namespace BaseSite.Controllers
                     ReportId = 14,
                     ReportName = "RBuyersRank",
                     ReportType = ReportTypes.KPI,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "RBuyersRank", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "KPI/جدول%20رتبه%20بندی%20خرید%20مشتریان?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "جدول رتبه بندی خرید مشتریان"
                 });
             }
@@ -303,7 +303,7 @@ namespace BaseSite.Controllers
                     ReportId = 17,
                     ReportName = "RCustomersInfo",
                     ReportType = ReportTypes.General,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "RCustomersInfo", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "عمومی/جدول اطلاعات مشتریان?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "جدول اطلاعات مشتریان"
                 });
             }
@@ -391,6 +391,23 @@ namespace BaseSite.Controllers
 
             ViewBag.WebReport = webReport; // send object to the View
 
+            var rptInfo = new Report_Report
+            {
+                ReportName = ReportName,
+                ReportDescription = ReportDescription,
+                Width = Width,
+                Height = Height,
+                ReportShDateFrom = reportShDateFrom,
+                ReportShDateTo = reportShDateTo,
+                ReportArg1 = customerId
+            };
+
+            return View(rptInfo);
+        }
+
+        [CustomAuthorize(OPERATIONS.Report)]
+        public ActionResult ReportTemplate3(string ReportName, string ReportDescription, int Width, int Height, string Customer, string reportShDateFrom = "", string reportShDateTo = "", int customerId = 0)
+        {
             var rptInfo = new Report_Report
             {
                 ReportName = ReportName,
