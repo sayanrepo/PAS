@@ -660,6 +660,7 @@
     <Content Include="Reports\KPI\مدت زمان تحویل سفارشات.pbix">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Reports\Sales\گزارش فروش بر اساس نوع محصول.pbix" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

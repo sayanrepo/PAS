@@ -1,0 +1,19 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>c88f5986-68e5-47ce-92b6-08c1efe3cc2c</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MessagePack" Version="2.5.302" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReportGateway\ReportGateway.csproj" />
+  </ItemGroup>
+
+</Project>
