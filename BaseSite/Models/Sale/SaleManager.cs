@@ -91,7 +91,7 @@ namespace BaseSite.Models.Sale
                     newsale.StatusId = (byte)OrderStatus.PishFactor;
                     newsale.DateOrder = DateTime.Now;              // sale.DateOrder;
                     newsale.DateDelivery = null;                   // sale.DateDelivery;
-                    newsale.DateFactor = null; // DateTime.Now.AddDays(5);  // sale.DateFactor;
+                    newsale.DateFactor = sale.DateFactor;
                     newsale.DeliveryCost = sale.DeliveryCost;
                     newsale.Discount = sale.Discount;
                     newsale.Cost = 0;
@@ -139,11 +139,15 @@ namespace BaseSite.Models.Sale
                     newsale.Tax = sale.Tax;
                     newsale.StatusId = sale.StatusId;
 
-                    if (newsale.StatusId == (byte)OrderStatus.DarDasteEghdam)
+                    if (newsale.StatusId == (byte)OrderStatus.PishFactor)
+                    {
+                        newsale.DateFactor = sale.DateFactor;
+                    }
+                    else if (newsale.StatusId == (byte)OrderStatus.DarDasteEghdam)
                     {
                         //newsale.DateOrder = DateTime.Now;              // sale.DateOrder;
                         newsale.DateDelivery = null;                   // sale.DateDelivery;
-                        newsale.DateFactor = DateTime.Now.AddDays(5);  // sale.DateFactor;
+                        newsale.DateFactor = sale.DateFactor.HasValue ? sale.DateFactor : DateTime.Now.AddDays(5);  // sale.DateFactor;
                     }
                     else if (newsale.StatusId == (byte)OrderStatus.MojavezKhorooj)
                     {

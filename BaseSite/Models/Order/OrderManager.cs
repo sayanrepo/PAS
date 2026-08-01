@@ -179,7 +179,7 @@ namespace BaseSite.Models.Order
                         StatusId = (byte)OrderStatus.PishFactor,
                         DateOrder = DateTime.Now,              // order.DateOrder;
                         DateDelivery = null,                   // order.DateDelivery;
-                        DateFactor = null, // DateTime.Now.AddDays(10); // order.DateFactor;
+                        DateFactor = order.DateFactor,
                         DeliveryCost = order.DeliveryCost,
                         Cost = 0,
                         Comment = order.Comment,
@@ -496,17 +496,16 @@ namespace BaseSite.Models.Order
                     neworder.Tax = order.Tax;
                     neworder.DiscountRate = order.DiscountRate;
                     neworder.StatusId = order.StatusId; //(byte)OrderStatus.PishFactor;
-                    /*if (neworder.StatusId <= (byte)OrderStatus.DarDasteEghdam)
+                    if (neworder.StatusId <= (byte)OrderStatus.DarDasteEghdam)
                     {
-                        neworder.DateOrder = DateTime.Now;              // order.DateOrder;
-                        neworder.DateDelivery = null;                   // order.DateDelivery;
-                        neworder.DateFactor = DateTime.Now.AddDays(10); // order.DateFactor;
+                        //neworder.DateOrder = DateTime.Now;              // order.DateOrder;
+                        //neworder.DateDelivery = null;                   // order.DateDelivery;
+                        neworder.DateFactor = order.DateFactor;
                     }
-                    else*/
-                    if (neworder.StatusId == (byte)OrderStatus.DarkhasteTolid)
+                    else if (neworder.StatusId == (byte)OrderStatus.DarkhasteTolid)
                     {
                         neworder.DateDelivery = DateTime.Now;
-                        neworder.DateFactor = DateTime.Now.AddDays(10);
+                        neworder.DateFactor = order.DateFactor.HasValue ? order.DateFactor : DateTime.Now.AddDays(10);
 
                         try
                         {

@@ -40,7 +40,7 @@ namespace BaseSite.Reports
                         rvSiteMapping.LocalReport.SetParameters(new ReportParameter("shdatefrom", Request["ShDateFrom"].ToString(), true));
                         rvSiteMapping.LocalReport.SetParameters(new ReportParameter("shdateto", Request["ShDateTo"].ToString(), true));
 
-                        string CS = System.Configuration.ConfigurationManager.ConnectionStrings["PantaConnectionString"].ConnectionString;
+                        string CS = System.Configuration.ConfigurationManager.ConnectionStrings["PantaEntities"].ConnectionString;
                         using (SqlConnection con = new SqlConnection(CS))
                         {
                             SqlDataAdapter da = new SqlDataAdapter("execute " + Request["ReportName"].ToString() + " " + Request["CustomerId"].ToString() + ", '" + Request["ShDateFrom"].ToString() + "', '" + Request["ShDateTo"].ToString() + "'", con);

@@ -4,7 +4,7 @@
     ViewBag.Title = "ثبت سفارش";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
     List<BaseSite.Models.DBModel.CRM_Comments> comments = BaseSite.Models.CRM.CommentManager.CRM_Comments_Get((short)BaseSite.Models.DB_Table.Order_Order, Model.Id);
-    List<BaseSite.Models.DBModel.Log_Logs> logList = BaseSite.Models.Log.LogManager.Log_Logs_Search(Model.DocNumber,(int) BaseSite.Models.DB_Table.Order_Order, null, null, null);
+    List<BaseSite.Models.DBModel.Log_Logs> logList = BaseSite.Models.Log.LogManager.Log_Logs_Search(Model.DocNumber, (int)BaseSite.Models.DB_Table.Order_Order, null, null, null);
 }
 @{
     Func<DateTime, string> toPersianDate = date =>
@@ -125,7 +125,7 @@
                                         <div class="input-group">
                                             <span class="input-group-addon MySpan" id="FactorDate">تاریخ تحویل</span>
                                             <input type="text" id="ShDateFactor" name="ShDateFactor" class="form-control text-center MyControl" value="@Model.ShDateFactor"
-                                                   @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                                                   onclick="PersianDatePicker.Show(this,'@today');" />
                                         </div>
                                     </div>
                                 </div>
@@ -945,39 +945,39 @@
 
 @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_ChangeStatus))
 {
-<div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
-    <div class="row">
-        <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header ModalHeader">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">تغییر وضعیت سفارش</h4>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="@Url.Action("OrderChangeStatus", "Order", new { orderId = Model.Id })" class="formDelete">
-                        <div>
-                            <div class="input-group">
-                                <span class="input-group-addon MySpan">وضعیت جدید</span>
-                                @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+    <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
+        <div class="row">
+            <div class="col-xs-pull-3 col-xs-5 modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header ModalHeader">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">تغییر وضعیت سفارش</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="@Url.Action("OrderChangeStatus", "Order", new { orderId = Model.Id })" class="formDelete">
+                            <div>
+                                <div class="input-group">
+                                    <span class="input-group-addon MySpan">وضعیت جدید</span>
+                                    @Html.DropDownList("newStatusId", BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl" })
+                                </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <p style="display:inline-block;">آیا از تغییر وضعیت سفارش مطمئن هستید؟</p>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
-                            <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
-                        </div>
-                    </form>
+                            <div class="modal-footer">
+                                <p style="display:inline-block;">آیا از تغییر وضعیت سفارش مطمئن هستید؟</p>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">لغو</button>
+                                <button type="submit" class="btn btn-danger btndelete">تغییر وضعیت</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 }
 @*####################################End Modal ###############################################*@
 
 
-    <script src="@Url.Content("~/Contents/js/printThis.js")"></script>
-    <script type="text/javascript">
+<script src="@Url.Content("~/Contents/js/printThis.js")"></script>
+<script type="text/javascript">
         $(document).ready(function () {
 
             if ($("#CabinPanel").length)
@@ -1352,7 +1352,7 @@
             if ($("input[name='Order_Hall[0]." + t + "']").length > 0)
                 $("input[name='Order_Hall[0]." + t + "']").val($("input[name='Order_Cabin[0]." + t + "']").val());
         }
-    </script>
+</script>
 
 
 <script type="text/javascript">
