@@ -223,7 +223,7 @@ namespace BaseSite.Controllers
                     ReportId = 10,
                     ReportName = "RNewCustomers",
                     ReportType = ReportTypes.KPI,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "RNewCustomers", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "KPI/نمودار%20تعداد%20مشتریان%20جدید%20در%20ماه?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "نمودار تعداد مشتریان جدید در ماه"
                 });
             }
@@ -234,7 +234,7 @@ namespace BaseSite.Controllers
                     ReportId = 11,
                     ReportName = "RSalesToNewCustomers",
                     ReportType = ReportTypes.KPI,
-                    ReportURL = Url.Action("ReportTemplate2", "Report", new { ReportName = "RSalesToNewCustomers", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
+                    ReportURL = Url.Action("ReportTemplate3", "Report", new { ReportName = "KPI/نمودار%20نسبت%20فروش%20به%20مشتریان%20جدید%20و%20مشتریان%20قبلی%20در%20هر%20ماه?rs:embed=true", ReportDescription = "گزارشات", Width = 900, Height = 650 }),
                     ReportDescription = "نمودار نسبت فروش به مشتریان جدید و مشتریان قبلی در هر ماه"
                 });
             }

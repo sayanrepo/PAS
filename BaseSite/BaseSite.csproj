@@ -630,12 +630,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Report\ReportTemplate2.cshtml" />
-    <Content Include="Reports\RNewCustomers.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Reports\RSalesToNewCustomers.frx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Views\Report\ReportList.cshtml" />
     <Content Include="Views\Delivery\PrintDeliveryPanel.cshtml" />
     <Content Include="Reports\KPI\جدول رتبه بندی خرید مشتریان.pbix">
@@ -675,6 +669,16 @@
     <EmbeddedResource Include="Migrations\202402180046010_m2.resx">
       <DependentUpon>202402180046010_m2.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\KPI\نمودار تعداد مشتریان جدید در ماه .pbix">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\KPI\نمودار نسبت فروش به مشتریان جدید و مشتریان قبلی در هر ماه.pbix">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
