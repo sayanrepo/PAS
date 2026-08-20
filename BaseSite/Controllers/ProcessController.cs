@@ -15,7 +15,7 @@ namespace BaseSite.Controllers
         [CustomAuthorize(OPERATIONS.Process)]
         public ActionResult Index()
         {
-            ViewBag.Operators = AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid).ToDictionary(u => u.Id, u => u.FullName);
+            ViewBag.Operators = AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid && u.Status == 1).ToDictionary(u => u.Id, u => u.FullName);
 
             if (TempData.ContainsKey("process") && TempData["process"] != null)
             {
@@ -61,6 +61,37 @@ namespace BaseSite.Controllers
             {
                 if (submit == "submit")
                 {
+                    //check process access
+                    if (model.ProductStatusId == (byte)ProductStatus.NagsheKeshi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Drafting))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+                    if (model.ProductStatusId == (byte)ProductStatus.MashinkariTarh && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Machining))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+                    if (model.ProductStatusId == (byte)ProductStatus.Anbar && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Warehouse))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+                    //if (model.ProductStatusId == (byte)ProductStatus.SanayeFelez && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Metaling))
+                    //{
+                    //    throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    //}
+                    if (model.ProductStatusId == (byte)ProductStatus.Montaj && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Assembly))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+                    if (model.ProductStatusId == (byte)ProductStatus.QC && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Qc))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+                    if (model.ProductStatusId == (byte)ProductStatus.BasteBandi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Packing))
+                    {
+                        throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
+                    }
+
+
                     List<Order_Process> processlist = Models.Order.OrderManager.Order_Process_Get(model.ProductDocNumber);
 
                     double lastPercent = 0;

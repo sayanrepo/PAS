@@ -57,7 +57,7 @@
                                     if (
                                         (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer) && (p.Id == (int)BaseSite.Models.AccountRole.Unknown || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_InternetCustomer)) ||
                                         (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh) && (p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Operator || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Mali || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Manager || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Admin)) ||
-                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid) && (p.Id == (int)BaseSite.Models.AccountRole.Product_Operator || p.Id == (int)BaseSite.Models.AccountRole.Product_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Product_Manager))
+                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid) && (p.Id == (int)BaseSite.Models.AccountRole.Product_Operator || p.Id == (int)BaseSite.Models.AccountRole.Product_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Product_Manager || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Warehouse || p.Id == (int)BaseSite.Models.AccountRole.Product_Metal_Industry || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Assembly || p.Id == (int)BaseSite.Models.AccountRole.Product_QC || p.Id == (int)BaseSite.Models.AccountRole.Product_Packing))
                                         )
                                     {
                                         if (ViewBag.postId == p.Id)
@@ -290,15 +290,15 @@
             grid.Column(header: "جزئیات",
             format: @<text>
                     @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Detail))
-                         {
+                    {
                         <a data-value="@item.Id" href="@Url.Action("PersonDetail", new { PersonId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
-                         }
-                         else
-                         {
+                    }
+                    else
+                    {
                         <a data-value="@item.Id" href="#"><i class="fa fa-list fa-lg text-danger" title="جزئیات"></i></a>
-                         }
+                    }
             </text>)
-    ))
+))
         </div>
     </div>
 </div>
@@ -388,8 +388,3 @@
         }
     };
 </script>
-
-
-
-
-

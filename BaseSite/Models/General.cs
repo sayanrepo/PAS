@@ -57,6 +57,7 @@ namespace BaseSite.Models
         NagsheKeshi = 1,
         MashinkariTarh = 2,
         Anbar = 3,
+        //SanayeFelez = 4,
         Montaj = 4,
         QC = 5,
         BasteBandi = 6,
@@ -93,10 +94,16 @@ namespace BaseSite.Models
         Foroosh_Mali = 4,
         Foroosh_Manager = 5,
         Foroosh_Admin = 6,
+
         Product_Operator = 7,
         Product_Assistant = 8,
         Product_Manager = 9,
-        Product_Mechanical_Assembler = 10
+
+        Product_Operator_Warehouse = 10,
+        Product_Metal_Industry = 11,
+        Product_Operator_Assembly = 12,
+        Product_QC = 13,
+        Product_Packing = 14
     }
 
     public enum LogActivity : int
@@ -190,6 +197,14 @@ namespace BaseSite.Models
         Process,
         Process_Backward,
         Process_Project,
+
+        Process_Drafting,
+        Process_Machining,
+        Process_Warehouse,
+        Process_Metaling,
+        Process_Assembly,
+        Process_Qc,
+        Process_Packing,
 
         //--------------------Reports-------------------------
         Report,

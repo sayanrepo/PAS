@@ -260,7 +260,8 @@ namespace BaseSite.Models.Account
 
             //------------------------------------------------------------------------------------------------------------------------
 
-            if (role == AccountRole.Product_Operator || role == AccountRole.Product_Mechanical_Assembler || role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager)
+            if (role == AccountRole.Product_Operator || role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager ||
+                role == AccountRole.Product_Operator_Warehouse || role == AccountRole.Product_Metal_Industry || role == AccountRole.Product_Operator_Assembly || role == AccountRole.Product_QC || role == AccountRole.Product_Packing)
             {
                 res.Add(OPERATIONS.Plan);
                 res.Add(OPERATIONS.Plan_Search);
@@ -280,12 +281,40 @@ namespace BaseSite.Models.Account
                 res.Add(OPERATIONS.Report);
                 res.Add(OPERATIONS.Report_ProductFactor);
             }
-            if (role == AccountRole.Product_Mechanical_Assembler || role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager)
+            if (role == AccountRole.Product_Metal_Industry || role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager)
             {
                 res.Add(OPERATIONS.Cartable);
                 res.Add(OPERATIONS.Cartable_Search);
                 res.Add(OPERATIONS.Cartable_Detail);
             }
+
+            if (role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Drafting);
+                res.Add(OPERATIONS.Process_Machining);
+            }
+            if (role == AccountRole.Product_Operator_Warehouse || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Warehouse);
+            }
+            if (role == AccountRole.Product_Metal_Industry || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Metaling);
+            }
+            if (role == AccountRole.Product_Operator_Assembly || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Assembly);
+            }
+            if (role == AccountRole.Product_QC || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Qc);
+            }
+            if (role == AccountRole.Product_Packing || role == AccountRole.Product_Manager)
+            {
+                res.Add(OPERATIONS.Process_Packing);
+                res.Add(OPERATIONS.Delivery_Confirm);
+            }
+
             if (role == AccountRole.Product_Assistant || role == AccountRole.Product_Manager)
             {
                 res.Add(OPERATIONS.Plan_Print);
