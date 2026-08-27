@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models.Information;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
@@ -12,7 +12,7 @@ using BaseSite.Models.Log;
 
 namespace BaseSite.Controllers
 {
-    public class OrderController : Controller
+    public class OrderController : BaseSiteController
     {
         private static byte StoreId = 1; //Centeral office
 
@@ -22,7 +22,7 @@ namespace BaseSite.Controllers
         {
             var res = (from u in AccountManager.Account_User_Get(Prefix)
                        select new { Name = u.FullName, u.Id }).Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -31,7 +31,7 @@ namespace BaseSite.Controllers
             var res = (from u in AccountManager.Account_User_Get(Prefix)
                        where u.PartnerTypeId == 1
                        select new { Name = u.FullName, u.Id }).Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -42,7 +42,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -56,7 +56,7 @@ namespace BaseSite.Controllers
                        //where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        from t3 in t2.DefaultIfEmpty()
                        select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#07c21fbf" : (t3.TValue == 0.75 ? "#12beb3bf" : (t3.TValue == 0.5 ? "#d8b90cbf" : "#d90c0cbf")) }).ToList();//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
 
 
             //List<Tb_PushButtons> ObjList = InformationManager.Cabin_PushButton_Get();
@@ -64,7 +64,7 @@ namespace BaseSite.Controllers
             //var res = (from u in ObjList
             //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
             //           select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
-            //return Json(res, JsonRequestBehavior.AllowGet);
+            //return Json(res, null);
         }
 
         [HttpPost]
@@ -78,7 +78,7 @@ namespace BaseSite.Controllers
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        from t3 in t2.DefaultIfEmpty()
                        select new { u.Name, u.Id, u.Cost, Color = (t3 == null || t3.TValue == 1) ? "#07c21fbf" : (t3.TValue == 0.75 ? "#12beb3bf" : (t3.TValue == 0.5 ? "#d8b90cbf" : "#d90c0cbf")) }).ToList();//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
 
 
             //List<Tb_Monitors> ObjList = InformationManager.Cabin_Monitor_Get();
@@ -86,7 +86,7 @@ namespace BaseSite.Controllers
             //var res = (from u in ObjList
             //           where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
             //           select new { u.Name, u.Id, u.Cost, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
-            //return Json(res, JsonRequestBehavior.AllowGet);
+            //return Json(res, null);
         }
 
         [HttpPost]
@@ -97,7 +97,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost, u.Description, Color = "rgba(7, 194, 31, 0.75)" });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -108,7 +108,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -119,7 +119,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -130,7 +130,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -141,7 +141,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -152,7 +152,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -163,7 +163,7 @@ namespace BaseSite.Controllers
             var res = (from u in ObjList
                        where u.Name.Replace(" ", "").ToLower().Contains(Prefix.Replace(" ", "").ToLower())
                        select new { u.Name, u.Id, u.Cost });//.Take(15);
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [HttpPost]
@@ -196,7 +196,7 @@ namespace BaseSite.Controllers
                 Responsible1 = u.Responsible1 == null ? "-" : u.Responsible1,
                 ResponsiblePhone1 = u.ResponsiblePhone1 == null ? "-" : u.ResponsiblePhone1
             };
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         public JsonResult ProvinceGet(string countryid)
@@ -208,7 +208,7 @@ namespace BaseSite.Controllers
                             p.Id,
                             p.Name
                         }).ToList();
-            return Json(list, JsonRequestBehavior.AllowGet);
+            return Json(list, null);
         }
 
         public JsonResult CityGet(string provinceid)
@@ -220,7 +220,7 @@ namespace BaseSite.Controllers
                             p.Id,
                             p.Name
                         }).ToList();
-            return Json(list, JsonRequestBehavior.AllowGet);
+            return Json(list, null);
         }
 
         //*************************************************************************
@@ -306,7 +306,7 @@ namespace BaseSite.Controllers
             ViewBag.DoorTopSurfaceMetalName = order.Order_DoorTop.Count > 0 ? InformationManager.SurfaceMetal_Get(order.Order_DoorTop.ElementAt(0).SurfaceMetalId).Name : "";
 
             Dictionary<byte, string> temp = new Dictionary<byte, string>();
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Order_Edit_Factor) && (order.StatusId < (byte)Models.OrderStatus.DarkhasteTolid))// || order.StatusId >= (byte)Models.OrderStatus.AmadeTahvil))
+            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Order_Edit_Factor) && (order.StatusId < (byte)Models.OrderStatus.DarkhasteTolid))// || order.StatusId >= (byte)Models.OrderStatus.AmadeTahvil))
             {
                 foreach (KeyValuePair<byte, string> kv in Models.Cache.Order_OrderStatus)
                 {
@@ -329,7 +329,7 @@ namespace BaseSite.Controllers
 
         [HttpPost]
         [CustomAuthorize(OPERATIONS.Order_Add)]
-        public ActionResult OrderDetail(Order_Order model, string DeliveryCost, string submit)
+        public async Task<ActionResult> OrderDetail(Order_Order model, string DeliveryCost, string submit)
         {
             bool isNew = false;
             Order_Order entity = OrderManager.Order_Order_Get(model.Id);
@@ -337,7 +337,7 @@ namespace BaseSite.Controllers
                 return RedirectToAction("AccessDenied", "Home");
             if (model.StatusId > (byte)OrderStatus.PishFactor)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Order_Edit_Factor))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Order_Edit_Factor))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -348,8 +348,8 @@ namespace BaseSite.Controllers
             }
             model.DeliveryCost = string.IsNullOrEmpty(DeliveryCost) ? 0 : double.Parse(DeliveryCost.Replace(",", ""));
             model.StoreId = StoreId;
-            Order_Order x = OrderManager.Order_Order_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            Order_Order x = await OrderManager.Order_Order_Edit(model, submit);
+            LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("OrderDetail", new { OrderId = x.Id });
         }
 
@@ -381,13 +381,13 @@ namespace BaseSite.Controllers
             if (doc == "order")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فاکتور");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فاکتور");
                 return View("PrintOrder", order);
             }
             else if (doc == "bill")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ صورتحساب فروش");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ صورتحساب فروش");
                 return View("PrintBill", order);
             }
             else
@@ -418,7 +418,7 @@ namespace BaseSite.Controllers
             {
                 Order_Order order = OrderManager.Order_Order_Get(orderId);
                 OrderManager.Order_Order_Delete(orderId);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("OrderList", "Order");
             }
             catch (Exception ex)
@@ -433,7 +433,7 @@ namespace BaseSite.Controllers
             try
             {
                 Order_Order order = OrderManager.Order_Order_ChangeStatus(orderId, (OrderStatus)newStatusId, true);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, order.ToString(), order.Cost);
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, order.ToString(), order.Cost);
                 return RedirectToAction("OrderDetail", new { OrderId = orderId });
             }
             catch (Exception ex)

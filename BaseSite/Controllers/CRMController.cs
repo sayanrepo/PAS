@@ -1,4 +1,4 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.CRM;
 using BaseSite.Models.DBModel;
@@ -7,12 +7,12 @@ using BaseSite.Models.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class CRMController : Controller
+    public class CRMController : BaseSiteController
     {
         //######################################################### Person #################################################################
         [CustomAuthorize(OPERATIONS.Setting_Persons)]
@@ -81,11 +81,11 @@ namespace BaseSite.Controllers
             }
             if (PersonId > 0)
             {
-                TempData["BackUrl"] = Request.UrlReferrer.ToString();
+                TempData["BackUrl"] = Request.Headers.Referer.ToString();
             }
             Account_Users list = AccountManager.Account_User_Get(PersonId);
 
-            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
+            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
             return View(list);
         }
 
@@ -98,7 +98,7 @@ namespace BaseSite.Controllers
             if (user.Id == 0)
             {
                 newUser = true;
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Add))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Setting_Persons_Add))
                     return RedirectToAction("AccessDenied", "Home");
 
                 user.RegistrarId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
@@ -106,7 +106,7 @@ namespace BaseSite.Controllers
             }
             if (user.Id > 0)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Edit))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Setting_Persons_Edit))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -120,7 +120,7 @@ namespace BaseSite.Controllers
                 TempData["Result"] = "ok";
                 TempData["ResultMessge"] = newUser ? "افزودن کاربر با موفقیت انجام شد." : "ویرایش اطلاعات با موفقیت انجام شد.";
 
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
 
                 if (TempData["BackUrl"] != null && !string.IsNullOrEmpty(TempData["BackUrl"].ToString()))
                     return Redirect(TempData["BackUrl"].ToString());
@@ -160,9 +160,9 @@ namespace BaseSite.Controllers
         public ActionResult InsertComment(short ttid, int tid, string Comment, int? ParentId)
         {
             CRM_Comments obj = new CRM_Comments();
-            obj.OwnerId = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Id;
-            obj.OwnerName = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().FullName;
-            obj.OwnerEmail = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Email;
+            obj.OwnerId = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id;
+            obj.OwnerName = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser(HttpContext).FullName;
+            obj.OwnerEmail = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser(HttpContext).Email;
             obj.Comment = Comment;
             obj.CreateDate = DateTime.Now;
             obj.ParentId = ParentId;
@@ -214,8 +214,8 @@ namespace BaseSite.Controllers
             obj.EndTime = DateTime.Now;
             obj.StateId = (byte)CrmActivityState.Open;
             obj.TypeId = type;
-            obj.OwnerId = obj.AssignedToId = CustomAuthorizeAttribute.getCurrentUser().Id;
-            obj.Account_Users = obj.Account_Users1 = CustomAuthorizeAttribute.getCurrentUser();
+            obj.OwnerId = obj.AssignedToId = CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id;
+            obj.Account_Users = obj.Account_Users1 = CustomAuthorizeAttribute.getCurrentUser(HttpContext);
             if (Session["customerId"] != null)
             {
                 obj.CustomerId = (int)Session["customerId"];
@@ -239,7 +239,7 @@ namespace BaseSite.Controllers
         public ActionResult ActivityDetail(CRM_Activity model, string submit)
         {
             CRM_Activity x = ActivityManager.CRM_Activity_Edit(model, submit);
-            //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("Activities");
         }
 
@@ -271,7 +271,7 @@ namespace BaseSite.Controllers
             {
                 CRM_Activity order = ActivityManager.CRM_Activity_Get(activityId);
                 ActivityManager.CRM_Activity_Delete(activityId);
-                //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("Activities", "Crm");
             }
             catch (Exception ex)
@@ -284,7 +284,7 @@ namespace BaseSite.Controllers
         //######################################################### Cartable #################################################################
         public ActionResult Cartable()
         {
-            List<CRM_Activity> activities = ActivityManager.CRM_Activity_Search((byte)CrmActivityState.Open, null, null, CustomAuthorizeAttribute.getCurrentUser().Id, null, null, null,
+            List<CRM_Activity> activities = ActivityManager.CRM_Activity_Search((byte)CrmActivityState.Open, null, null, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, null, null, null,
                 null, new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0).AddDays(1),
                 null, null);
 
@@ -297,7 +297,7 @@ namespace BaseSite.Controllers
         {
             ViewBag.startDate = string.IsNullOrEmpty(startDate) ? new PersianDateTime(DateTime.Today.AddDays(1)).ToString(PersianDateTimeFormat.Date) : startDate;
 
-            List<CRM_Activity> activityList = ActivityManager.CRM_Activity_Search(CustomAuthorizeAttribute.getCurrentUser().Id,
+            List<CRM_Activity> activityList = ActivityManager.CRM_Activity_Search(CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id,
                 string.IsNullOrEmpty(startDate) ? DateTime.Today.AddDays(1) : PersianDateTime.Parse(startDate.Replace('-', '/')).ToDateTime());
 
             ViewBag.RowCount = activityList.Count();

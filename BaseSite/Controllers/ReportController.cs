@@ -1,15 +1,15 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class ReportController : Controller
+    public class ReportController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Report_ProductFactor)]
         public ActionResult ProductFactors(string reportDateFrom, string reportDateTo)
@@ -18,7 +18,7 @@ namespace BaseSite.Controllers
             ViewBag.reportDateTo = string.IsNullOrWhiteSpace(reportDateTo) ? new PersianDateTime(DateTime.Today).ToString(PersianDateTimeFormat.Date) : reportDateTo;
 
             List<int> userIdList = new List<int>();
-            if (CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Report_productFactor_AllOperators))
+            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, BaseSite.Models.OPERATIONS.Report_productFactor_AllOperators))
             {
                 userIdList.AddRange(AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid).Select(u => u.Id).ToList());
             }
@@ -75,7 +75,7 @@ namespace BaseSite.Controllers
                            u.CalculatedFactor
                        });
 
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [CustomAuthorize(OPERATIONS.Report_ProductFactor)]

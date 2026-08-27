@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models.Payment;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Account;
@@ -11,7 +11,7 @@ using BaseSite.Models.Log;
 
 namespace BaseSite.Controllers
 {
-    public class PaymentController : Controller
+    public class PaymentController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Payment)]
         public ActionResult PaymentList(int? docNumber, byte? paymentStatusId, byte? bargashti, int? customerId, byte? paymentTypeId, byte? babatId, string sanadDateFrom, string sanadDateTo, string sarresidDateFrom, string sarresidDateTo)
@@ -78,28 +78,28 @@ namespace BaseSite.Controllers
             model.Amount = string.IsNullOrEmpty(Amount) ? 0 : double.Parse(Amount.Replace(",", ""));
             if (submit.ToLower() == "submit")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_Add))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Payment_Add))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidNashode;
             }
             if (submit.ToLower() == "foroshconfirm")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_ForoshConfirm))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Payment_ForoshConfirm))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidForosh;
             }
             if (submit.ToLower() == "maliconfirm")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_MaliConfirm))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Payment_MaliConfirm))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidMali;
             }
             if (submit.ToLower() == "malireject")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_MaliConfirm))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Payment_MaliConfirm))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidNashode;
@@ -111,7 +111,7 @@ namespace BaseSite.Controllers
                 model.AccepterId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
             }
             Payment_Payment x = PaymentManager.Payment_Payment_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Amount);
+            LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Amount);
             return RedirectToAction("PaymentDetail", new { paymentId = x.Id });
         }
 
@@ -145,14 +145,14 @@ namespace BaseSite.Controllers
             {
                 ViewBag.Accounting = true;
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ نسخه حسابداری");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ نسخه حسابداری");
                 return View("PrintPayment", pay);
             }
             else if (doc == "payment-customer")
             {
                 ViewBag.Accounting = false;
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ نسخه مشتری");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ نسخه مشتری");
                 return View("PrintPayment", pay);
             }
             else
@@ -174,7 +174,7 @@ namespace BaseSite.Controllers
             {
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(paymentId);
                 PaymentManager.Payment_Payment_Delete(paymentId);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("PaymentList", "Payment");
             }
             catch (Exception ex)
@@ -189,7 +189,7 @@ namespace BaseSite.Controllers
             try
             {
                 Payment_Payment pay = PaymentManager.Payment_Payment_ChangeStatus(paymentId, (PaymentStatus)newStatusId);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, pay.ToString(), pay.Amount);
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, pay.ToString(), pay.Amount);
                 return RedirectToAction("PaymentDetail", new { paymentId = paymentId });
             }
             catch (Exception ex)

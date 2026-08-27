@@ -1,16 +1,16 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class LogController : Controller
+    public class LogController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Logs_Logs)]
         public ActionResult LogList(int? docNumber, int? tableId, int? customerId, string eventTimeFrom, string eventTimeTo)
@@ -58,7 +58,7 @@ namespace BaseSite.Controllers
                            log.LogData1
                        };
 
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
         [CustomAuthorize(OPERATIONS.Logs_Logs)]

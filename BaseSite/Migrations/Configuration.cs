@@ -1,4 +1,4 @@
-﻿namespace BaseSite.Migrations
+namespace BaseSite.Migrations
 {
     using System;
     using System.Data.Entity;

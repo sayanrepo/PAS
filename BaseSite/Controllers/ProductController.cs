@@ -1,16 +1,16 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class ProductController : Controller
+    public class ProductController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Product)]
         public ActionResult ProductList(int? docNumber, byte? productStatusId, int? customerId, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)

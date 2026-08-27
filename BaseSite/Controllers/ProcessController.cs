@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
@@ -10,7 +10,7 @@ using BaseSite.Models;
 
 namespace BaseSite.Controllers
 {
-    public class ProcessController : Controller
+    public class ProcessController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Process)]
         public ActionResult Index()
@@ -55,38 +55,38 @@ namespace BaseSite.Controllers
 
         [HttpPost]
         [CustomAuthorize(OPERATIONS.Process)]
-        public ActionResult Index(Models.DBModel.Order_Process model, string submit)
+        public async Task<ActionResult> Index(Models.DBModel.Order_Process model, string submit)
         {
             try
             {
                 if (submit == "submit")
                 {
                     //check process access
-                    if (model.ProductStatusId == (byte)ProductStatus.NagsheKeshi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Drafting))
+                    if (model.ProductStatusId == (byte)ProductStatus.NagsheKeshi && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Drafting))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.MashinkariTarh && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Machining))
+                    if (model.ProductStatusId == (byte)ProductStatus.MashinkariTarh && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Machining))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.Anbar && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Warehouse))
+                    if (model.ProductStatusId == (byte)ProductStatus.Anbar && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Warehouse))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    //if (model.ProductStatusId == (byte)ProductStatus.SanayeFelez && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Metaling))
+                    //if (model.ProductStatusId == (byte)ProductStatus.SanayeFelez && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Metaling))
                     //{
                     //    throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     //}
-                    if (model.ProductStatusId == (byte)ProductStatus.Montaj && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Assembly))
+                    if (model.ProductStatusId == (byte)ProductStatus.Montaj && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Assembly))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.QC && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Qc))
+                    if (model.ProductStatusId == (byte)ProductStatus.QC && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Qc))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.BasteBandi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Packing))
+                    if (model.ProductStatusId == (byte)ProductStatus.BasteBandi && !CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Packing))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
@@ -131,14 +131,14 @@ namespace BaseSite.Controllers
                     }
                     if (model.ProductStatusId < lastStatusId)
                     {
-                        if (!CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Backward))
+                        if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, Models.OPERATIONS.Process_Backward))
                         {
                             throw new Exception("شما اجازه دسترسی به این بخش را ندارید");
                         }
                     }
 
                     Models.DBModel.Order_Process res = Models.Order.OrderManager.Order_Process_Add(model);
-                    Models.Order.OrderManager.Order_Process_UpdateStatus(res.OrderId);
+                   await Models.Order.OrderManager.Order_Process_UpdateStatus(res.OrderId);
                     TempData["status"] = 2; //process saved successfully
                     TempData["process"] = res;
                     return RedirectToAction("Index");
@@ -207,7 +207,7 @@ namespace BaseSite.Controllers
 
             var res = (from u in ObjList
                        select new { u.Id, u.ProductDocNumber, u.ShTime, StatusName = u.Order_ProductStatus.Name, u.Percent, OperatorName = u.Account_Users.FullName });
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
 

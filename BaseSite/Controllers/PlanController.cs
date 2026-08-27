@@ -1,4 +1,4 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Information;
@@ -7,12 +7,12 @@ using BaseSite.Models.Order;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class PlanController : Controller
+    public class PlanController : BaseSiteController
     {
         [CustomAuthorize(OPERATIONS.Plan)]
         public ActionResult PlanList(int? docNumber, byte? orderStatusId, int? customerId, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)
@@ -52,17 +52,17 @@ namespace BaseSite.Controllers
         {
             if (submit == "DarJaryaneTolid")
             {
-                if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Plan_StartCommand))
+                if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Plan_StartCommand))
                 {
                     Order_Order order = OrderManager.Order_Order_ChangeStatus(Id, Models.OrderStatus.DarJaryaneTolid);
-                    LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, "تغییر وضعیت به: " + order.Order_Status.Name, order.Cost);
+                    LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, "تغییر وضعیت به: " + order.Order_Status.Name, order.Cost);
                 }
                 else
                     return RedirectToAction("AccessDenied", "Home");
             }
             //else if (submit == "AmadeTahvil")
             //{
-            //    if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Plan_FinishCommand))
+            //    if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Plan_FinishCommand))
             //        OrderManager.Order_Order_ChangeStatus(Id, Models.OrderStatus.AmadeTahvil);
             //    else
             //        return RedirectToAction("AccessDenied", "Home");
@@ -97,7 +97,7 @@ namespace BaseSite.Controllers
             List<int> printed = new List<int>();
             if (Request.Cookies["printed"] != null)
             {
-                var list = Request.Cookies["Printed"].Value.Split(',').ToList();
+                var list = Request.Cookies["Printed"].Split(',').ToList();
                 int tmp;
                 foreach (var item in list)
                 {
@@ -109,33 +109,33 @@ namespace BaseSite.Controllers
             if (doc == "order")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند بزرگ");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ سند بزرگ");
                 printed.Add(id);
-                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
+                Response.Cookies.Append("printed", string.Join(",", printed));
                 return View("PrintOrder", order);
             }
             else if (doc == "cabin")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل داخل کابین");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ سند کوچک پنل داخل کابین");
                 printed.Add(id);
-                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
+                Response.Cookies.Append("printed", string.Join(",", printed));
                 return View("PrintCabin", order);
             }
             else if (doc == "hall")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل طبقات");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ سند کوچک پنل طبقات");
                 printed.Add(id);
-                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
+                Response.Cookies.Append("printed", string.Join(",", printed));
                 return View("PrintHall", order);
             }
             else if (doc == "doortop")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ سند کوچک پنل سردرب");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ سند کوچک پنل سردرب");
                 printed.Add(id);
-                Response.Cookies.Add(new HttpCookie("printed", string.Join(",", printed)));
+                Response.Cookies.Append("printed", string.Join(",", printed));
                 return View("PrintDoorTop", order);
             }
             else

@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Data.Entity;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Account;
@@ -13,12 +13,12 @@ using BaseSite.Models.Log;
 
 namespace BaseSite.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController : BaseSiteController
     {
         //######################################################### Profile #################################################################
         public ActionResult LogOut()
         {
-            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser().Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.LogOut, " ");
+            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.LogOut, " ");
             Session.Clear();
             return RedirectToAction("Index", "Home");
         }
@@ -31,35 +31,37 @@ namespace BaseSite.Controllers
         [HttpPost]
         public ActionResult ChangePassword(string newUserName, string currentPassword, string newPassword)
         {
-            if (CustomAuthorizeAttribute.getCurrentUser() == null) return RedirectToAction("Index", "Home");
-            ViewBag.Msg = AccountManager.Account_User_ChangePassword(CustomAuthorizeAttribute.getCurrentUser().Id, newUserName, currentPassword, newPassword);
-            Session["PantaUser"] = AccountManager.Account_User_Get(CustomAuthorizeAttribute.getCurrentUser().Id);
-            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser().Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, "تغییر رمز عبور حساب کاربری خود");
+            if (CustomAuthorizeAttribute.getCurrentUser(HttpContext) == null) return RedirectToAction("Index", "Home");
+            ViewBag.Msg = AccountManager.Account_User_ChangePassword(CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, newUserName, currentPassword, newPassword);
+            Session["PantaUser"] = AccountManager.Account_User_Get(CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id);
+            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, "تغییر رمز عبور حساب کاربری خود");
             return View("Message");
         }
 
         public ActionResult ChangeImage()
         {
-            if (CustomAuthorizeAttribute.getCurrentUser() == null) return RedirectToAction("Index", "Home");
-            ViewBag.Image = CustomAuthorizeAttribute.getCurrentUser().ImagePath == null ? "profile.png" : CustomAuthorizeAttribute.getCurrentUser().ImagePath;
+            if (CustomAuthorizeAttribute.getCurrentUser(HttpContext) == null) return RedirectToAction("Index", "Home");
+            ViewBag.Image = CustomAuthorizeAttribute.getCurrentUser(HttpContext).ImagePath == null ? "profile.png" : CustomAuthorizeAttribute.getCurrentUser(HttpContext).ImagePath;
             return View();
         }
 
         [HttpPost]
-        public ActionResult ChangeImage(HttpPostedFileBase files)
+        public ActionResult ChangeImage(IFormFile files)
         {
-            if (CustomAuthorizeAttribute.getCurrentUser() == null) return RedirectToAction("Index", "Home");
+            if (CustomAuthorizeAttribute.getCurrentUser(HttpContext) == null) return RedirectToAction("Index", "Home");
             if (files != null)
             {
-                files.SaveAs(Server.MapPath("~/Images/System/" + CustomAuthorizeAttribute.getCurrentUser().Id + "_" + files.FileName));
-                ViewBag.Msg = AccountManager.Account_User_ChangeImage(CustomAuthorizeAttribute.getCurrentUser().Id, CustomAuthorizeAttribute.getCurrentUser().Id + "_" + files.FileName);
-                Session["PantaUser"] = AccountManager.Account_User_Get(CustomAuthorizeAttribute.getCurrentUser().Id);
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser().Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, "تغییر موفق تصویر پروفایل خود");
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Images", "System", CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id + "_" + files.FileName);
+                using var stream = System.IO.File.Create(filePath);
+                files.CopyTo(stream);
+                ViewBag.Msg = AccountManager.Account_User_ChangeImage(CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id + "_" + files.FileName);
+                Session["PantaUser"] = AccountManager.Account_User_Get(CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id);
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, "تغییر موفق تصویر پروفایل خود");
             }
             else
             {
                 ViewBag.Msg = "ذخیره فایل با مشکل مواجه شده است. لطفا فایل خود را بازبینی نموده و مجددا تلاش نمایید";
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser().Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, "خطا در تغییر تصویر پروفایل خود - ذخیره فایل با مشکل مواجه شده است");
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, "خطا در تغییر تصویر پروفایل خود - ذخیره فایل با مشکل مواجه شده است");
             }
 
             return View("Message");
@@ -133,11 +135,11 @@ namespace BaseSite.Controllers
             }
             if (PersonId > 0)
             {
-                TempData["BackUrl"] = Request.UrlReferrer.ToString();
+                TempData["BackUrl"] = Request.Headers.Referer.ToString();
             }
             Account_Users list = AccountManager.Account_User_Get(PersonId);
 
-            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
+            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
             return View(list);
         }
 
@@ -150,7 +152,7 @@ namespace BaseSite.Controllers
             if (user.Id == 0)
             {
                 newUser = true;
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Add))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Setting_Persons_Add))
                     return RedirectToAction("AccessDenied", "Home");
                 
                     user.RegistrarId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
@@ -158,7 +160,7 @@ namespace BaseSite.Controllers
             }
             if (user.Id > 0)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Edit))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Setting_Persons_Edit))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -172,7 +174,7 @@ namespace BaseSite.Controllers
                 TempData["Result"] = "ok";
                 TempData["ResultMessge"] = newUser ? "افزودن کاربر با موفقیت انجام شد." : "ویرایش اطلاعات با موفقیت انجام شد.";
 
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
 
                 if (TempData["BackUrl"] != null && !string.IsNullOrEmpty(TempData["BackUrl"].ToString()))
                     return Redirect(TempData["BackUrl"].ToString());
@@ -195,7 +197,7 @@ namespace BaseSite.Controllers
             Account_Users user = AccountManager.Account_User_Get(Id);
 
             string postname = Cache.Posts.Where(m => m.Id == PostId).FirstOrDefault().Name;
-            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, string.Format("تغییر دسترسی {0} - دسترسی جدید: {1} - مسئولیت جدید: {2}", user.FullName, Cache.UserStatuses[(UserStatus)Status], postname));
+            LogManager.Log_Logs_Add((int)DB_Table.Account_Users, Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, string.Format("تغییر دسترسی {0} - دسترسی جدید: {1} - مسئولیت جدید: {2}", user.FullName, Cache.UserStatuses[(UserStatus)Status], postname));
 
             return RedirectToAction("PersonDetail", new { PersonId = Id });
         }
@@ -207,7 +209,7 @@ namespace BaseSite.Controllers
             try
             {
                 AccountManager.Account_User_AssignUserName(Id, UserName, Password);
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, string.Format("اختصاص نام کاربری به {0}", AccountManager.Account_User_Get(Id).FullName));
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, Id, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, string.Format("اختصاص نام کاربری به {0}", AccountManager.Account_User_Get(Id).FullName));
             }
             catch (Exception ex)
             {

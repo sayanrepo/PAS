@@ -1,4 +1,4 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
@@ -6,12 +6,12 @@ using BaseSite.Models.Sale;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class SaleController : Controller
+    public class SaleController : BaseSiteController
     {
         private static byte StoreId = 1; //Centeral office
 
@@ -78,7 +78,7 @@ namespace BaseSite.Controllers
             ViewBag.CustomerName = AccountManager.Account_User_Get(sale.CustomerId).FullName;
 
             Dictionary<byte, string> temp = new Dictionary<byte, string>();
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Sale_Edit) && (sale.StatusId < (byte)Models.OrderStatus.MojavezKhorooj))
+            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Sale_Edit) && (sale.StatusId < (byte)Models.OrderStatus.MojavezKhorooj))
             {
                 foreach (KeyValuePair<byte, string> kv in Models.Cache.Order_OrderStatus)
                 {
@@ -109,7 +109,7 @@ namespace BaseSite.Controllers
                 return RedirectToAction("AccessDenied", "Home");
             if (model.StatusId > (byte)OrderStatus.PishFactor)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Sale_Edit))
+                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Sale_Edit))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -123,7 +123,7 @@ namespace BaseSite.Controllers
             model.Discount = string.IsNullOrEmpty(Discount) ? 0 : double.Parse(Discount.Replace(",", ""));
             model.StoreId = StoreId;
             Sale_Sale x = SaleManager.Sale_Sale_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("SaleDetail", new { saleId = x.Id });
         }
 
@@ -154,13 +154,13 @@ namespace BaseSite.Controllers
             if (doc == "sale")
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فاکتور");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فاکتور");
                 return View("PrintSale", sale);
             }
             else if (doc == "bill")
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ صورتحساب فروش");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ صورتحساب فروش");
                 return View("PrintBill", sale);
             }
             else
@@ -190,7 +190,7 @@ namespace BaseSite.Controllers
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(saleId);
                 SaleManager.Sale_Sale_Delete(saleId);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("SaleList", "Sale");
             }
             catch (Exception ex)
@@ -205,7 +205,7 @@ namespace BaseSite.Controllers
             try
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_ChangeStatus(saleId, (OrderStatus)newStatusId, true);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, sale.ToString(), sale.Cost);
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, sale.ToString(), sale.Cost);
                 return RedirectToAction("SaleDetail", new { saleId = saleId });
             }
             catch (Exception ex)

@@ -1,4 +1,4 @@
-﻿using BaseSite.Controllers;
+using BaseSite.Controllers;
 using BaseSite.Data;
 using BaseSite.Models.DBModel;
 using System;

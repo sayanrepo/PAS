@@ -1,4 +1,4 @@
-﻿namespace BaseSite.Data
+namespace BaseSite.Data
 {
     using BaseSite.Models.DBModel;
     using System.Data.Entity;
@@ -6,7 +6,8 @@
     public partial class PantaEntities : DbContext
     {
         public PantaEntities()
-            : base("name=PantaEntities")
+            : base(Environment.GetEnvironmentVariable("PantaEntitiesConnection") ??
+                   "Data Source=.;Initial Catalog=Panta;Integrated Security=True;MultipleActiveResultSets=True;Application Name=EntityFramework;TrustServerCertificate=True")
         {
         }
 

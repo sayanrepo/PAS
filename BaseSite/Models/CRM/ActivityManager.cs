@@ -1,4 +1,4 @@
-﻿using BaseSite.Data;
+using BaseSite.Data;
 using BaseSite.Models.DBModel;
 using System;
 using System.Collections.Generic;

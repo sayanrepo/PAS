@@ -1,4 +1,4 @@
-﻿using BaseSite.Data;
+using BaseSite.Data;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
@@ -64,7 +64,7 @@ namespace BaseSite.Models.Delivery
             }
         }
 
-        public static Delivery_Delivery Delivery_Delivery_Edit(Delivery_Delivery delivery, string submit)
+        public static async Task<Delivery_Delivery> Delivery_Delivery_Edit(Delivery_Delivery delivery, string submit)
         {
             using (var context = new PantaEntities())
             {
@@ -382,7 +382,7 @@ namespace BaseSite.Models.Delivery
                             if (!string.IsNullOrEmpty(mobile))
                             {
                                 SmsKavenegar sk = new SmsKavenegar();
-                                sk.SendSms(mobile, newdelivery.Order_Order.DocNumber.ToString(), "Survey", "", "", customer.FullName);
+                               await  sk.SendSms(mobile, newdelivery.Order_Order.DocNumber.ToString(), "Survey", "", "", customer.FullName);
                             }
                         }
                         catch { }

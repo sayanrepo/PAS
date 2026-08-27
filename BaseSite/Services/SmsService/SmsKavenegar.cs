@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+
 
 namespace BaseSite.Services.SmsService
 {
-    public class SmsKavenegar:ISmsService
+    public class SmsKavenegar : ISmsService
     {
-        public SmsKavenegar():base()
+        public SmsKavenegar() : base()
         {
         }
-        public void SendSms(string receptor, string tokenOrText, string templateName = "", string token2 = "", string token3 = "", string token10 = "", string token20 = "")
+        public async Task SendSms(string receptor, string tokenOrText, string templateName = "", string token2 = "", string token3 = "", string token10 = "", string token20 = "")
         {
             if (!string.IsNullOrWhiteSpace(receptor))
             {
@@ -28,34 +28,34 @@ namespace BaseSite.Services.SmsService
                     {
                         var res = api.Send("10002200020200", receptor, tokenOrText);
                         foreach (var mobile in SupportPhones)
-                            api.Send("10002200020200", mobile, tokenOrText);
+                            await api.Send("10002200020200", mobile, tokenOrText);
                     }
                     else
                     {
-                        Kavenegar.Models.SendResult res;
+                        Kavenegar.Core.Models.SendResult res;
                         if (string.IsNullOrWhiteSpace(token2) && string.IsNullOrWhiteSpace(token3) && string.IsNullOrWhiteSpace(token10) && string.IsNullOrWhiteSpace(token20))
                         {
-                            res = api.VerifyLookup(receptor, tokenOrText, templateName);
+                            res = await api.VerifyLookup(receptor, tokenOrText, templateName);
                             foreach (var mobile in SupportPhones)
-                                api.VerifyLookup(mobile, tokenOrText, templateName);
+                                await api.VerifyLookup(mobile, tokenOrText, templateName);
                         }
                         else if (string.IsNullOrWhiteSpace(token10) && string.IsNullOrWhiteSpace(token20))
                         {
-                            res = api.VerifyLookup(receptor, tokenOrText, token2, token3, templateName);
+                            res = await api.VerifyLookup(receptor, tokenOrText, token2, token3, templateName);
                             foreach (var mobile in SupportPhones)
-                                api.VerifyLookup(mobile, tokenOrText, token2, token3, templateName);
+                                await api.VerifyLookup(mobile, tokenOrText, token2, token3, templateName);
                         }
                         else if (string.IsNullOrWhiteSpace(token20))
                         {
-                            res = api.VerifyLookup(receptor, tokenOrText, token2, token3, token10, templateName);
+                            res = await api.VerifyLookup(receptor, tokenOrText, token2, token3, token10, templateName);
                             foreach (var mobile in SupportPhones)
-                                api.VerifyLookup(mobile, tokenOrText, token2, token3, token10, templateName);
+                                await api.VerifyLookup(mobile, tokenOrText, token2, token3, token10, templateName);
                         }
                         else
                         {
-                            res = api.VerifyLookup(receptor, tokenOrText, token2, token3, token10, token20, templateName, Kavenegar.Models.Enums.VerifyLookupType.Sms);
+                            res = await api.VerifyLookup(receptor, tokenOrText, token2, token3, token10, token20, templateName, Kavenegar.Core.Models.Enums.VerifyLookupType.Sms);
                             foreach (var mobile in SupportPhones)
-                                api.VerifyLookup(mobile, tokenOrText, token2, token3, token10, token20, templateName, Kavenegar.Models.Enums.VerifyLookupType.Sms);
+                                await api.VerifyLookup(mobile, tokenOrText, token2, token3, token10, token20, templateName, Kavenegar.Core.Models.Enums.VerifyLookupType.Sms);
                         }
                         //foreach (Kavenegar.Models.SendResult r in res)
                         {
@@ -63,12 +63,12 @@ namespace BaseSite.Services.SmsService
                         }
                     }
                 }
-                catch (Kavenegar.Exceptions.ApiException ex)
+                catch (Kavenegar.Core.Exceptions.ApiException ex)
                 {
                     // در صورتی که خروجی وب سرویس 200 نباشد این خطارخ می دهد.
                     Console.Write("Message : " + ex.Message);
                 }
-                catch (Kavenegar.Exceptions.HttpException ex)
+                catch (Kavenegar.Core.Exceptions.HttpException ex)
                 {
                     // در زمانی که مشکلی در برقرای ارتباط با وب سرویس وجود داشته باشد این خطا رخ می دهد
                     Console.Write("Message : " + ex.Message);

@@ -1,9 +1,9 @@
-﻿using BaseSite.Models.Account;
+using BaseSite.Models.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models.Order;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Information;
@@ -13,7 +13,7 @@ using BaseSite.Models.Log;
 
 namespace BaseSite.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseSiteController
     {
         public ActionResult AccessDenied()
         {
@@ -33,12 +33,12 @@ namespace BaseSite.Controllers
         [HttpPost]
         public ActionResult Index(string UserName, string Password, string returnurl)
         {
-            Account_Users user = AccountManager.Login(UserName, Password, Request.UserHostAddress);
+            Account_Users user = AccountManager.Login(UserName, Password, HttpContext.Connection.RemoteIpAddress?.ToString());
 
             if (user.Id == (new Account_Users()).Id)
             {
                 TempData["FailLogin"] = "FailLogin";
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, user.Id, 0, Request.UserHostAddress, (int)LogActivity.LoginFailed, string.Format("نام کاربری وارد شده: {0}", UserName));
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, user.Id, 0, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.LoginFailed, string.Format("نام کاربری وارد شده: {0}", UserName));
                 return RedirectToAction("Index");
             }
             else
@@ -47,7 +47,7 @@ namespace BaseSite.Controllers
                 List<OPERATIONS> oprs = user.Account_UserPost.Count > 0 ? AccountManager.Account_Operation_Get((AccountRole)user.Account_UserPost.First().PostId) : new List<OPERATIONS>();
                 Session["UserOperations"] = oprs;
 
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, user.Id, user.Id, Request.UserHostAddress, (int)LogActivity.Login, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, user.Id, user.Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Login, "");
 
                 if (!string.IsNullOrEmpty(returnurl))
                     return Redirect(returnurl);
@@ -89,8 +89,7 @@ namespace BaseSite.Controllers
 
         public ActionResult Guide()
         {
-            var staticPageToRender = new FilePathResult("~/GuideBook/guidebook.html", "text/html");
-            return staticPageToRender;
+            return PhysicalFile(Path.Combine(Directory.GetCurrentDirectory(), "GuideBook", "guidebook.html"), "text/html");
         }
     }
 }
