@@ -2,11 +2,9 @@
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
-using FastReport.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Hosting;
 using System.Web.Mvc;
 
 namespace BaseSite.Controllers
@@ -351,75 +349,5 @@ namespace BaseSite.Controllers
             return View(rptInfo);
         }
 
-        [CustomAuthorize(OPERATIONS.Report)]
-        public ActionResult ReportTemplate2(string ReportName, string ReportDescription, int Width, int Height, string Customer, string reportShDateFrom = "", string reportShDateTo = "", int customerId = 0)
-        {
-            if (ReportName != "RStatistic2")
-            {
-                if (customerId == 0 && Session["customerId"] != null) customerId = (int)Session["customerId"];
-                ViewBag.CustomerName = (customerId == 0 ? "" : AccountManager.Account_User_Get(customerId).FullName);
-
-                Session["customerId"] = customerId;
-            }
-
-            if (string.IsNullOrWhiteSpace(reportShDateFrom) && string.IsNullOrWhiteSpace(reportShDateTo))
-            {
-                if (ReportName == "RSaleControlling")
-                {
-                    reportShDateFrom = reportShDateTo = new PersianDateTime(DateTime.Now).ToString(PersianDateTimeFormat.Date);
-                }
-                else
-                {
-                    reportShDateFrom = new PersianDateTime(DateTime.Now).FirstDayOfYear.ToString(PersianDateTimeFormat.Date);
-                    reportShDateTo = new PersianDateTime(DateTime.Now).LastDayOfYear.ToString(PersianDateTimeFormat.Date);
-                }
-            }
-
-
-            WebReport webReport = new WebReport()
-            {
-                Width = Width,
-                Height = Height,
-                //AutoWidth = true,
-                //AutoHeight = true,
-                ReportFile = HostingEnvironment.MapPath("~/Reports/" + ReportName + ".frx") // load the report from the file
-            };
-
-            webReport.Report.SetParameterValue("shdatefrom", reportShDateFrom);
-            webReport.Report.SetParameterValue("shdateto", reportShDateTo);
-            webReport.Report.SetParameterValue("customerid", customerId);
-
-            ViewBag.WebReport = webReport; // send object to the View
-
-            var rptInfo = new Report_Report
-            {
-                ReportName = ReportName,
-                ReportDescription = ReportDescription,
-                Width = Width,
-                Height = Height,
-                ReportShDateFrom = reportShDateFrom,
-                ReportShDateTo = reportShDateTo,
-                ReportArg1 = customerId
-            };
-
-            return View(rptInfo);
-        }
-
-        [CustomAuthorize(OPERATIONS.Report)]
-        public ActionResult ReportTemplate3(string ReportName, string ReportDescription, int Width, int Height, string Customer, string reportShDateFrom = "", string reportShDateTo = "", int customerId = 0)
-        {
-            var rptInfo = new Report_Report
-            {
-                ReportName = ReportName,
-                ReportDescription = ReportDescription,
-                Width = Width,
-                Height = Height,
-                ReportShDateFrom = reportShDateFrom,
-                ReportShDateTo = reportShDateTo,
-                ReportArg1 = customerId
-            };
-
-            return View(rptInfo);
-        }
     }
 }

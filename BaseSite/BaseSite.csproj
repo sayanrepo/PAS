@@ -65,26 +65,6 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="FastReport, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Bars, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Bars.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Compat, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=406e1f4c3c8ef97e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Compat.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.DataVisualization, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=5ceb240df42bf6e8, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.DataVisualization.dll</HintPath>
-    </Reference>
-    <Reference Include="FastReport.Web, Version=2021.3.12.0, Culture=neutral, PublicKeyToken=db7e5ce63278458c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\FastReports\FastReport.Net Trial\Framework 4.0\FastReport.Web.dll</HintPath>
-    </Reference>
     <Reference Include="Kavenegar">
       <HintPath>..\packages\kavenegar.1.1.2\lib\net40\Kavenegar.dll</HintPath>
     </Reference>
@@ -425,12 +405,6 @@
     <Content Include="Contents\js\npm.js" />
     <Content Include="Contents\js\printThis-old.js" />
     <Content Include="Contents\js\printThis.js" />
-    <Content Include="Dlls\FastReport.Bars.dll" />
-    <Content Include="Dlls\FastReport.Compat.dll" />
-    <Content Include="Dlls\FastReport.DataVisualization.dll" />
-    <Content Include="Dlls\FastReport.dll" />
-    <Content Include="Dlls\FastReport.Editor.dll" />
-    <Content Include="Dlls\FastReport.Web.dll" />
     <Content Include="Dlls\Microsoft.ReportViewer.Common.DLL" />
     <Content Include="Dlls\Microsoft.ReportViewer.DataVisualization.dll" />
     <Content Include="Dlls\PersianDateTime.dll" />
@@ -629,7 +603,6 @@
     <Content Include="Reports\RLending.rdl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\Report\ReportTemplate2.cshtml" />
     <Content Include="Views\Report\ReportList.cshtml" />
     <Content Include="Views\Delivery\PrintDeliveryPanel.cshtml" />
     <Content Include="Reports\KPI\جدول رتبه بندی خرید مشتریان.pbix">
