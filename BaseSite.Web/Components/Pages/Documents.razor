@@ -1,0 +1,127 @@
+@page "/documents/{Kind}"
+@using System.Globalization
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>@Title | پانتا</PageTitle>
+
+<div class="page-heading">
+    <div>
+        <MudText Typo="Typo.h4">@Title</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">جست‌وجو و مشاهده آخرین اطلاعات ثبت‌شده</MudText>
+    </div>
+</div>
+
+<MudPaper Class="filter-panel" Elevation="0">
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="4">
+            <MudNumericField T="int?" @bind-Value="documentNumber" Label="شماره سند" Variant="Variant.Outlined" Clearable="true" />
+        </MudItem>
+        <MudItem xs="12" sm="5">
+            <MudTextField T="string" @bind-Value="customer" Label="نام مشتری" Variant="Variant.Outlined" Clearable="true" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudButton FullWidth="true" Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Search" OnClick="LoadAsync">جست‌وجو</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert>
+}
+
+<MudPaper Class="table-panel mt-4" Elevation="0">
+    <MudTable T="DocumentSummary" Items="items" Loading="loading" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>شماره سند</MudTh>
+            <MudTh>شماره فاکتور</MudTh>
+            <MudTh>مشتری</MudTh>
+            <MudTh>وضعیت</MudTh>
+            <MudTh>تاریخ</MudTh>
+            <MudTh>سررسید / تحویل</MudTh>
+            <MudTh>مبلغ</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="شماره سند"><MudText Typo="Typo.body2"><b>@context.DocumentNumber</b></MudText></MudTd>
+            <MudTd DataLabel="شماره فاکتور">@(context.FactorNumber?.ToString() ?? "—")</MudTd>
+            <MudTd DataLabel="مشتری">@context.Customer</MudTd>
+            <MudTd DataLabel="وضعیت"><MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">@context.Status</MudChip></MudTd>
+            <MudTd DataLabel="تاریخ">@FormatDate(context.DocumentDate)</MudTd>
+            <MudTd DataLabel="سررسید / تحویل">@FormatDate(context.DueDate)</MudTd>
+            <MudTd DataLabel="مبلغ">@(context.Amount?.ToString("N0") ?? "—")</MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <div class="empty-state"><MudIcon Icon="@Icons.Material.Filled.Inbox" Size="Size.Large" /><span>موردی یافت نشد.</span></div>
+        </NoRecordsContent>
+        <LoadingContent><MudText Class="pa-5">در حال دریافت اطلاعات…</MudText></LoadingContent>
+        <PagerContent><MudTablePager RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+    [Parameter] public string Kind { get; set; } = "orders";
+
+    private static readonly CultureInfo PersianCulture = CultureInfo.GetCultureInfo("fa-IR");
+    private List<DocumentSummary> items = [];
+    private int? documentNumber;
+    private string? customer;
+    private bool loading = true;
+    private string? error;
+    private string? loadedKind;
+
+    private string Title => Kind.ToLowerInvariant() switch
+    {
+        "orders" => "سفارش‌ها",
+        "sales" => "فروش",
+        "store" => "فروشگاه",
+        "payments" => "پرداخت‌ها",
+        "deliveries" => "تحویل‌ها",
+        "services" => "خدمات",
+        "activities" => "فعالیت‌های CRM",
+        _ => "اسناد"
+    };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Session.IsInitialized && loadedKind != Kind)
+            await LoadAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        await LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadAsync()
+    {
+        loading = true;
+        error = null;
+        try
+        {
+            items = await Api.GetDocumentsAsync(Kind, documentNumber, customer) ?? [];
+            loadedKind = Kind;
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private static string FormatDate(DateTime? value) => value?.ToString("yyyy/MM/dd", PersianCulture) ?? "—";
+}

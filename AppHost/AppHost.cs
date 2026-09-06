@@ -14,4 +14,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddProject<ReportGateway>("gateway");
 
+var api = builder.AddProject<BaseSite_Api>("basesite-api");
+
+builder.AddProject<BaseSite_Web>("basesite-web")
+    .WithReference(api)
+    .WaitFor(api);
+
 builder.Build().Run();

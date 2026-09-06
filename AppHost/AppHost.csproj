@@ -13,6 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BaseSite\BaseSite.Api.csproj" />
+    <ProjectReference Include="..\BaseSite.Web\BaseSite.Web.csproj" />
     <ProjectReference Include="..\ReportGateway\ReportGateway.csproj" />
   </ItemGroup>
 

@@ -1,0 +1,76 @@
+@page "/customers"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>اشخاص و مشتریان | پانتا</PageTitle>
+
+<div class="page-heading">
+    <div>
+        <MudText Typo="Typo.h4">اشخاص و مشتریان</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">دفتر اطلاعات تماس و وضعیت مشتریان</MudText>
+    </div>
+</div>
+
+<MudPaper Class="filter-panel" Elevation="0">
+    <div class="customer-search">
+        <MudTextField T="string" @bind-Value="term" Label="نام، نام خانوادگی یا موبایل" Variant="Variant.Outlined"
+                      Clearable="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="LoadAsync">جست‌وجو</MudButton>
+    </div>
+</MudPaper>
+
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert>
+}
+
+<MudPaper Class="table-panel mt-4" Elevation="0">
+    <MudTable T="CustomerSummary" Items="items" Loading="loading" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>نام</MudTh><MudTh>موبایل</MudTh><MudTh>تلفن</MudTh><MudTh>شهر</MudTh><MudTh>وضعیت</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="نام"><b>@context.FullName</b></MudTd>
+            <MudTd DataLabel="موبایل">@context.Mobile</MudTd>
+            <MudTd DataLabel="تلفن">@context.Phone</MudTd>
+            <MudTd DataLabel="شهر">@context.City</MudTd>
+            <MudTd DataLabel="وضعیت"><MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">@context.Status</MudChip></MudTd>
+        </RowTemplate>
+        <NoRecordsContent><div class="empty-state"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" /><span>مشتری‌ای یافت نشد.</span></div></NoRecordsContent>
+        <PagerContent><MudTablePager RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private List<CustomerSummary> items = [];
+    private string? term;
+    private bool loading = true;
+    private string? error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        await LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadAsync()
+    {
+        loading = true;
+        error = null;
+        try
+        {
+            items = await Api.GetCustomersAsync(term) ?? [];
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+}
