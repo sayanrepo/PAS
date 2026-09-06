@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Tb_Products>
 @{
     ViewBag.Title = "محصولات فروشگاه";
@@ -22,9 +22,9 @@
 <div class="row">
     <div id="DivDetail">
         <div class="col-xs-6 col-md-offset-3 col-xs-offset-3" id="DivProduct">
-            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Product_Add))
+            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Product_Add)))
             {
-                @Html.Partial("Partial_ItemAdd", new ViewDataDictionary { { "topic", "محصول" }, { "actionName", "AddProduct" }, { "controllerName", "Information" } })
+                @await Html.PartialAsync("Partial_ItemAdd", new ViewDataDictionary { { "topic", "محصول" }, { "actionName", "AddProduct" }, { "controllerName", "Information" } })
             }
         </div>
     </div>
@@ -33,9 +33,9 @@
 <div class="row" style="padding-top:20px;">
     <div id="DivDetail">
         <div class="col-xs-12" id="DivAttachment">
-            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Cost)))
             {
-                @Html.Partial("Partial_ChangeCost", new ViewDataDictionary { { "sectionId", "productList" } })
+                @await Html.PartialAsync("Partial_ChangeCost", new ViewDataDictionary { { "sectionId", "productList" } })
             }
         </div>
     </div>
@@ -47,7 +47,7 @@
     gridColumns.Add(grid.Column("ردیف", format: item => item.WebGrid.Rows.IndexOf(item) + 1 + Math.Round(Convert.ToDouble(grid.TotalRowCount / grid.PageCount) / grid.RowsPerPage) * grid.RowsPerPage * grid.PageIndex));
 
     gridColumns.Add(grid.Column("Name", "نام محصول", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Name))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Name)))
         {
             <span id="Name" class="display-mode">@item.Name</span>
             <input id="iName" class="edit-mode" type="text" style="width:97%; text-align:center;" value="@item.Name" />
@@ -60,7 +60,7 @@
     </text>));
 
     gridColumns.Add(grid.Column("Description", "شرح", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Description))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Description)))
         {
             <span id="Description" class="display-mode">@item.Description</span>
             @*<textarea id="iDescription" class="edit-mode" type="text" style="width: 97%; text-align: center;" value="@item.Description" />*@
@@ -73,7 +73,7 @@
         }
     </text>));
 
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Cost)))
     {
         gridColumns.Add(grid.Column("Cost", "قیمت", @<text>
             <span id="Cost" class="display-mode autoNumber">@item.Cost</span>
@@ -82,7 +82,7 @@
     }
 
     gridColumns.Add(grid.Column("Available", "موجود", @<text>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Available)))
         {
             @Html.CheckBox("Available", (bool)(item.Available), new { @Class = "display-mode", disabled = "true" })
             @Html.CheckBox("iAvailable", (bool)(item.Available), new { @Class = "edit-mode" })
@@ -94,14 +94,14 @@
         }
     </text>));
 
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Product_Edit))
+    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Product_Edit)))
     {
         gridColumns.Add(grid.Column("Edit", "ویرایش", @<text>
             <button class="btn btn-primary edit-item display-mode" style="font-size:smaller;" id="@item.Id">ویرایش</button>
             <button class="btn btn-success save-item edit-mode" style="font-size:smaller;" id="@item.Id">ذخیره</button>
         </text>));
     }
-    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Product_Delete))
+    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Product_Delete)))
     {
         gridColumns.Add(grid.Column("Delete", "حذف", @<text>
             <button class="btn btn-danger" style="font-size:smaller;" data-toggle="modal" data-target="#ProductDeleteModal" name="ProductDelete" id="@item.Id">حذف</button>

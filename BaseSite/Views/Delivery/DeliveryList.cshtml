@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Delivery_Delivery>
 @{
     ViewBag.Title = "لیست تحویل";
@@ -27,7 +27,7 @@
 </div>
 @*##################### Search Div #############################*@
 <div class="row">
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Search))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Search)))
     {
         <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
             <form method="post" action="@Url.Action("SearchDelivery")">
@@ -118,7 +118,7 @@
             grid.Column("Delivery_Status.Name", header: "وضعیت", format: item => item.Delivery_Status.Name),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("DeliveryDetail", new { DeliveryId = item.Id })">@(item.Order_Order != null ? item.Order_Order.FactorNumber : item.Sale_Sale != null ? item.Sale_Sale.FactorNumber : "-")</a>
                 }

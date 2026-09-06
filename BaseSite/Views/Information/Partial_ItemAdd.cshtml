@@ -1,4 +1,4 @@
-﻿
+
 <div class="row col-xs-12 nopadding AddingPanel">
     <form method="post" action="@Url.Action(ViewData["actionName"].ToString(), ViewData["controllerName"].ToString())" id="formItemAdd" class="formAdd">
         <div class="col-xs-9">
@@ -12,7 +12,7 @@
         <div class="col-xs-12">
             <textarea class="form-control alert-dismissible DescriptionTextarea" id="ItemDescription" name="ItemDescription" placeholder="@string.Format("شرح {0}", ViewData["topic"].ToString())"></textarea>
         </div>
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Cost))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Cost)))
         {
             <div class="col-xs-5" style="padding-left:0;">
                 <div class="input-group">
@@ -21,13 +21,13 @@
                 </div>
             </div>
         }
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactor))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_ProductFactor)))
         {
             <div class="col-xs-4" style="padding-left:0;">
                 <input type="text" class="form-control text-center MyControl" id="ItemFactor" name="ItemFactor" placeholder="ضریب" />
             </div>
         }
-        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Available))
+        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Available)))
         {
             <div class="col-xs-3" style="padding-left:0;">
                 <label style="float: right; height: 28px; margin-top: 5px; padding-left:3px;">موجود</label>

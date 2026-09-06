@@ -1,7 +1,7 @@
 namespace BaseSite.Data
 {
-    using BaseSite.Models.DBModel;
     using System.Data.Entity;
+    using BaseSite.Models.DBModel;
 
     public partial class PantaEntities : DbContext
     {

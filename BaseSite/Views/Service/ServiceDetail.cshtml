@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Service_Service
+@model BaseSite.Models.DBModel.Service_Service
 @using System.Globalization
 @{
     ViewBag.Title = "ثبت خدمات";
@@ -28,7 +28,7 @@
                 <div class="panel-heading MyHeader">
                     <div class="row">
                         <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">خدمات</div>
-                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Print))
+                        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Print)))
                         {
                             <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
                                 <a href="@Url.Action("Print", "Service", new { doc = "service", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فاکتور"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
@@ -50,7 +50,7 @@
                                 <span class="input-group-addon MySpan">وضعیت</span>
                                 @*@Html.DropDownListFor(m => m.StatusId, BaseSite.Models.Cache.Order_OrderStatus.Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })*@
                                 @Html.DropDownListFor(m => m.StatusId, (ViewBag.OrderStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })
-                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_ChangeStatus))
+                                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_ChangeStatus)))
                                 {
                                     <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
                                 }
@@ -150,12 +150,12 @@
         </div>
         //*################################## Submit Button ###################################
         <div class="row" style="text-align:center;margin-bottom:10px;">
-            @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Add)) ||
-            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Edit)))
+            @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Add))) ||
+            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Edit))))
             {
                 <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
             }
-            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Delete))
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Delete)))
             {
                 <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#ServiceDeleteModal" style="margin-right:10px;">حذف پیش فاکتور</button>
             }
@@ -165,7 +165,7 @@
 </div>
 
 @*####################################Start Delete Modal ###############################################*@
-@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Delete))
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Delete)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="ServiceDeleteModal">
         <div class="row">
@@ -191,7 +191,7 @@
     </div>
 }
 
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_ChangeStatus))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_ChangeStatus)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
         <div class="row">

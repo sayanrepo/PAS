@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Microsoft.AspNetCore.Mvc;
-using BaseSite.Models.Information;
-using BaseSite.Models.DBModel;
-using BaseSite.Models.Order;
-using BaseSite.Models.Account;
 using BaseSite.Models;
+using BaseSite.Models.Account;
+using BaseSite.Models.DBModel;
+using BaseSite.Models.Information;
 using BaseSite.Models.Log;
+using BaseSite.Models.Order;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
@@ -224,7 +220,7 @@ namespace BaseSite.Controllers
         }
 
         //*************************************************************************
-        [CustomAuthorize(OPERATIONS.Order)]
+        [Authorize(Roles = nameof(OPERATIONS.Order))]
         public ActionResult OrderList(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo, string projectName)
         {
             customerId = (int?)Session["customerId"];
@@ -251,7 +247,7 @@ namespace BaseSite.Controllers
             return View(OrderList);
         }
 
-        [CustomAuthorize(OPERATIONS.Order_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Add))]
         public ActionResult AddOrder()
         {
             Order_Order obj = OrderManager.Order_Order_Get(0);
@@ -286,7 +282,7 @@ namespace BaseSite.Controllers
             return View("OrderDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Order_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Detail))]
         public ActionResult OrderDetail(string OrderId)
         {
             Order_Order order = OrderManager.Order_Order_Get(int.Parse(OrderId));
@@ -306,7 +302,7 @@ namespace BaseSite.Controllers
             ViewBag.DoorTopSurfaceMetalName = order.Order_DoorTop.Count > 0 ? InformationManager.SurfaceMetal_Get(order.Order_DoorTop.ElementAt(0).SurfaceMetalId).Name : "";
 
             Dictionary<byte, string> temp = new Dictionary<byte, string>();
-            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Order_Edit_Factor) && (order.StatusId < (byte)Models.OrderStatus.DarkhasteTolid))// || order.StatusId >= (byte)Models.OrderStatus.AmadeTahvil))
+            if (User.IsInRole(nameof(OPERATIONS.Order_Edit_Factor)) && (order.StatusId < (byte)Models.OrderStatus.DarkhasteTolid))// || order.StatusId >= (byte)Models.OrderStatus.AmadeTahvil))
             {
                 foreach (KeyValuePair<byte, string> kv in Models.Cache.Order_OrderStatus)
                 {
@@ -328,7 +324,7 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Order_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Add))]
         public async Task<ActionResult> OrderDetail(Order_Order model, string DeliveryCost, string submit)
         {
             bool isNew = false;
@@ -337,23 +333,23 @@ namespace BaseSite.Controllers
                 return RedirectToAction("AccessDenied", "Home");
             if (model.StatusId > (byte)OrderStatus.PishFactor)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Order_Edit_Factor))
+                if (!User.IsInRole(nameof(OPERATIONS.Order_Edit_Factor)))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
             if (model.Id == 0)
             {
-                model.AccepterId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                model.AccepterId = User.GetUserId();
                 isNew = true;
             }
             model.DeliveryCost = string.IsNullOrEmpty(DeliveryCost) ? 0 : double.Parse(DeliveryCost.Replace(",", ""));
             model.StoreId = StoreId;
             Order_Order x = await OrderManager.Order_Order_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("OrderDetail", new { OrderId = x.Id });
         }
 
-        [CustomAuthorize(OPERATIONS.Order_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Search))]
         public ActionResult SearchOrder(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo, string projectName)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
@@ -375,26 +371,26 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Order/OrderList" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Order_Print)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Print))]
         public ActionResult Print(string doc, int id)
         {
             if (doc == "order")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فاکتور");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فاکتور");
                 return View("PrintOrder", order);
             }
             else if (doc == "bill")
             {
                 Order_Order order = OrderManager.Order_Order_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ صورتحساب فروش");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ صورتحساب فروش");
                 return View("PrintBill", order);
             }
             else
                 return View("Error");
         }
 
-        [CustomAuthorize(OPERATIONS.Order_Delete)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_Delete))]
         public ActionResult OrderDelete(int orderId)
         {
             /*try
@@ -418,7 +414,7 @@ namespace BaseSite.Controllers
             {
                 Order_Order order = OrderManager.Order_Order_Get(orderId);
                 OrderManager.Order_Order_Delete(orderId);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("OrderList", "Order");
             }
             catch (Exception ex)
@@ -427,13 +423,13 @@ namespace BaseSite.Controllers
             }
         }
 
-        [CustomAuthorize(OPERATIONS.Order_ChangeStatus)]
+        [Authorize(Roles = nameof(OPERATIONS.Order_ChangeStatus))]
         public ActionResult OrderChangeStatus(int orderId, byte newStatusId)
         {
             try
             {
                 Order_Order order = OrderManager.Order_Order_ChangeStatus(orderId, (OrderStatus)newStatusId, true);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, order.ToString(), order.Cost);
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, order.ToString(), order.Cost);
                 return RedirectToAction("OrderDetail", new { OrderId = orderId });
             }
             catch (Exception ex)

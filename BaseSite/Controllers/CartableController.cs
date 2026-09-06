@@ -2,9 +2,6 @@ using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +9,7 @@ namespace BaseSite.Controllers
 {
     public class CartableController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Cartable)]
+        [Authorize(Roles = nameof(OPERATIONS.Cartable))]
         public ActionResult CartableList(int? docNumber, int? customerId, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -30,20 +27,20 @@ namespace BaseSite.Controllers
                 string.IsNullOrEmpty(orderDateTo) ? null : (DateTime?)PersianDateTime.Parse(orderDateTo.Replace('-', '/')).ToDateTime(),
                 null, null,
                 string.IsNullOrEmpty(deliveryDateFrom) ? null : (DateTime?)PersianDateTime.Parse(deliveryDateFrom.Replace('-', '/')).ToDateTime(),
-                string.IsNullOrEmpty(deliveryDateTo) ? null : (DateTime?)PersianDateTime.Parse(deliveryDateTo.Replace('-', '/')).ToDateTime(),string.Empty);
+                string.IsNullOrEmpty(deliveryDateTo) ? null : (DateTime?)PersianDateTime.Parse(deliveryDateTo.Replace('-', '/')).ToDateTime(), string.Empty);
 
             ViewBag.RowCount = orderList.Count();
             return View(orderList);
         }
 
-        [CustomAuthorize(OPERATIONS.Cartable_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Cartable_Detail))]
         public ActionResult CartableDetail(int OrderId)
         {
             Order_Order order = OrderManager.Order_Order_Get(OrderId);
             return View("~/Views/Plan/PlanDetail.cshtml", order);
         }
 
-        [CustomAuthorize(OPERATIONS.Cartable_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Cartable_Search))]
         public ActionResult SearchCartable(int? docNumber, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;

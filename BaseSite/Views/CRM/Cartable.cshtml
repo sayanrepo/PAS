@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.CRM_Activity>
 @{
     ViewBag.Title = "کارتابل من";
@@ -52,7 +52,7 @@
             grid.Column("CRM_Priority.Name", header: "اولویت", format: item => item.CRM_Priority.Name),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("ActivityDetail", new { activityId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }
@@ -93,7 +93,7 @@
             grid2.Column("CRM_Priority.Name", header: "اولویت", format: item => item.CRM_Priority.Name),
             grid2.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("ActivityDetail", new { activityId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

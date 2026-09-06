@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Order_Order>
 @{
     ViewBag.Title = "لیست سفارشات";
@@ -27,13 +27,13 @@
 </div>
 @*##################### Search Div #############################*@
 <div class="row">
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add)))
 { 
     <div class="col-md-1 col-xs-12">
         <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت سفارش" href="@Url.Action("AddOrder")"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
     </div>
 }
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Search))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Search)))
 {
     <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
         <form method="post" action="@Url.Action("SearchOrder")">
@@ -179,7 +179,7 @@
             grid.Column("Tax", header: "نوع معامله", format: @<span>@string.Format("{0} {1}", item.Tax > 0 ? "*" : " ", item.Tb_TradeTypes.Name)</span>),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("OrderDetail", new { OrderId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }
@@ -189,7 +189,7 @@
                 }
                 @if (item.StatusId >= (byte)BaseSite.Models.OrderStatus.AmadeTahvil && item.StatusId <= (byte)BaseSite.Models.OrderStatus.TahvilShode)
                 {
-                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery))
+                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery)))
                     {
                         <div class="dropdown" style="float:left;">
                             <button class="btn btn-link dropdown-toggle" style="padding:0;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -197,7 +197,7 @@
                                 @*<span class="caret"></span>*@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Add))
+                                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Add)))
                                 {
                                     <li><a data-value="@item.Id" href="@Url.Action("AddOrderDelivery", "Delivery", new { orderId = item.Id })">افزودن تحویل</a></li>
                                 }

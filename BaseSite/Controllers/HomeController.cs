@@ -1,18 +1,12 @@
-using BaseSite.Models.Account;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Microsoft.AspNetCore.Mvc;
-using BaseSite.Models.Order;
-using BaseSite.Models.DBModel;
-using BaseSite.Models.Information;
-using System.Data.Entity;
 using BaseSite.Models;
+using BaseSite.Models.Account;
+using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : BaseSiteController
     {
         public ActionResult AccessDenied()
@@ -31,7 +25,7 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(string UserName, string Password, string returnurl)
+        public async Task<IActionResult> Index(string UserName, string Password, string returnurl)
         {
             Account_Users user = AccountManager.Login(UserName, Password, HttpContext.Connection.RemoteIpAddress?.ToString());
 
@@ -43,13 +37,12 @@ namespace BaseSite.Controllers
             }
             else
             {
-                Session["PantaUser"] = user;
                 List<OPERATIONS> oprs = user.Account_UserPost.Count > 0 ? AccountManager.Account_Operation_Get((AccountRole)user.Account_UserPost.First().PostId) : new List<OPERATIONS>();
-                Session["UserOperations"] = oprs;
+                await AuthenticationClaims.SignInAsync(HttpContext, user);
 
                 LogManager.Log_Logs_Add((int)DB_Table.Account_Users, user.Id, user.Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Login, "");
 
-                if (!string.IsNullOrEmpty(returnurl))
+                if (!string.IsNullOrEmpty(returnurl) && Url.IsLocalUrl(returnurl))
                     return Redirect(returnurl);
                 else
                 {

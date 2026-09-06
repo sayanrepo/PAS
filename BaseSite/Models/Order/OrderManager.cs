@@ -2,10 +2,7 @@ using BaseSite.Data;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Services.SmsService;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 
 namespace BaseSite.Models.Order
 {
@@ -514,7 +511,7 @@ namespace BaseSite.Models.Order
                             if (!string.IsNullOrEmpty(mobile))
                             {
                                 SmsKavenegar sk = new SmsKavenegar();
-                               await  sk.SendSms(mobile, neworder.DocNumber.ToString(), "DarkhasteTolid", "", "", customer.FullName);
+                                await sk.SendSms(mobile, neworder.DocNumber.ToString(), "DarkhasteTolid", "", "", customer.FullName);
                             }
                         }
                         catch { }
@@ -1712,7 +1709,7 @@ namespace BaseSite.Models.Order
                                     if (!string.IsNullOrEmpty(mobile))
                                     {
                                         SmsKavenegar sk = new SmsKavenegar();
-                                      await  sk.SendSms(mobile, order.DocNumber.ToString(), "AmadeTahvil", "", "", customer.FullName);
+                                        await sk.SendSms(mobile, order.DocNumber.ToString(), "AmadeTahvil", "", "", customer.FullName);
                                     }
                                 }
                                 catch { }

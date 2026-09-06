@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.Panel>
 @{
     ViewBag.Title = "برنامه تولید";
@@ -30,7 +30,7 @@
     @*<div class="col-md-1 col-xs-12">
         <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت سفارش" href="@Url.Action("AddOrder")" target="_blank"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
     </div>*@
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_Search))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Plan_Search)))
 {
     <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
         <form method="post" action="@Url.Action("SearchPlan")">
@@ -148,7 +148,7 @@
             @<text><a data-toggle="modal" href="#ProcessModal" name="processLink" data-docnumber="@item.DocNumber">@item.DocNumber</a></text>),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Plan_Detail)))
                 {
                     <a data-value="@item.OrderId" href="@Url.Action("PlanDetail", new { OrderId = item.OrderId })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

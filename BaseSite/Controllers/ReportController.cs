@@ -2,29 +2,26 @@ using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
     public class ReportController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Report_ProductFactor)]
+        [Authorize(Roles = nameof(OPERATIONS.Report_ProductFactor))]
         public ActionResult ProductFactors(string reportDateFrom, string reportDateTo)
         {
             ViewBag.reportDateFrom = string.IsNullOrWhiteSpace(reportDateFrom) ? new PersianDateTime(DateTime.Today).ToString(PersianDateTimeFormat.Date) : reportDateFrom;
             ViewBag.reportDateTo = string.IsNullOrWhiteSpace(reportDateTo) ? new PersianDateTime(DateTime.Today).ToString(PersianDateTimeFormat.Date) : reportDateTo;
 
             List<int> userIdList = new List<int>();
-            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, BaseSite.Models.OPERATIONS.Report_productFactor_AllOperators))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_productFactor_AllOperators)))
             {
                 userIdList.AddRange(AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid).Select(u => u.Id).ToList());
             }
             else
             {
-                userIdList.Add((Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id);
+                userIdList.Add(User.GetUserId());
             }
 
             List<ZaribKarkard> ProcessList = OrderManager.Order_Process_Report(userIdList,
@@ -35,7 +32,7 @@ namespace BaseSite.Controllers
             return View(ProcessList);
         }
 
-        [CustomAuthorize(OPERATIONS.Report_ProductFactor)]
+        [Authorize(Roles = nameof(OPERATIONS.Report_ProductFactor))]
         public ActionResult SearchProductFactors(string reportDateFrom, string reportDateTo)
         {
             string paramlist = "";
@@ -47,7 +44,7 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Report/ProductFactors" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Report_ProductFactor)]
+        [Authorize(Roles = nameof(OPERATIONS.Report_ProductFactor))]
         public JsonResult GetProcessList(int userId, string dateFrom, string dateTo)
         {
             List<Order_Process> ObjList = OrderManager.Order_Process_Report(userId,
@@ -78,7 +75,7 @@ namespace BaseSite.Controllers
             return Json(res, null);
         }
 
-        [CustomAuthorize(OPERATIONS.Report_ProductFactor)]
+        [Authorize(Roles = nameof(OPERATIONS.Report_ProductFactor))]
         public ActionResult PrintProductFactors(int userId, string dateFrom, string dateTo)
         {
             List<Order_Process> ObjList = OrderManager.Order_Process_Report(userId,
@@ -108,12 +105,12 @@ namespace BaseSite.Controllers
         }
 
 
-        [CustomAuthorize(OPERATIONS.Report)]
+        [Authorize(Roles = nameof(OPERATIONS.Report))]
         public ActionResult ReportList()
         {
             List<Report_Report> ReportList = new List<Report_Report>();
 
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_CustomerBill))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_CustomerBill)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -124,7 +121,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "صورتحساب مشتری خاص"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_SaleControlling))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_SaleControlling)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -135,7 +132,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "گزارش کنترلی(فروش روزانه)"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_CustomersBill))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_CustomersBill)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -146,7 +143,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "صورتحساب کلی"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Lending))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Lending)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -157,7 +154,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "کالای امانی ما نزد دیگران"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Statistic))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Statistic)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -168,7 +165,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "گزارشات آماری"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Statistic2))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Statistic2)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -179,7 +176,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "گزارشات آماری - ریز مصرف"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_OrderDate))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_OrderDate)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -190,7 +187,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده"
                 });
             }
-            //if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_FactorDate))
+            //if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Orders_Monthly_FactorDate)))
             //{
             //    ReportList.Add(new Report_Report()
             //    {
@@ -201,7 +198,7 @@ namespace BaseSite.Controllers
             //        ReportDescription = "گزارش ماهانه سفارشات درحال تولید یا تحویل شده -بر اساس تاریخ فاکتور"
             //    });
             //}
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_Sales_Payments_Monthly))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_Sales_Payments_Monthly)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -214,7 +211,7 @@ namespace BaseSite.Controllers
             }
 
 
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_KPI))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_KPI)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -225,7 +222,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "نمودار تعداد مشتریان جدید در ماه"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_KPI))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_KPI)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -236,7 +233,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "نمودار نسبت فروش به مشتریان جدید و مشتریان قبلی در هر ماه"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_KPI))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_KPI)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -247,7 +244,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "مدت زمان تحویل سفارشات"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_KPI))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_KPI)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -258,7 +255,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "نمودار رتبه بندی فروش کارشناسان فروش"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_KPI))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_KPI)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -271,7 +268,7 @@ namespace BaseSite.Controllers
             }
 
 
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Logs_Logs))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Logs_Logs)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -282,7 +279,7 @@ namespace BaseSite.Controllers
                     ReportDescription = "تاریخچه فعالیت ها"
                 });
             }
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_ProductFactor))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_ProductFactor)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -294,7 +291,7 @@ namespace BaseSite.Controllers
                 });
             }
 
-            if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_CustomersInfo))
+            if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_CustomersInfo)))
             {
                 ReportList.Add(new Report_Report()
                 {
@@ -310,7 +307,7 @@ namespace BaseSite.Controllers
             return View(ReportList);
         }
 
-        [CustomAuthorize(OPERATIONS.Report)]
+        [Authorize(Roles = nameof(OPERATIONS.Report))]
         public ActionResult ReportTemplate(string ReportName, string ReportDescription, int Width, int Height, string Customer, string reportShDateFrom = "", string reportShDateTo = "", int customerId = 0)
         {
             if (ReportName != "RStatistic2")

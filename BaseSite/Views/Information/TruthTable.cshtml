@@ -1,11 +1,11 @@
-﻿@{
+@{
     ViewBag.Title = "جدول سازگاری";
     Layout = "~/Views/Shared/LayoutBase.cshtml";
 }
 
 @*##################### Search Div #############################*@
 <div class="row">
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_TruthTable))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_TruthTable)))
     {
         <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
             <form method="post" action="@Url.Action("TruthTable")" target="_blank">

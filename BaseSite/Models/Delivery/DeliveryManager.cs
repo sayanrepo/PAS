@@ -4,10 +4,7 @@ using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
 using BaseSite.Models.Sale;
 using BaseSite.Services.SmsService;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 
 namespace BaseSite.Models.Delivery
 {
@@ -382,7 +379,7 @@ namespace BaseSite.Models.Delivery
                             if (!string.IsNullOrEmpty(mobile))
                             {
                                 SmsKavenegar sk = new SmsKavenegar();
-                               await  sk.SendSms(mobile, newdelivery.Order_Order.DocNumber.ToString(), "Survey", "", "", customer.FullName);
+                                await sk.SendSms(mobile, newdelivery.Order_Order.DocNumber.ToString(), "Survey", "", "", customer.FullName);
                             }
                         }
                         catch { }

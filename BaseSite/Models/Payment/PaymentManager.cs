@@ -1,9 +1,6 @@
 using BaseSite.Data;
 using BaseSite.Models.DBModel;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 
 namespace BaseSite.Models.Payment
 {

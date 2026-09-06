@@ -1,4 +1,4 @@
-﻿@model List<BaseSite.Models.DBModel.Account_Users>
+@model List<BaseSite.Models.DBModel.Account_Users>
 @{
     ViewBag.Title = "لیست اشخاص";
     Layout = "~/Views/Shared/LayoutBase.cshtml";
@@ -8,7 +8,7 @@
 
 @*##################### Search Div #############################*@
 <div class="row">
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Add))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Add)))
     {
         <div class="col-xs-12">
             <i class="fa fa-plus-circle fa-lg">
@@ -16,7 +16,7 @@
             </i>
         </div>
     }
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Search))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Search)))
     {
         <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
             <form method="post" action="@Url.Action("SearchAccount")">
@@ -55,9 +55,9 @@
                                 @foreach (BaseSite.Models.DBModel.Account_Posts p in BaseSite.Models.Cache.Posts)
                                 {
                                     if (
-                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer) && (p.Id == (int)BaseSite.Models.AccountRole.Unknown || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_InternetCustomer)) ||
-                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh) && (p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Operator || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Mali || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Manager || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Admin)) ||
-                                        (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid) && (p.Id == (int)BaseSite.Models.AccountRole.Product_Operator || p.Id == (int)BaseSite.Models.AccountRole.Product_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Product_Manager || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Warehouse || p.Id == (int)BaseSite.Models.AccountRole.Product_Metal_Industry || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Assembly || p.Id == (int)BaseSite.Models.AccountRole.Product_QC || p.Id == (int)BaseSite.Models.AccountRole.Product_Packing))
+                                        (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Customer)) && (p.Id == (int)BaseSite.Models.AccountRole.Unknown || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_InternetCustomer)) ||
+                                        (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh)) && (p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Operator || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Mali || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Manager || p.Id == (int)BaseSite.Models.AccountRole.Foroosh_Admin)) ||
+                                        (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid)) && (p.Id == (int)BaseSite.Models.AccountRole.Product_Operator || p.Id == (int)BaseSite.Models.AccountRole.Product_Assistant || p.Id == (int)BaseSite.Models.AccountRole.Product_Manager || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Warehouse || p.Id == (int)BaseSite.Models.AccountRole.Product_Metal_Industry || p.Id == (int)BaseSite.Models.AccountRole.Product_Operator_Assembly || p.Id == (int)BaseSite.Models.AccountRole.Product_QC || p.Id == (int)BaseSite.Models.AccountRole.Product_Packing))
                                         )
                                     {
                                         if (ViewBag.postId == p.Id)
@@ -179,60 +179,60 @@
                                 <option selected value> </option>
                                 @if (ViewBag.departmentId == 1)
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Customer)))
                                     {
                                         <option value="0">نامعلوم</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh)))
                                     {
                                         <option value="1" selected="selected">فروش</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid)))
                                     {
                                         <option value="2">تولید</option>
                                     }
                                 }
                                 else if (ViewBag.departmentId == 2)
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Customer)))
                                     {
                                         <option value="0">نامعلوم</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh)))
                                     {
                                         <option value="1">فروش</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid)))
                                     {
                                         <option value="2" selected="selected">تولید</option>
                                     }
                                 }
                                 else if (ViewBag.departmentId == 0)
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Customer)))
                                     {
                                         <option value="0" selected="selected">نامعلوم</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh)))
                                     {
                                         <option value="1">فروش</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid)))
                                     {
                                         <option value="2">تولید</option>
                                     }
                                 }
                                 else
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Customer))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Customer)))
                                     {
                                         <option value="0">نامعلوم</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Foroosh)))
                                     {
                                         <option value="1">فروش</option>
                                     }
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Tolid)))
                                     {
                                         <option value="2">تولید</option>
                                     }
@@ -289,7 +289,7 @@
             grid.Column("Account_UserStatus.Name", "وضعیت"),
             grid.Column(header: "جزئیات",
             format: @<text>
-                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_Persons_Detail))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Persons_Detail)))
                     {
                         <a data-value="@item.Id" href="@Url.Action("PersonDetail", new { PersonId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                     }

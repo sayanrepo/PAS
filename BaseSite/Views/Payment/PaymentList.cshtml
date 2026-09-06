@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Payment_Payment>
 @{
     ViewBag.Title = "لیست اسناد دریافتی";
@@ -27,13 +27,13 @@
 </div>
 @*##################### Search Div #############################*@
 <div class="row">
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Add))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Add)))
 {
     <div class="col-md-1 col-xs-12">
         <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت سند" href="@Url.Action("AddPayment")"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
     </div>
 }
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Search))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Search)))
 {
     <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
         <form method="post" action="@Url.Action("SearchPayment")">
@@ -207,7 +207,7 @@
             grid.Column("Payment_Status.Name", header: "وضعیت", format: item => item.Payment_Status.Name),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("PaymentDetail", new { paymentId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

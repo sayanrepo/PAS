@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Log_Logs>
 @{
     ViewBag.Title = "تاریخچه فعالیت";
@@ -21,7 +21,7 @@
 
 @*##################### Search Div #############################*@
 <div class="row">
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Search))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Logs_Search)))
 {
     <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
         <form method="post" action="@Url.Action("SearchLog")">
@@ -107,7 +107,7 @@
             grid.Column("Description", header: "شرح", format: item => item.Description),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Logs_Detail)))
                 {
                     <a data-toggle="modal" href="#LogModal" name="logLink" data-logid="@item.Id"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

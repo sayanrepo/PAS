@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Payment_Payment
+@model BaseSite.Models.DBModel.Payment_Payment
 @using System.Globalization
 @{
     ViewBag.Title = "ثبت سند";
@@ -27,7 +27,7 @@
                     <div class="row">
                         <div class="col-xs-2"></div>
                         <div class="col-xs-8 text-center">سند دریافتی</div>
-                        @if (Model.Id > 0 && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Print))
+                        @if (Model.Id > 0 && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Print)))
                         {
                             <div class="col-xs-2 text-left">
                                 <a href="@Url.Action("Print", "Payment", new { doc = "payment-accounting", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ نسخه حسابداری"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
@@ -59,7 +59,7 @@
                                 <select class="form-control MyControl" name="StatusId">
                                     <option value="@Model.StatusId" selected="selected">@Model.Payment_Status.Name</option>
                                 </select>
-                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ChangeStatus))
+                                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_ChangeStatus)))
                                 {
                                     <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
                                 }
@@ -163,20 +163,20 @@
         </div>
         //################################## Submit Button ###################################
         <div class="row" style="text-align:center;margin-bottom:10px;">
-            @if (Model.Id == 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Add))
+            @if (Model.Id == 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Add)))
             {
                 <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
             }
-            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ForoshConfirm))
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_ForoshConfirm)))
             {
                 <button type="submit" class="btn btn-success" name="submit" value="foroshconfirm">تایید واحد فروش</button>
             }
-            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidForosh && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_MaliConfirm))
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidForosh && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_MaliConfirm)))
             {
                 <button type="submit" class="btn btn-success" name="submit" value="maliconfirm" style="margin:5px;">تایید واحد مالی</button>
                 <button type="submit" class="btn btn-warning" name="submit" value="malireject" style="margin:5px;">برگشت به واحد فروش</button>
             }
-            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Delete))
+            @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Delete)))
             {
                 <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#PaymentDeleteModal" style="margin-right:10px;">حذف سند</button>
             }
@@ -187,7 +187,7 @@
 
 
 @*####################################Start Delete Modal ###############################################*@
-@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_Delete))
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.PaymentStatus.TayidNashode && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_Delete)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="PaymentDeleteModal">
         <div class="row">
@@ -213,7 +213,7 @@
     </div>
 }
 
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Payment_ChangeStatus))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment_ChangeStatus)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
         <div class="row">

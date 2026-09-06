@@ -1,19 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using Microsoft.AspNetCore.Mvc;
 using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
-using BaseSite.Models.Service;
 using BaseSite.Models.Log;
+using BaseSite.Models.Service;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
     public class ServiceController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Service)]
+        [Authorize(Roles = nameof(OPERATIONS.Service))]
         public ActionResult ServiceList(int? docNumber, byte? orderStatusId, int? customerId, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -37,7 +33,7 @@ namespace BaseSite.Controllers
             return View(serviceList);
         }
 
-        [CustomAuthorize(OPERATIONS.Service_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Add))]
         public ActionResult AddService()
         {
             Service_Service obj = ServiceManager.Service_Service_Add();
@@ -70,14 +66,14 @@ namespace BaseSite.Controllers
             return View("ServiceDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Service_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Detail))]
         public ActionResult ServiceDetail(string serviceId)
         {
             Service_Service service = ServiceManager.Service_Service_Get(int.Parse(serviceId));
             ViewBag.CustomerName = AccountManager.Account_User_Get(service.CustomerId).FullName;
 
             Dictionary<byte, string> temp = new Dictionary<byte, string>();
-            if (CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Service_Edit) && (service.StatusId < (byte)Models.OrderStatus.TahvilShode))
+            if (User.IsInRole(nameof(OPERATIONS.Service_Edit)) && (service.StatusId < (byte)Models.OrderStatus.TahvilShode))
             {
                 foreach (KeyValuePair<byte, string> kv in Models.Cache.Order_OrderStatus)
                 {
@@ -100,7 +96,7 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Service_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Add))]
         public ActionResult ServiceDetail(Service_Service model, string DeliveryCost, string Discount, string submit)
         {
             Service_Service entity = ServiceManager.Service_Service_Get(model.Id);
@@ -108,7 +104,7 @@ namespace BaseSite.Controllers
                 return RedirectToAction("AccessDenied", "Home");
             if (model.StatusId > (byte)OrderStatus.PishFactor)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(HttpContext, OPERATIONS.Service_Edit))
+                if (!User.IsInRole(nameof(OPERATIONS.Service_Edit)))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -116,16 +112,16 @@ namespace BaseSite.Controllers
             if (model.Id == 0)
             {
                 isNew = true;
-                model.AccepterId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                model.AccepterId = User.GetUserId();
             }
             model.DeliveryCost = string.IsNullOrEmpty(DeliveryCost) ? 0 : double.Parse(DeliveryCost.Replace(",", ""));
             model.Discount = string.IsNullOrEmpty(Discount) ? 0 : double.Parse(Discount.Replace(",", ""));
             Service_Service x = ServiceManager.Service_Service_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Service_Service, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            LogManager.Log_Logs_Add((int)DB_Table.Service_Service, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("ServiceDetail", new { serviceId = x.Id });
         }
 
-        [CustomAuthorize(OPERATIONS.Service_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Search))]
         public ActionResult SearchService(int? docNumber, byte? orderStatusId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
@@ -145,20 +141,20 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Service/ServiceList" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Service_Print)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Print))]
         public ActionResult Print(string doc, int id)
         {
             if (doc == "service")
             {
                 Service_Service service = ServiceManager.Service_Service_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, service.ToString());
+                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, service.ToString());
                 return View("PrintService", service);
             }
             else
                 return View("Error");
         }
 
-        [CustomAuthorize(OPERATIONS.Service_Delete)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_Delete))]
         public ActionResult ServiceDelete(int serviceId)
         {
             /*try
@@ -181,7 +177,7 @@ namespace BaseSite.Controllers
             {
                 Service_Service service = ServiceManager.Service_Service_Get(serviceId);
                 ServiceManager.Service_Service_Delete(serviceId);
-                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("ServiceList", "Service");
             }
             catch (Exception ex)
@@ -190,13 +186,13 @@ namespace BaseSite.Controllers
             }
         }
 
-        [CustomAuthorize(OPERATIONS.Service_ChangeStatus)]
+        [Authorize(Roles = nameof(OPERATIONS.Service_ChangeStatus))]
         public ActionResult ServiceChangeStatus(int serviceId, byte newStatusId)
         {
             try
             {
                 Service_Service service = ServiceManager.Service_Service_ChangeStatus(serviceId, (OrderStatus)newStatusId, true);
-                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, CustomAuthorizeAttribute.getCurrentUser(HttpContext).Id, HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, service.ToString(), service.Cost);
+                LogManager.Log_Logs_Add((int)DB_Table.Service_Service, service.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, service.ToString(), service.Cost);
                 return RedirectToAction("ServiceDetail", new { serviceId = serviceId });
             }
             catch (Exception ex)

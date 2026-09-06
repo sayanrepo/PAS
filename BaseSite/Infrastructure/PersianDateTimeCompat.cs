@@ -4,6 +4,7 @@ public static class PersianDateTimeFormat
 {
     public const string Date = "yyyy/MM/dd";
     public const string DateTime = "yyyy/MM/dd HH:mm:ss";
+    public const string DateShortTime = DateTime;
 }
 
 public sealed class PersianDateTime
