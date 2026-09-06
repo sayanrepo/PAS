@@ -1,0 +1,81 @@
+@page "/login"
+@layout LoginLayout
+@inject BaseSiteApiClient Api
+@inject ApiSession Session
+@inject NavigationManager Navigation
+
+<PageTitle>ورود | پانتا</PageTitle>
+
+<div class="login-shell">
+    <MudPaper Class="login-card" Elevation="0">
+        <div class="login-brand">
+            <div class="login-logo">P</div>
+            <MudText Typo="Typo.h4">PANTA</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">سامانه یکپارچه مدیریت</MudText>
+        </div>
+
+        <MudText Typo="Typo.h5" Class="mb-1">خوش آمدید</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-5">برای ادامه وارد حساب کاربری شوید.</MudText>
+
+        @if (!string.IsNullOrWhiteSpace(error))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="mb-4">@error</MudAlert>
+        }
+
+        <MudForm @ref="form" Model="request">
+            <MudTextField T="string" @bind-Value="request.UserName" For="@(() => request.UserName)"
+                          Label="نام کاربری" Variant="Variant.Outlined" Required="true"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Person" Class="mb-3" />
+            <MudTextField T="string" @bind-Value="request.Password" For="@(() => request.Password)"
+                          Label="رمز عبور" Variant="Variant.Outlined" Required="true" InputType="InputType.Password"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Lock" Class="mb-5" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       Disabled="busy" OnClick="LoginAsync">
+                @if (busy)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="ms-2" />
+                }
+                ورود به سامانه
+            </MudButton>
+        </MudForm>
+    </MudPaper>
+    <MudText Typo="Typo.caption" Color="Color.Secondary">نسخه جدید مبتنی بر Blazor و .NET 10</MudText>
+</div>
+
+@code {
+    private readonly LoginRequest request = new();
+    private MudForm? form;
+    private bool busy;
+    private string? error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (Session.IsAuthenticated) Navigation.NavigateTo("/");
+    }
+
+    private async Task LoginAsync()
+    {
+        if (form is null) return;
+        await form.ValidateAsync();
+        if (!form.IsValid) return;
+
+        busy = true;
+        error = null;
+        try
+        {
+            var login = await Api.LoginAsync(request);
+            await Session.SignInAsync(login);
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

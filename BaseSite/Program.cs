@@ -1,39 +1,40 @@
-using Microsoft.Extensions.FileProviders;
+using BaseSite.Api.Authentication;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.AddServiceDefaults();
 Environment.SetEnvironmentVariable("PantaEntitiesConnection", builder.Configuration.GetConnectionString("PantaEntities"));
-builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+
+builder.Services.AddProblemDetails();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")))
+    .SetApplicationName("BaseSite.Api");
 builder.Services
-    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Home/Index";
-        options.AccessDeniedPath = "/Home/AccessDenied";
-        options.ReturnUrlParameter = "returnurl";
-        options.SlidingExpiration = true;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-        options.Cookie.HttpOnly = true;
-        options.Cookie.IsEssential = true;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-    });
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddDistributedMemoryCache();
-builder.Services.AddSession(options => { options.Cookie.HttpOnly = true; options.Cookie.IsEssential = true; });
+    .AddAuthentication(AccessTokenAuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, AccessTokenAuthenticationHandler>(
+        AccessTokenAuthenticationHandler.SchemeName,
+        _ => { });
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<AccessTokenService>();
+builder.Services.AddControllers();
+builder.Services.AddCors(options => options.AddPolicy("Web", policy => policy
+    .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
 
 var app = builder.Build();
-app.UseExceptionHandler("/Home/Error");
-app.UseHttpsRedirection();
-foreach (var directory in new[] { "Contents", "Images", "GuideBook" })
-    app.UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(Path.Combine(app.Environment.ContentRootPath, directory)), RequestPath = $"/{directory}" });
-app.UseRouting();
-app.UseSession();
+
+app.UseExceptionHandler();
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
+app.UseCors("Web");
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers();
+app.MapDefaultEndpoints();
+
 app.Run();

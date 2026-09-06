@@ -1,0 +1,96 @@
+@page "/"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>داشبورد | پانتا</PageTitle>
+
+<div class="page-heading">
+    <div>
+        <MudText Typo="Typo.h4">داشبورد مدیریت</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">نمای کلی از اطلاعات جاری سامانه</MudText>
+    </div>
+    <MudChip T="string" Icon="@Icons.Material.Filled.Circle" Color="Color.Success" Variant="Variant.Outlined">اتصال برخط</MudChip>
+</div>
+
+@if (loading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-6" />
+}
+else if (!string.IsNullOrWhiteSpace(error))
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-6">@error</MudAlert>
+}
+else if (summary is not null)
+{
+    <MudGrid Spacing="3">
+        @foreach (var metric in Metrics)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudPaper Class="metric-card" Elevation="0">
+                    <div class="metric-icon @metric.CssClass"><MudIcon Icon="@metric.Icon" /></div>
+                    <div>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@metric.Title</MudText>
+                        <MudText Typo="Typo.h4">@metric.Value.ToString("N0")</MudText>
+                    </div>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+<MudPaper Class="quick-panel mt-6" Elevation="0">
+    <MudText Typo="Typo.h6" Class="mb-4">دسترسی سریع</MudText>
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/orders" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Assignment">سفارش‌ها</MudButton></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/sales" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PointOfSale">فروش</MudButton></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/deliveries" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.LocalShipping">تحویل</MudButton></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudButton Href="/customers" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.People">مشتریان</MudButton></MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    private DashboardSummary? summary;
+    private bool loading = true;
+    private string? error;
+
+    private IEnumerable<Metric> Metrics => summary is null ? [] :
+    [
+        new("سفارش‌ها", summary.Orders, Icons.Material.Filled.Assignment, "teal"),
+        new("فروش", summary.Sales, Icons.Material.Filled.PointOfSale, "amber"),
+        new("تحویل", summary.Deliveries, Icons.Material.Filled.LocalShipping, "blue"),
+        new("پرداخت", summary.Payments, Icons.Material.Filled.Payments, "violet"),
+        new("خدمات", summary.Services, Icons.Material.Filled.HomeRepairService, "rose"),
+        new("مشتریان", summary.Customers, Icons.Material.Filled.Groups, "cyan"),
+        new("فعالیت‌های CRM", summary.Activities, Icons.Material.Filled.CalendarMonth, "orange")
+    ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        try
+        {
+            summary = await Api.GetDashboardAsync();
+            if (summary is null) Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+            StateHasChanged();
+        }
+    }
+
+    private sealed record Metric(string Title, int Value, string Icon, string CssClass);
+}

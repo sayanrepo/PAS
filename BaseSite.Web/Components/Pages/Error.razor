@@ -1,0 +1,28 @@
+﻿@page "/Error"
+@using System.Diagnostics
+
+<PageTitle>خطا | پانتا</PageTitle>
+
+<MudPaper Class="quick-panel" Elevation="0">
+    <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+        هنگام پردازش درخواست خطایی رخ داد.
+    </MudAlert>
+    <MudText Typo="Typo.body1">لطفاً دوباره تلاش کنید. اگر خطا ادامه داشت، شناسه درخواست زیر را برای پشتیبانی ارسال کنید.</MudText>
+
+@if (ShowRequestId)
+{
+    <MudText Typo="Typo.caption" Class="mt-4">شناسه درخواست: <code>@RequestId</code></MudText>
+}
+    <MudButton Href="/" Variant="Variant.Outlined" Color="Color.Primary" Class="mt-4">بازگشت به داشبورد</MudButton>
+</MudPaper>
+
+@code {
+    [CascadingParameter]
+    private HttpContext? HttpContext { get; set; }
+
+    private string? RequestId { get; set; }
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+
+    protected override void OnInitialized() =>
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+}
