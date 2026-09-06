@@ -1,8 +1,10 @@
 {
   "profiles": {
-    "BaseSite": {
+    "BaseSite.Api": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
       "launchBrowser": true,
+      "launchUrl": "api/status",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
