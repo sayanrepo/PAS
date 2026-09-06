@@ -1,11 +1,7 @@
-﻿using BaseSite.Controllers;
 using BaseSite.Data;
 using BaseSite.Models.DBModel;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
-using System.Linq;
 using System.Text;
 
 namespace BaseSite.Models.Account
@@ -550,18 +546,19 @@ namespace BaseSite.Models.Account
             }
         }
 
-        public static List<Account_Users> Account_User_Search(string name, byte? departmentId, byte? partnerTypeId, byte? statusId, int? postId, int? hcountryId, int? hprovinceId, int? hcityId)
+        public static List<Account_Users> Account_User_Search(string name, byte? departmentId, byte? partnerTypeId, byte? statusId, int? postId, int? hcountryId, int? hprovinceId, int? hcityId, IEnumerable<OPERATIONS> operations)
         {
+            var authorizedOperations = operations.ToHashSet();
             List<byte> deps = new List<byte>();
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Customer))
+            if (authorizedOperations.Contains(OPERATIONS.Setting_Persons_Customer))
             {
                 deps.Add((byte)BaseSite.Models.Department.Unknown);
             }
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Foroosh))
+            if (authorizedOperations.Contains(OPERATIONS.Setting_Persons_Foroosh))
             {
                 deps.Add((byte)BaseSite.Models.Department.Foroosh);
             }
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Tolid))
+            if (authorizedOperations.Contains(OPERATIONS.Setting_Persons_Tolid))
             {
                 deps.Add((byte)BaseSite.Models.Department.Tolid);
             }

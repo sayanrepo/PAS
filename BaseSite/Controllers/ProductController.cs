@@ -1,18 +1,15 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class ProductController : Controller
+    public class ProductController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Product)]
+        [Authorize(Roles = nameof(OPERATIONS.Product))]
         public ActionResult ProductList(int? docNumber, byte? productStatusId, int? customerId, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -37,14 +34,14 @@ namespace BaseSite.Controllers
             return View(productList);
         }
 
-        [CustomAuthorize(OPERATIONS.Product_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Product_Detail))]
         public ActionResult ProductDetail(int OrderId)
         {
             Order_Order order = OrderManager.Order_Order_Get(OrderId);
             return View("~/Views/Plan/PlanDetail.cshtml", order);
         }
 
-        [CustomAuthorize(OPERATIONS.Product_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Product_Search))]
         public ActionResult SearchProduct(int? docNumber, byte? productStatusId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string deliveryDateFrom, string deliveryDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;

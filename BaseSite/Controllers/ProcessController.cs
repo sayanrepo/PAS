@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Order;
-using BaseSite.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class ProcessController : Controller
+    public class ProcessController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Process)]
+        [Authorize(Roles = nameof(OPERATIONS.Process))]
         public ActionResult Index()
         {
             ViewBag.Operators = AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid && u.Status == 1).ToDictionary(u => u.Id, u => u.FullName);
@@ -40,7 +36,7 @@ namespace BaseSite.Controllers
             else
             {
                 Models.DBModel.Order_Process process = new Models.DBModel.Order_Process();
-                process.UserId = (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                process.UserId = User.GetUserId();
                 process.PTime = DateTime.Now;
                 ViewBag.status = 0;
                 ViewBag.Message = "";
@@ -54,39 +50,39 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Process)]
-        public ActionResult Index(Models.DBModel.Order_Process model, string submit)
+        [Authorize(Roles = nameof(OPERATIONS.Process))]
+        public async Task<ActionResult> Index(Models.DBModel.Order_Process model, string submit)
         {
             try
             {
                 if (submit == "submit")
                 {
                     //check process access
-                    if (model.ProductStatusId == (byte)ProductStatus.NagsheKeshi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Drafting))
+                    if (model.ProductStatusId == (byte)ProductStatus.NagsheKeshi && !User.IsInRole(nameof(Models.OPERATIONS.Process_Drafting)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.MashinkariTarh && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Machining))
+                    if (model.ProductStatusId == (byte)ProductStatus.MashinkariTarh && !User.IsInRole(nameof(Models.OPERATIONS.Process_Machining)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.Anbar && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Warehouse))
+                    if (model.ProductStatusId == (byte)ProductStatus.Anbar && !User.IsInRole(nameof(Models.OPERATIONS.Process_Warehouse)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    //if (model.ProductStatusId == (byte)ProductStatus.SanayeFelez && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Metaling))
+                    //if (model.ProductStatusId == (byte)ProductStatus.SanayeFelez && !User.IsInRole(nameof(Models.OPERATIONS.Process_Metaling)))
                     //{
                     //    throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     //}
-                    if (model.ProductStatusId == (byte)ProductStatus.Montaj && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Assembly))
+                    if (model.ProductStatusId == (byte)ProductStatus.Montaj && !User.IsInRole(nameof(Models.OPERATIONS.Process_Assembly)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.QC && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Qc))
+                    if (model.ProductStatusId == (byte)ProductStatus.QC && !User.IsInRole(nameof(Models.OPERATIONS.Process_Qc)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
-                    if (model.ProductStatusId == (byte)ProductStatus.BasteBandi && !CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Packing))
+                    if (model.ProductStatusId == (byte)ProductStatus.BasteBandi && !User.IsInRole(nameof(Models.OPERATIONS.Process_Packing)))
                     {
                         throw new Exception("شما دسترسی ثبت این مراحله را ندارید");
                     }
@@ -131,14 +127,14 @@ namespace BaseSite.Controllers
                     }
                     if (model.ProductStatusId < lastStatusId)
                     {
-                        if (!CustomAuthorizeAttribute.isAuthorize(Models.OPERATIONS.Process_Backward))
+                        if (!User.IsInRole(nameof(Models.OPERATIONS.Process_Backward)))
                         {
                             throw new Exception("شما اجازه دسترسی به این بخش را ندارید");
                         }
                     }
 
                     Models.DBModel.Order_Process res = Models.Order.OrderManager.Order_Process_Add(model);
-                    Models.Order.OrderManager.Order_Process_UpdateStatus(res.OrderId);
+                    await Models.Order.OrderManager.Order_Process_UpdateStatus(res.OrderId);
                     TempData["status"] = 2; //process saved successfully
                     TempData["process"] = res;
                     return RedirectToAction("Index");
@@ -200,19 +196,19 @@ namespace BaseSite.Controllers
             }
         }
 
-        [CustomAuthorize(OPERATIONS.Process)]
+        [Authorize(Roles = nameof(OPERATIONS.Process))]
         public JsonResult GetProcessList(int docNumber)
         {
             List<Order_Process> ObjList = OrderManager.Order_Process_Get(docNumber);
 
             var res = (from u in ObjList
                        select new { u.Id, u.ProductDocNumber, u.ShTime, StatusName = u.Order_ProductStatus.Name, u.Percent, OperatorName = u.Account_Users.FullName });
-            return Json(res, JsonRequestBehavior.AllowGet);
+            return Json(res, null);
         }
 
 
 
-        [CustomAuthorize(OPERATIONS.Process_Project)]
+        [Authorize(Roles = nameof(OPERATIONS.Process_Project))]
         public ActionResult Project()
         {
             ViewBag.Operators = AccountManager.Account_User_Get().Where(u => u.DepartmentId == (byte)Models.Department.Tolid).ToDictionary(u => u.Id, u => u.FullName);
@@ -240,7 +236,7 @@ namespace BaseSite.Controllers
             else
             {
                 Models.DBModel.Order_Process process = new Order_Process();
-                process.UserId = (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                process.UserId = User.GetUserId();
                 process.PTime = DateTime.Now;
                 process.Percent = 100;
                 process.ProductStatusId = (byte)ProductStatus.Montaj;
@@ -251,7 +247,7 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Process_Project)]
+        [Authorize(Roles = nameof(OPERATIONS.Process_Project))]
         public ActionResult Project(Order_Process model, string submit)
         {
             try

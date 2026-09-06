@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Order_Process
+@model BaseSite.Models.DBModel.Order_Process
 @using System.Globalization
 @{
     ViewBag.Title = "ثبت بارکد";
@@ -63,7 +63,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:10px; display:none;">
-                                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Process_Backward))
+                                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Process_Backward)))
                                     {
                                         <div class="input-group">
                                             <span class="input-group-addon MySpan">مرحله</span>
@@ -89,7 +89,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:10px;">
-                                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Process_Backward))
+                                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Process_Backward)))
                                     {
                                         <div class="input-group">
                                             <span class="input-group-addon MySpan">مرحله</span>

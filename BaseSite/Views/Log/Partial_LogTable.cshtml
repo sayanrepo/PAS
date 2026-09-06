@@ -1,4 +1,3 @@
-﻿@using System.Globalization
 @model List<BaseSite.Models.DBModel.Log_Logs>
 @{
     WebGrid grid = new WebGrid(null, rowsPerPage: Model.Count > 0 ? Model.Count : 10);
@@ -28,7 +27,7 @@
             grid.Column("Description", header: "شرح", format: item => item.Description),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Logs_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Logs_Detail)))
                 {
                     <a data-toggle="modal" href="#LogModal" name="logLink" data-logid="@item.Id"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

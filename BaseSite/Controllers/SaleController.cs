@@ -1,21 +1,18 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
 using BaseSite.Models.Sale;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class SaleController : Controller
+    public class SaleController : BaseSiteController
     {
         private static byte StoreId = 1; //Centeral office
 
-        [CustomAuthorize(OPERATIONS.Sale)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale))]
         public ActionResult SaleList(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -40,7 +37,7 @@ namespace BaseSite.Controllers
             return View(saleList);
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Add))]
         public ActionResult AddSale()
         {
             Sale_Sale obj = SaleManager.Sale_Sale_Add();
@@ -71,14 +68,14 @@ namespace BaseSite.Controllers
             return View("SaleDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Detail))]
         public ActionResult SaleDetail(string saleId)
         {
             Sale_Sale sale = SaleManager.Sale_Sale_Get(int.Parse(saleId));
             ViewBag.CustomerName = AccountManager.Account_User_Get(sale.CustomerId).FullName;
 
             Dictionary<byte, string> temp = new Dictionary<byte, string>();
-            if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Sale_Edit) && (sale.StatusId < (byte)Models.OrderStatus.MojavezKhorooj))
+            if (User.IsInRole(nameof(OPERATIONS.Sale_Edit)) && (sale.StatusId < (byte)Models.OrderStatus.MojavezKhorooj))
             {
                 foreach (KeyValuePair<byte, string> kv in Models.Cache.Order_OrderStatus)
                 {
@@ -101,7 +98,7 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Sale_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Add))]
         public ActionResult SaleDetail(Sale_Sale model, string DeliveryCost, string Discount, string submit)
         {
             Sale_Sale entity = SaleManager.Sale_Sale_Get(model.Id);
@@ -109,7 +106,7 @@ namespace BaseSite.Controllers
                 return RedirectToAction("AccessDenied", "Home");
             if (model.StatusId > (byte)OrderStatus.PishFactor)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Sale_Edit))
+                if (!User.IsInRole(nameof(OPERATIONS.Sale_Edit)))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -117,17 +114,17 @@ namespace BaseSite.Controllers
             if (model.Id == 0)
             {
                 isNew = true;
-                model.AccepterId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                model.AccepterId = User.GetUserId();
             }
             model.DeliveryCost = string.IsNullOrEmpty(DeliveryCost) ? 0 : double.Parse(DeliveryCost.Replace(",", ""));
             model.Discount = string.IsNullOrEmpty(Discount) ? 0 : double.Parse(Discount.Replace(",", ""));
             model.StoreId = StoreId;
             Sale_Sale x = SaleManager.Sale_Sale_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("SaleDetail", new { saleId = x.Id });
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Search))]
         public ActionResult SearchSale(int? docNumber, byte? orderStatusId, byte? orderTradeTypeId, int? customerId, string Customer, string orderDateFrom, string orderDateTo, string factorDateFrom, string factorDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
@@ -148,26 +145,26 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Sale/SaleList" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_Print)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Print))]
         public ActionResult Print(string doc, int id)
         {
             if (doc == "sale")
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فاکتور");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فاکتور");
                 return View("PrintSale", sale);
             }
             else if (doc == "bill")
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ صورتحساب فروش");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ صورتحساب فروش");
                 return View("PrintBill", sale);
             }
             else
                 return View("Error");
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_Delete)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_Delete))]
         public ActionResult SaleDelete(int saleId)
         {
             /*try
@@ -190,7 +187,7 @@ namespace BaseSite.Controllers
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_Get(saleId);
                 SaleManager.Sale_Sale_Delete(saleId);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("SaleList", "Sale");
             }
             catch (Exception ex)
@@ -199,13 +196,13 @@ namespace BaseSite.Controllers
             }
         }
 
-        [CustomAuthorize(OPERATIONS.Sale_ChangeStatus)]
+        [Authorize(Roles = nameof(OPERATIONS.Sale_ChangeStatus))]
         public ActionResult SaleChangeStatus(int saleId, byte newStatusId)
         {
             try
             {
                 Sale_Sale sale = SaleManager.Sale_Sale_ChangeStatus(saleId, (OrderStatus)newStatusId, true);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, sale.ToString(), sale.Cost);
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, sale.ToString(), sale.Cost);
                 return RedirectToAction("SaleDetail", new { saleId = saleId });
             }
             catch (Exception ex)

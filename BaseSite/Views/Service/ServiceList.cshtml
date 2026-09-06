@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Service_Service>
 @{
     ViewBag.Title = "لیست خدمات";
@@ -27,13 +27,13 @@
 </div>
 @*##################### Search Div #############################*@
 <div class="row">
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Add))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Add)))
     {
         <div class="col-md-1 col-xs-12">
             <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت خدمات" href="@Url.Action("AddService")"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
         </div>
     }
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Search))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Search)))
     {
         <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
             <form method="post" action="@Url.Action("SearchService")">
@@ -144,7 +144,7 @@
             grid.Column("Tax", header: "نوع سفارش", format: @<span>@string.Format("{0} {1}", item.Tax > 0 ? "*" : " ", item.Tb_OrderTypes.Name)</span>),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Service_Detail))
+                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service_Detail)))
                 {
                     <a data-value="@item.Id" href="@Url.Action("ServiceDetail", new { serviceId = item.Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                 }

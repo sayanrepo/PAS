@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = null;
     ViewBag.title = "رسید دریافت";
     ViewBag.index = 0;
@@ -128,7 +128,7 @@
                         <p>
                             @string.Format("طی موارد مشروحه فوق از شرکت/آقای/خانم \t\t {0} \t\t  به اینجانب \t\t {1} \t\t تحویل گردید.",
                         Model.Account_Users.FullName,
-                        (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).FullName)
+                        User.GetFullName())
                         </p>
                     </div>
                     <br /><br />

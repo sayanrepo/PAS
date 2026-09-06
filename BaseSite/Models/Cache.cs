@@ -1,9 +1,7 @@
-﻿using BaseSite.Data;
+using BaseSite.Data;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace BaseSite.Models
 {

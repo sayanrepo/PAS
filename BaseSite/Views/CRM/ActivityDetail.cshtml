@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.CRM_Activity
+@model BaseSite.Models.DBModel.CRM_Activity
 @using System.Globalization
 @{
     ViewBag.Title = string.Format("ثبت {0}", Model.TypeId > 0 ? BaseSite.Models.Cache.CRM_ActivityTypes[Model.TypeId] : "فعالیت");
@@ -135,13 +135,13 @@
                     </div>
                 </div>
                 <div class="row" style="text-align:center; padding-top:10px;padding-bottom:10px;">
-                    @if (Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+                    @if (Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.CRM)))
                     {
                         <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
                     }
                     @if (Model.Id > 0 && Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open &&
-                Model.OwnerId == BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Id &&
-                BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+                Model.OwnerId == User.GetUserId() &&
+                User.IsInRole(nameof(BaseSite.Models.OPERATIONS.CRM)))
                     {
                         <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#ActivityDeleteModal" style="margin-right:10px;">حذف فعالیت</button>
                     }
@@ -152,7 +152,7 @@
 </div>
 
 @*####################################Start Delete Modal ###############################################*@
-@if (Model.Id > 0 && Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.CRM))
+@if (Model.Id > 0 && Model.StateId == (byte)BaseSite.Models.CrmActivityState.Open && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.CRM)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="ActivityDeleteModal">
         <div class="row">

@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Delivery_Delivery
+@model BaseSite.Models.DBModel.Delivery_Delivery
 @using System.Globalization
 @{
     ViewBag.Title = "تحویل کالا";
@@ -31,7 +31,7 @@
                 <div class="panel-heading MyHeader">
                     <div class="row">
                         <div class="col-sm-offset-5 col-md-offset-5 col-sm-2 col-md-2 text-center">فرم تحویل کالا</div>
-                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Print))
+                        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Print)))
                         {
                             <div class="col-sm-offset-3 col-md-offset-3 col-sm-2 col-md-2 text-left">
                                 <a href="@Url.Action("Print", "Delivery", new { doc = "delivery", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ فرم تحویل کالا"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
@@ -371,7 +371,7 @@
         @*################################## Submit Button ###################################*@
         <div class="row" style="text-align:center;margin-bottom:10px;">
             @if (Model.StatusId < (byte)BaseSite.Models.DeliveryStatus.ErsalShode && 
-                (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Add) || BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery_Confirm)))
+                (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Add)) || User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery_Confirm))))
             {
                 <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
             }

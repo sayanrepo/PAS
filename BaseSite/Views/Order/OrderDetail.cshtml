@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Order_Order
+@model BaseSite.Models.DBModel.Order_Order
 @using System.Globalization
 @{
     ViewBag.Title = "ثبت سفارش";
@@ -68,13 +68,13 @@
                             <div class="panel-heading MyHeader">
                                 <div class="row">
                                     <div class="col-sm-1 col-md-1 text-right">
-                                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Plan_Print))
+                                        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Plan_Print)))
                                         {
                                             <a href="@Url.Action("Print", "Plan", new { doc = "order", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ کارت مشخصات سفارش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
                                         }
                                     </div>
                                     <div class="col-sm-offset-4 col-md-offset-4 col-sm-2 col-md-2 text-center">سفارش</div>
-                                    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Print))
+                                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Print)))
                                     {
                                         <div class="col-sm-offset-4 col-md-offset-4 col-sm-1 col-md-1 text-left">
                                             <a href="@Url.Action("Print", "Order", new { doc = "bill", id = Model.Id })" class="text-warning" target="_blank" data-toggle="tooltip" data-placement="right" title="چاپ صورتحساب فروش"><span class="fa fa-print fa-lg" aria-hidden="true"></span></a>
@@ -96,7 +96,7 @@
                                         <div class="input-group">
                                             <span class="input-group-addon MySpan">وضعیت</span>
                                             @Html.DropDownListFor(m => m.StatusId, (ViewBag.OrderStatus as Dictionary<byte, string>).Select(x => new SelectListItem() { Value = x.Key.ToString(), Text = x.Value, Selected = (x.Key == Model.StatusId) }), new { @Class = "form-control MyControl", @Id = "OrderStatus" })
-                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_ChangeStatus))
+                                            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_ChangeStatus)))
                                             {
                                                 <span class="input-group-addon MySpan"><a data-toggle="modal" href="#ChangeStatusModal" id="changeStatusLink" name="changeStatusLink" data-id="@Model.Id"><i class="fa fa-exchange fa-lg text-danger" title="تغییر وضعیت"></i></a></span>
                                             }
@@ -420,8 +420,8 @@
                                                         <div class="row">
                                                             <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("CabinAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('Cabin',@i)" data-count="@Model.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -467,8 +467,8 @@
                                                         <div class="row">
                                                             <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("CabinAdditionAddBtn{0}", i)" onclick="fnAddAddition('Cabin',@i)" data-count="@Model.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -613,8 +613,8 @@
                                                         <div class="row">
                                                             <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("HallAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('Hall',@i)" data-count="@Model.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -660,8 +660,8 @@
                                                         <div class="row">
                                                             <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("HallAdditionAddBtn{0}", i)" onclick="fnAddAddition('Hall',@i)" data-count="@Model.Order_Hall.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -774,8 +774,8 @@
                                                         <div class="row">
                                                             <div class="col-md-5 col-sm-5 col-xs-5" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("DoorTopAttachmentAddBtn{0}", i)" onclick="fnAddAttachment('DoorTop',@i)" data-count="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -821,8 +821,8 @@
                                                         <div class="row">
                                                             <div class="col-md-6 col-sm-6 col-xs-6" style="padding:0;">
                                                                 <span class="input-group-addon MySpan" style="padding:7px;">
-                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                                                    (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                                                     {
                                                                         <button type="button" class="btn btn-link" style="padding:0;height:12px;" id="@string.Format("DoorTopAdditionAddBtn{0}", i)" onclick="fnAddAddition('DoorTop',@i)" data-count="@Model.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                                                     }
@@ -856,8 +856,8 @@
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12 panel panel-info" style="background-color:inherit;border:none;">
                                 <div class="panel-heading MyHeader">
-                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-                        (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                                    @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+                        (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                                     {
                                         <button type="button" class="btn btn-link" id="DeductionAddBtn" onclick="fnAddDeduction()" data-count="@Model.Order_Deduction.Count"><span class="glyphicon glyphicon-plus"></span></button>
                                     }
@@ -890,12 +890,12 @@
                     </div>
                     @*################################## Submit Button ###################################*@
                     <div class="row" style="text-align:center;margin-bottom:10px;">
-                        @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Add)) ||
-            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Edit_Factor)))
+                        @if ((Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Add))) ||
+            (Model.StatusId < (byte)BaseSite.Models.OrderStatus.DarkhasteTolid && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Edit_Factor))))
                         {
                             <button type="submit" class="btn btn-success" name="submit" value="submit">ثبت</button>
                         }
-                        @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Delete))
+                        @if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Delete)))
                         {
                             <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#OrderDeleteModal" style="margin-right:10px;">حذف پیش فاکتور</button>
                         }
@@ -907,17 +907,17 @@
         @if (Model.Id > 0)
         {
             <div role="tabpanel" class="tab-pane" id="comments">
-                @Html.Partial("~/Views/CRM/Comments.cshtml", comments, new ViewDataDictionary() { { "ttid", (short)BaseSite.Models.DB_Table.Order_Order }, { "tid", Model.Id } })
+                @await Html.PartialAsync("~/Views/CRM/Comments.cshtml", comments, new ViewDataDictionary() { { "ttid", (short)BaseSite.Models.DB_Table.Order_Order }, { "tid", Model.Id } })
             </div>
             <div role="tabpanel" class="tab-pane" id="history">
-                @Html.Partial("~/Views/Log/Partial_LogTable.cshtml", logList)
+                @await Html.PartialAsync("~/Views/Log/Partial_LogTable.cshtml", logList)
             </div>
         }
     </div>
 </div>
 
 @*####################################Start Modal ###############################################*@
-@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Delete))
+@if (Model.Id > 0 && Model.StatusId == (byte)BaseSite.Models.OrderStatus.PishFactor && User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Delete)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="OrderDeleteModal">
         <div class="row">
@@ -943,7 +943,7 @@
     </div>
 }
 
-@if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_ChangeStatus))
+@if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_ChangeStatus)))
 {
     <div class="modal fade" tabindex="-1" role="dialog" id="ChangeStatusModal">
         <div class="row">

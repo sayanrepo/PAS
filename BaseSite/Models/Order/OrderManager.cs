@@ -1,11 +1,8 @@
-﻿using BaseSite.Data;
+using BaseSite.Data;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Services.SmsService;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
 
 namespace BaseSite.Models.Order
 {
@@ -156,7 +153,7 @@ namespace BaseSite.Models.Order
             }
         }
 
-        public static Order_Order Order_Order_Edit(Order_Order order, string submit)
+        public static async Task<Order_Order> Order_Order_Edit(Order_Order order, string submit)
         {
             using (var context = new PantaEntities())
             {
@@ -514,7 +511,7 @@ namespace BaseSite.Models.Order
                             if (!string.IsNullOrEmpty(mobile))
                             {
                                 SmsKavenegar sk = new SmsKavenegar();
-                                sk.SendSms(mobile, neworder.DocNumber.ToString(), "DarkhasteTolid", "", "", customer.FullName);
+                                await sk.SendSms(mobile, neworder.DocNumber.ToString(), "DarkhasteTolid", "", "", customer.FullName);
                             }
                         }
                         catch { }
@@ -1680,7 +1677,7 @@ namespace BaseSite.Models.Order
             }
         }
 
-        public static void Order_Process_UpdateStatus(int orderId)
+        public static async Task Order_Process_UpdateStatus(int orderId)
         {
             using (var context = new PantaEntities())
             {
@@ -1712,7 +1709,7 @@ namespace BaseSite.Models.Order
                                     if (!string.IsNullOrEmpty(mobile))
                                     {
                                         SmsKavenegar sk = new SmsKavenegar();
-                                        sk.SendSms(mobile, order.DocNumber.ToString(), "AmadeTahvil", "", "", customer.FullName);
+                                        await sk.SendSms(mobile, order.DocNumber.ToString(), "AmadeTahvil", "", "", customer.FullName);
                                     }
                                 }
                                 catch { }

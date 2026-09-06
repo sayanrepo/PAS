@@ -1,21 +1,17 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.CRM;
 using BaseSite.Models.DBModel;
-using BaseSite.Models.Information;
 using BaseSite.Models.Log;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class CRMController : Controller
+    public class CRMController : BaseSiteController
     {
         //######################################################### Person #################################################################
-        [CustomAuthorize(OPERATIONS.Setting_Persons)]
+        [Authorize(Roles = nameof(OPERATIONS.Setting_Persons))]
         public ActionResult Persons(string Customer, byte? departmentId, byte? partnerTypeId, byte? statusId, int? postId, int? hcountryId, int? hprovinceId, int? hcityId)
         {
             if (TempData["Result"] != null && !string.IsNullOrEmpty(TempData["Result"].ToString()))
@@ -36,13 +32,13 @@ namespace BaseSite.Controllers
             ViewBag.hprovinceId = hprovinceId;
             ViewBag.hcityId = hcityId;
 
-            List<Account_Users> UserList = AccountManager.Account_User_Search(Customer, departmentId, partnerTypeId, statusId, postId, hcountryId, hprovinceId, hcityId);
+            List<Account_Users> UserList = AccountManager.Account_User_Search(Customer, departmentId, partnerTypeId, statusId, postId, hcountryId, hprovinceId, hcityId, User.GetOperations());
             ViewBag.RowCount = UserList.Count();
             return View(UserList);
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Setting_Persons_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Setting_Persons_Search))]
         public ActionResult SearchAccount(string Customer, byte? departmentId, byte? partnerTypeId, byte? statusId, int? postId, int? hcountryId, int? hprovinceId, int? hcityId)
         {
             string paramlist = "";
@@ -61,14 +57,14 @@ namespace BaseSite.Controllers
         }
 
         [HttpGet]
-        [CustomAuthorize(OPERATIONS.Setting_Persons_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Setting_Persons_Add))]
         public ActionResult PersonAdd()
         {
             return RedirectToAction("PersonDetail", new { PersonId = 0 });
         }
 
         [HttpGet]
-        [CustomAuthorize(OPERATIONS.Setting_Persons_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Setting_Persons_Detail))]
         public ActionResult PersonDetail(int PersonId)
         {
             if (TempData["Result"] != null && !string.IsNullOrEmpty(TempData["Result"].ToString()))
@@ -81,16 +77,16 @@ namespace BaseSite.Controllers
             }
             if (PersonId > 0)
             {
-                TempData["BackUrl"] = Request.UrlReferrer.ToString();
+                TempData["BackUrl"] = Request.Headers.Referer.ToString();
             }
             Account_Users list = AccountManager.Account_User_Get(PersonId);
 
-            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
+            //LogManager.Log_Logs_Add((int)DB_Table.Account_Users, list.Id, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.View, string.Format("مشاهده مشخصات شخص - {0}", list.FullName));
             return View(list);
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Setting_Persons_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Setting_Persons_Detail))]
         public ActionResult PersonDetail(Account_Users user, string HCity, string ComCity)
         {
             bool newUser = false;
@@ -98,15 +94,15 @@ namespace BaseSite.Controllers
             if (user.Id == 0)
             {
                 newUser = true;
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Add))
+                if (!User.IsInRole(nameof(OPERATIONS.Setting_Persons_Add)))
                     return RedirectToAction("AccessDenied", "Home");
 
-                user.RegistrarId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                user.RegistrarId = User.GetUserId();
                 user.RegistrationDate = DateTime.Now;
             }
             if (user.Id > 0)
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Setting_Persons_Edit))
+                if (!User.IsInRole(nameof(OPERATIONS.Setting_Persons_Edit)))
                     return RedirectToAction("AccessDenied", "Home");
             }
 
@@ -120,7 +116,7 @@ namespace BaseSite.Controllers
                 TempData["Result"] = "ok";
                 TempData["ResultMessge"] = newUser ? "افزودن کاربر با موفقیت انجام شد." : "ویرایش اطلاعات با موفقیت انجام شد.";
 
-                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
+                LogManager.Log_Logs_Add((int)DB_Table.Account_Users, usrId, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), newUser ? (int)LogActivity.Add : (int)LogActivity.Edit, user.ToString());
 
                 if (TempData["BackUrl"] != null && !string.IsNullOrEmpty(TempData["BackUrl"].ToString()))
                     return Redirect(TempData["BackUrl"].ToString());
@@ -160,9 +156,10 @@ namespace BaseSite.Controllers
         public ActionResult InsertComment(short ttid, int tid, string Comment, int? ParentId)
         {
             CRM_Comments obj = new CRM_Comments();
-            obj.OwnerId = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Id;
-            obj.OwnerName = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().FullName;
-            obj.OwnerEmail = BaseSite.Controllers.CustomAuthorizeAttribute.getCurrentUser().Email;
+            var currentUser = AccountManager.Account_User_Get(User.GetUserId());
+            obj.OwnerId = User.GetUserId();
+            obj.OwnerName = currentUser.FullName;
+            obj.OwnerEmail = currentUser.Email;
             obj.Comment = Comment;
             obj.CreateDate = DateTime.Now;
             obj.ParentId = ParentId;
@@ -175,7 +172,7 @@ namespace BaseSite.Controllers
 
 
         //######################################################### Activities #################################################################
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult Activities(byte? status, int? customerId, int? ownerId, int? assignedToId, byte? typeId, byte? priorityId, string term, string startDateFrom, string startDateTo, string endDateFrom, string endDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -205,7 +202,7 @@ namespace BaseSite.Controllers
             return View(activityList);
         }
 
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult AddActivity(byte type = 0)
         {
             CRM_Activity obj = new CRM_Activity();
@@ -214,8 +211,8 @@ namespace BaseSite.Controllers
             obj.EndTime = DateTime.Now;
             obj.StateId = (byte)CrmActivityState.Open;
             obj.TypeId = type;
-            obj.OwnerId = obj.AssignedToId = CustomAuthorizeAttribute.getCurrentUser().Id;
-            obj.Account_Users = obj.Account_Users1 = CustomAuthorizeAttribute.getCurrentUser();
+            obj.OwnerId = obj.AssignedToId = User.GetUserId();
+            obj.Account_Users = obj.Account_Users1 = AccountManager.Account_User_Get(User.GetUserId());
             if (Session["customerId"] != null)
             {
                 obj.CustomerId = (int)Session["customerId"];
@@ -225,7 +222,7 @@ namespace BaseSite.Controllers
             return View("ActivityDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult ActivityDetail(string activityId)
         {
             CRM_Activity activity = ActivityManager.CRM_Activity_Get(int.Parse(activityId));
@@ -235,15 +232,15 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult ActivityDetail(CRM_Activity model, string submit)
         {
             CRM_Activity x = ActivityManager.CRM_Activity_Edit(model, submit);
-            //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
+            //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Cost);
             return RedirectToAction("Activities");
         }
 
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult SearchActivity(byte? status, int? customerId, int? ownerId, int? assignedToId, byte? typeId, byte? priorityId, string term, string startDateFrom, string startDateTo, string endDateFrom, string endDateTo)
         {
             string paramlist = "";
@@ -264,14 +261,14 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Crm/Activities" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult ActivityDelete(int activityId)
         {
             try
             {
                 CRM_Activity order = ActivityManager.CRM_Activity_Get(activityId);
                 ActivityManager.CRM_Activity_Delete(activityId);
-                //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                //LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("Activities", "Crm");
             }
             catch (Exception ex)
@@ -284,7 +281,7 @@ namespace BaseSite.Controllers
         //######################################################### Cartable #################################################################
         public ActionResult Cartable()
         {
-            List<CRM_Activity> activities = ActivityManager.CRM_Activity_Search((byte)CrmActivityState.Open, null, null, CustomAuthorizeAttribute.getCurrentUser().Id, null, null, null,
+            List<CRM_Activity> activities = ActivityManager.CRM_Activity_Search((byte)CrmActivityState.Open, null, null, User.GetUserId(), null, null, null,
                 null, new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 0, 0, 0).AddDays(1),
                 null, null);
 
@@ -292,19 +289,19 @@ namespace BaseSite.Controllers
         }
 
         //######################################################### Reminders #################################################################
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult Reminders(string startDate)
         {
             ViewBag.startDate = string.IsNullOrEmpty(startDate) ? new PersianDateTime(DateTime.Today.AddDays(1)).ToString(PersianDateTimeFormat.Date) : startDate;
 
-            List<CRM_Activity> activityList = ActivityManager.CRM_Activity_Search(CustomAuthorizeAttribute.getCurrentUser().Id,
+            List<CRM_Activity> activityList = ActivityManager.CRM_Activity_Search(User.GetUserId(),
                 string.IsNullOrEmpty(startDate) ? DateTime.Today.AddDays(1) : PersianDateTime.Parse(startDate.Replace('-', '/')).ToDateTime());
 
             ViewBag.RowCount = activityList.Count();
             return View(activityList);
         }
 
-        [CustomAuthorize(OPERATIONS.CRM)]
+        [Authorize(Roles = nameof(OPERATIONS.CRM))]
         public ActionResult SearchReminders(string startDate)
         {
             string paramlist = "";

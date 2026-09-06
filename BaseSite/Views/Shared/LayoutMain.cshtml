@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -51,65 +51,65 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar1">
                 <ul class="nav navbar-nav">
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Order))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order)))
                     {
-                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Order")? "active" : "")"><a href="@Url.Action("OrderList", "Order")"><span class="fa fa-reorder fa-lg" aria-hidden="true"></span> سفارشات</a></li>
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Order") ? "active" : "")"><a href="@Url.Action("OrderList", "Order")"><span class="fa fa-reorder fa-lg" aria-hidden="true"></span> سفارشات</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Sale))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Sale)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Sale") ? "active" : "")"><a href="@Url.Action("SaleList", "Sale")"><span class="fa fa-shopping-basket fa-lg" aria-hidden="true"></span> فروش کالا</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Store))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Store)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Store") ? "active" : "")"><a href="@Url.Action("SaleList", "Store")"><span class="fa fa-shopping-cart fa-lg" aria-hidden="true"></span> پنتا شاپ</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Service))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Service)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Service") ? "active" : "")"><a href="@Url.Action("ServiceList", "Service")"><span class="fa fa-wrench fa-lg" aria-hidden="true"></span> خدمات</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Payment))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Payment)))
                     {
-                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Payment")? "active" : "")"><a href="@Url.Action("PaymentList", "Payment")"><span class="fa fa-file-text fa-lg" aria-hidden="true"></span> اسناد دریافتی</a></li>
+                        <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Payment") ? "active" : "")"><a href="@Url.Action("PaymentList", "Payment")"><span class="fa fa-file-text fa-lg" aria-hidden="true"></span> اسناد دریافتی</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Cartable))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Cartable)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Cartable") ? "active" : "")"><a href="@Url.Action("CartableList", "Cartable")"><span class="fa fa-list-ol fa-lg" aria-hidden="true"></span> کارتابل تولید</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Plan))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Plan)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Plan") ? "active" : "")"><a href="@Url.Action("PlanList", "Plan")"><span class="fa fa-industry fa-lg" aria-hidden="true"></span> برنامه تولید</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Product))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Product)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Product") ? "active" : "")"><a href="@Url.Action("ProductList", "Product")"><span class="fa fa-random fa-lg" aria-hidden="true"></span> کنترل ماتریسی تولید</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Process))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Process)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Process") ? "active" : "")"><a href="@Url.Action("Index", "Process")"><span class="fa fa-wrench fa-lg" aria-hidden="true"></span> مراحل تولید</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Process_Project))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Process_Project)))
                     {
                         <li class="@(ViewContext.RouteData.Values["action"].ToString().Equals("Project") ? "active" : "")"><a href="@Url.Action("Project", "Process")"><span class="fa fa-linode fa-lg" aria-hidden="true"></span> پروژه های تولید</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Delivery))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Delivery") ? "active" : "")"><a href="@Url.Action("DeliveryList", "Delivery")"><span class="fa fa-truck fa-lg" aria-hidden="true"></span> تحویل</a></li>
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") ? "active" : "")"><a href="@Url.Action("ReportList", "Report")"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
-                        @*if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_CustomerBill))
+                        @*if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_CustomerBill)))
                         {
                             <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") || ViewContext.RouteData.Values["controller"].ToString().Equals("Log") ? "active" : "")"><a href="@Url.Action("ReportTemplate", "Report", new { ReportName = "RCustomerBill", ReportDescription = "گزارشات", Width = 100, Height = 650 })"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
                         }
-                        else if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Report_ProductFactor))
+                        else if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Report_ProductFactor)))
                         {
                             <li class="@(ViewContext.RouteData.Values["controller"].ToString().Equals("Report") || ViewContext.RouteData.Values["controller"].ToString().Equals("Log") ? "active" : "")"><a href="@Url.Action("ProductFactors", "Report")"><span class="fa fa-book fa-lg" aria-hidden="true"></span> گزارشات</a></li>
                         }*@
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Setting))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting)))
                     {
-                        if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Setting_Cities))
+                        if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_Cities)))
                         {
                             <li id="PrimaryInfo"><a href="@Url.Action("Cities", "Information")"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> اطلاعات پایه</a></li>
                         }
@@ -118,14 +118,14 @@
                             <li id="PrimaryInfo"><a href="@Url.Action("Persons", "Account")"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> اطلاعات پایه</a></li>
                         }
                     }
-                    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.CRM))
+                    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.CRM)))
                     {
                         <li class="@(ViewContext.RouteData.Values["controller"].ToString().ToLower().Equals("crm") ? "active" : "")"><a href="@Url.Action("Persons", "Crm")"><span class="glyphicon glyphicon-headphones" aria-hidden="true"></span> ارتباط با مشتریان</a></li>
                     }
                 </ul>
                 <ul class="nav navbar-nav navbar-left" style="margin-left: 20px;">
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@((Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Name + " " + (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).LastName) <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@(User.GetFullName()) <span class="caret"></span></a>
                         <ul class="dropdown-menu" style="font-size:13px;">
                             <li><a href="@Url.Action("ChangePassword", "Account")">تغییر نام کاربری و رمزعبور</a></li>
                             <li><a href="@Url.Action("ChangeImage", "Account")">تغییر عکس پروفایل</a></li>
@@ -133,7 +133,7 @@
                             <li><a href="@Url.Action("LogOut", "Account")">خروج</a></li>
                         </ul>
                     </li>
-                    <li><img style="height:50px;width:50px; border-radius:10px;" src="@Url.Content("~/Images/System/" + (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).ImagePath)" /></li>
+                    <li><img style="height:50px;width:50px; border-radius:10px;" src="@Url.Content("~/Images/System/" + User.GetImagePath())" /></li>
                 </ul>
             </div>
         </nav>
@@ -162,7 +162,7 @@
 
 <!-- Floating Social Media bar Starts -->
 <div class="floatingbar">
-    @if (((List<BaseSite.Models.OPERATIONS>)Session["UserOperations"]).Contains(BaseSite.Models.OPERATIONS.Help_Help))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Help_Help)))
     {
         <div class="item">
             <i class="icon fa fa-book"></i>

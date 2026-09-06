@@ -1,4 +1,4 @@
-﻿@model BaseSite.Models.DBModel.Account_Users
+@model BaseSite.Models.DBModel.Account_Users
 @{
     List<BaseSite.Models.DBModel.Order_Order> orderList = BaseSite.Models.Order.OrderManager.Order_Order_Search(null, null, null, Model.Id, null, null, null, null, null, null, string.Empty);
     List<BaseSite.Models.DBModel.Sale_Sale> saleList = BaseSite.Models.Sale.SaleManager.Sale_Sale_Search(null, null, null, null, Model.Id, null, null, null, null);
@@ -39,7 +39,7 @@
                             <td>@orderList[i].Order_Status.Name</td>
                             <td><span>@string.Format("{0} {1}", orderList[i].Tax > 0 ? "*" : " ", orderList[i].Tb_OrderTypes.Name)</span></td>
                             <td>
-                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Order_Detail))
+                                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Order_Detail)))
                                 {
                                     <a target="_blank" data-value="@orderList[i].Id" href="@Url.Action("OrderDetail", "order", new { OrderId = orderList[i].Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                                 }
@@ -49,7 +49,7 @@
                                 }
                                 @if (orderList[i].StatusId >= (byte)BaseSite.Models.OrderStatus.AmadeTahvil && orderList[i].StatusId <= (byte)BaseSite.Models.OrderStatus.TahvilShode)
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery)))
                                     {
                                         <div class="dropdown" style="float:left;">
                                             <button class="btn btn-link dropdown-toggle" style="padding:0;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -106,7 +106,7 @@
                             <td>@saleList[i].Order_Status.Name</td>
                             <td><span>@string.Format("{0} {1}", saleList[i].Tax > 0 ? "*" : " ", saleList[i].Tb_OrderTypes.Name)</span></td>
                             <td>
-                                @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Sale_Detail))
+                                @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Sale_Detail)))
                                 {
                                     <a target="_blank" data-value="@saleList[i].Id" href="@Url.Action("SaleDetail", "sale", new { saleId = saleList[i].Id })"><i class="fa fa-list fa-lg" title="جزئیات"></i></a>
                                 }
@@ -116,7 +116,7 @@
                                 }
                                 @if (saleList[i].StatusId >= (byte)BaseSite.Models.OrderStatus.AmadeTahvil && saleList[i].StatusId <= (byte)BaseSite.Models.OrderStatus.TahvilShode)
                                 {
-                                    if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Delivery))
+                                    if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Delivery)))
                                     {
                                         <div class="dropdown" style="float:left;">
                                             <button class="btn btn-link dropdown-toggle" style="padding:0;" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">

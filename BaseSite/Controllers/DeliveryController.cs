@@ -1,21 +1,18 @@
-﻿using BaseSite.Models;
+using BaseSite.Models;
 using BaseSite.Models.Account;
 using BaseSite.Models.DBModel;
 using BaseSite.Models.Delivery;
 using BaseSite.Models.Log;
 using BaseSite.Models.Order;
 using BaseSite.Models.Sale;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class DeliveryController : Controller
+    public class DeliveryController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Delivery)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery))]
         public ActionResult DeliveryList(int? orderId, int? saleId, int? docNumber, byte? deliveryStatusId, int? customerId, string deliveryDateFrom, string deliveryDateTo)
         {
             if (orderId.HasValue)
@@ -56,7 +53,7 @@ namespace BaseSite.Controllers
             return View(deliveryList);
         }
 
-        [CustomAuthorize(OPERATIONS.Delivery_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Add))]
         public ActionResult AddOrderDelivery(int orderId)
         {
             Delivery_Delivery obj = new Delivery_Delivery();
@@ -65,7 +62,7 @@ namespace BaseSite.Controllers
             obj.OrderId = orderId;
             obj.Date = DateTime.Now.Date;
             obj.PackTypeId = obj.Order_Order.PackTypeId;
-            obj.SendResponsible = (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).FullName;
+            obj.SendResponsible = User.GetFullName();
             obj.RecieveResponsible = obj.Order_Order.ClienteleName;
             obj.DeliveryLocationId = 1;
             obj.VehicleTypeId = 1;
@@ -143,7 +140,7 @@ namespace BaseSite.Controllers
             return View("DeliveryDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Delivery_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Add))]
         public ActionResult AddSaleDelivery(int saleId)
         {
             Delivery_Delivery obj = new Delivery_Delivery();
@@ -152,7 +149,7 @@ namespace BaseSite.Controllers
             obj.SaleId = saleId;
             obj.Date = DateTime.Now.Date;
             obj.PackTypeId = 0;
-            obj.SendResponsible = (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).FullName;
+            obj.SendResponsible = User.GetFullName();
             obj.RecieveResponsible = obj.Sale_Sale.ClienteleName;
             obj.DeliveryLocationId = 1;
             obj.VehicleTypeId = 1;
@@ -186,7 +183,7 @@ namespace BaseSite.Controllers
             return View("DeliveryDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Delivery_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Detail))]
         public ActionResult DeliveryDetail(string deliveryId)
         {
             Delivery_Delivery delivery = DeliveryManager.Delivery_Delivery_Get(int.Parse(deliveryId));
@@ -213,12 +210,12 @@ namespace BaseSite.Controllers
                 {
                     if (kv.Key == (byte)Models.DeliveryStatus.TayidShode)
                     {
-                        if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Delivery_Add))
+                        if (User.IsInRole(nameof(OPERATIONS.Delivery_Add)))
                             temp.Add(kv.Key, kv.Value);
                     }
                     else if (kv.Key == (byte)Models.DeliveryStatus.ErsalShode)
                     {
-                        if (CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Delivery_Confirm))
+                        if (User.IsInRole(nameof(OPERATIONS.Delivery_Confirm)))
                             temp.Add(kv.Key, kv.Value);
                     }
                 }
@@ -229,8 +226,8 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Delivery_Add, OPERATIONS.Delivery_Confirm)] //Delivery_Add or Delivery_Confirm
-        public ActionResult DeliveryDetail(Delivery_Delivery model, string submit)
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Add) + "," + nameof(OPERATIONS.Delivery_Confirm))] //Delivery_Add or Delivery_Confirm
+        public async Task<ActionResult> DeliveryDetail(Delivery_Delivery model, string submit)
         {
             bool isnew = true;
             if (model.Id > 0)
@@ -239,7 +236,8 @@ namespace BaseSite.Controllers
                 Delivery_Delivery entity = DeliveryManager.Delivery_Delivery_Get(model.Id);
                 if (entity.StatusId == (byte)DeliveryStatus.SaderShode && (model.Items == null || model.Items.Any(m => m.Checked) == false))
                 {
-                    return View("Error", "", "هیچ آیتمی برای تحویل انتخاب نشده است.");
+                    ViewBag.Message = "هیچ آیتمی برای تحویل انتخاب نشده است.";
+                    return View("Error");
                 }
                 if (entity.StatusId > model.StatusId)
                     return RedirectToAction("AccessDenied", "Home");
@@ -248,7 +246,8 @@ namespace BaseSite.Controllers
             {
                 if (model.Items == null || model.Items.Any(m => m.Checked) == false)
                 {
-                    return View("Error", "", "هیچ آیتمی برای تحویل انتخاب نشده است.");
+                    ViewBag.Message = "هیچ آیتمی برای تحویل انتخاب نشده است.";
+                    return View("Error");
                 }
                 if (model.OrderId.HasValue)
                 {
@@ -264,26 +263,26 @@ namespace BaseSite.Controllers
                 }
             }
 
-            Delivery_Delivery x = DeliveryManager.Delivery_Delivery_Edit(model, submit);
+            Delivery_Delivery x = await DeliveryManager.Delivery_Delivery_Edit(model, submit);
 
-            if (isnew) LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Add, x.ToString());
-            else LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Edit, x.ToString());
+            if (isnew) LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Add, x.ToString());
+            else LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, x.ToString());
 
             if (x.OrderId.HasValue)
             {
                 Order_Order o = OrderManager.Order_Order_ChangeStatus(model.OrderId.Value, OrderStatus.MojavezKhorooj);
-                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, o.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, o.Order_Status.Name);
+                LogManager.Log_Logs_Add((int)DB_Table.Order_Order, o.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, o.Order_Status.Name);
             }
             else if (x.SaleId.HasValue)
             {
                 Sale_Sale s = SaleManager.Sale_Sale_ChangeStatus(model.SaleId.Value, OrderStatus.MojavezKhorooj);
-                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, s.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, s.Order_Status.Name);
+                LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, s.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, s.Order_Status.Name);
             }
 
             return RedirectToAction("DeliveryDetail", new { deliveryId = x.Id });
         }
 
-        [CustomAuthorize(OPERATIONS.Delivery_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Search))]
         public ActionResult SearchDelivery(int? docNumber, byte? deliveryStatusId, int? customerId, string Customer, string deliveryDateFrom, string deliveryDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
@@ -301,25 +300,25 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Delivery/DeliveryList" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Delivery_Print)]
+        [Authorize(Roles = nameof(OPERATIONS.Delivery_Print))]
         public ActionResult Print(string doc, int id)
         {
             if (doc == "delivery")
             {
                 Delivery_Delivery model = DeliveryManager.Delivery_Delivery_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فرم تحویل کالا");
+                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فرم تحویل کالا");
                 return View("PrintDelivery", model);
             }
             else if (doc == "deliveryPack")
             {
                 Delivery_Delivery model = DeliveryManager.Delivery_Delivery_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ فرم محموله");
+                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ فرم محموله");
                 return View("PrintDeliveryPack", model);
             }
             else if (doc == "deliveryPanel")
             {
                 Delivery_Delivery model = DeliveryManager.Delivery_Delivery_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ لیبل پنل");
+                LogManager.Log_Logs_Add((int)DB_Table.Delivery_Delivery, model.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ لیبل پنل");
                 return View("PrintDeliveryPanel", model);
             }
             else

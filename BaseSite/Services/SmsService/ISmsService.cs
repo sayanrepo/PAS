@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -20,7 +20,7 @@ namespace BaseSite.Services.SmsService
             //    "09124713367", "09121153473", "09125225949"
             //};
 
-            string s = ConfigurationManager.AppSettings["SupportPhones"];
+            string s = Environment.GetEnvironmentVariable("SupportPhones") ?? "09124713367,09126839272";
             if (!String.IsNullOrEmpty(s))
                 SupportPhones = s.Split(',').ToList();
             else SupportPhones = new List<string>();

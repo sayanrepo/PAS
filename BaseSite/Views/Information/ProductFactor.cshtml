@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @{
     ViewBag.Title = "ضرایب کارکرد";
     Layout = "~/Views/Shared/LayoutBase.cshtml";
@@ -24,7 +24,7 @@
         }
         <div class="col-xs-6" id="DivPanelModel">
             <p class="TopText">ارزش ریالی ضریب کارکرد</p>
-            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Add))
+            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Add)))
             {
                 <div class="row col-xs-12 nopadding AddingPanel">
                     <form method="post" action="@Url.Action("AddProductFactorCost", "Information")" id="formItemAdd" class="formAdd">
@@ -58,7 +58,7 @@
                                         <div class="col-xs-5 text-right">@item.ShApplyDate</div>
                                         <div class="col-xs-5 text-right"><span class="autoNumber">@item.Cost</span>&nbsp;  ریال</div>
                                         <div class="col-xs-2 text-left" style="padding-right:0;">
-                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Delete))
+                                            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_ProductFactorCost_Delete)))
                                             {
                                                 <a data-toggle="modal" href="#ProductFactorCostDeleteModal" name="ProductFactorCostDelete" data-shdate="@item.ShApplyDate">حذف</a>
                                             }
@@ -74,7 +74,7 @@
 
         <div class="col-xs-6" id="DivSurfaceMetal">
             <p class="TopText">کاهش ضریب در تولید تیراژی</p>
-            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Add))
+            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Add)))
             {
                 <div class="row col-xs-12 nopadding AddingPanel">
                     <form method="post" action="@Url.Action("AddCollectiveProducePercent", "Information")" id="formItemAdd" class="formAdd">
@@ -108,7 +108,7 @@
                                         <div class="col-xs-5 text-right">@item.ShApplyDate</div>
                                         <div class="col-xs-5 text-right"><span class="autoNumber">@item.Amount</span>&nbsp;  درصد</div>
                                         <div class="col-xs-2 text-left" style="padding-right:0;">
-                                            @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Delete))
+                                            @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Setting_CollectiveProducePercent_Delete)))
                                             {
                                                 <a data-toggle="modal" href="#CollectiveProducePercentDeleteModal" name="CollectiveProducePercentDelete" data-shdate="@item.ShApplyDate">حذف</a>
                                             }

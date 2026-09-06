@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using BaseSite.Models.Payment;
-using BaseSite.Models.DBModel;
-using BaseSite.Models.Account;
 using BaseSite.Models;
+using BaseSite.Models.Account;
+using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
+using BaseSite.Models.Payment;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BaseSite.Controllers
 {
-    public class PaymentController : Controller
+    public class PaymentController : BaseSiteController
     {
-        [CustomAuthorize(OPERATIONS.Payment)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment))]
         public ActionResult PaymentList(int? docNumber, byte? paymentStatusId, byte? bargashti, int? customerId, byte? paymentTypeId, byte? babatId, string sanadDateFrom, string sanadDateTo, string sarresidDateFrom, string sarresidDateTo)
         {
             customerId = (int?)Session["customerId"];
@@ -40,7 +36,7 @@ namespace BaseSite.Controllers
             return View(paymentList);
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Add))]
         public ActionResult AddPayment()
         {
             Payment_Payment obj = new Payment_Payment();
@@ -63,7 +59,7 @@ namespace BaseSite.Controllers
             return View("PaymentDetail", obj);
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_Detail)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Detail))]
         public ActionResult PaymentDetail(string paymentId)
         {
             Payment_Payment payment = PaymentManager.Payment_Payment_Get(int.Parse(paymentId));
@@ -72,34 +68,34 @@ namespace BaseSite.Controllers
         }
 
         [HttpPost]
-        [CustomAuthorize(OPERATIONS.Payment_Add)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Add))]
         public ActionResult PaymentDetail(Payment_Payment model, string Amount, string submit)
         {
             model.Amount = string.IsNullOrEmpty(Amount) ? 0 : double.Parse(Amount.Replace(",", ""));
             if (submit.ToLower() == "submit")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_Add))
+                if (!User.IsInRole(nameof(OPERATIONS.Payment_Add)))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidNashode;
             }
             if (submit.ToLower() == "foroshconfirm")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_ForoshConfirm))
+                if (!User.IsInRole(nameof(OPERATIONS.Payment_ForoshConfirm)))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidForosh;
             }
             if (submit.ToLower() == "maliconfirm")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_MaliConfirm))
+                if (!User.IsInRole(nameof(OPERATIONS.Payment_MaliConfirm)))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidMali;
             }
             if (submit.ToLower() == "malireject")
             {
-                if (!CustomAuthorizeAttribute.isAuthorize(OPERATIONS.Payment_MaliConfirm))
+                if (!User.IsInRole(nameof(OPERATIONS.Payment_MaliConfirm)))
                     return RedirectToAction("AccessDenied", "Home");
                 else
                     model.StatusId = (byte)PaymentStatus.TayidNashode;
@@ -108,14 +104,14 @@ namespace BaseSite.Controllers
             if (model.Id == 0)
             {
                 isNew = true;
-                model.AccepterId = Session["PantaUser"] == null ? 0 : (Session["PantaUser"] as BaseSite.Models.DBModel.Account_Users).Id;
+                model.AccepterId = User.GetUserId();
             }
             Payment_Payment x = PaymentManager.Payment_Payment_Edit(model, submit);
-            LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, x.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Amount);
+            LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, x.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), isNew ? (int)LogActivity.Add : (int)LogActivity.Edit, x.ToString(), x.Amount);
             return RedirectToAction("PaymentDetail", new { paymentId = x.Id });
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_Search)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Search))]
         public ActionResult SearchPayment(int? docNumber, byte? paymentStatusId, byte? bargashti, int? customerId, string Customer, byte? paymentTypeId, byte? babatId, string sanadDateFrom, string sanadDateTo, string sarresidDateFrom, string sarresidDateTo)
         {
             if (String.IsNullOrWhiteSpace(Customer)) customerId = null;
@@ -138,28 +134,28 @@ namespace BaseSite.Controllers
             return Redirect(Url.Content("~/Payment/PaymentList" + paramlist));
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_Print)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Print))]
         public ActionResult Print(string doc, int id)
         {
             if (doc == "payment-accounting")
             {
                 ViewBag.Accounting = true;
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ نسخه حسابداری");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ نسخه حسابداری");
                 return View("PrintPayment", pay);
             }
             else if (doc == "payment-customer")
             {
                 ViewBag.Accounting = false;
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(id);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Print, "چاپ نسخه مشتری");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, "چاپ نسخه مشتری");
                 return View("PrintPayment", pay);
             }
             else
                 return View("Error");
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_Delete)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_Delete))]
         public ActionResult PaymentDelete(int paymentId)
         {
             //List<Payment_Payment> PayList = PaymentManager.Payment_Payment_Search(null, null, null, null, null, null,
@@ -174,7 +170,7 @@ namespace BaseSite.Controllers
             {
                 Payment_Payment pay = PaymentManager.Payment_Payment_Get(paymentId);
                 PaymentManager.Payment_Payment_Delete(paymentId);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.Delete, "");
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Delete, "");
                 return RedirectToAction("PaymentList", "Payment");
             }
             catch (Exception ex)
@@ -183,13 +179,13 @@ namespace BaseSite.Controllers
             }
         }
 
-        [CustomAuthorize(OPERATIONS.Payment_ChangeStatus)]
+        [Authorize(Roles = nameof(OPERATIONS.Payment_ChangeStatus))]
         public ActionResult PaymentChangeStatus(int paymentId, byte newStatusId)
         {
             try
             {
                 Payment_Payment pay = PaymentManager.Payment_Payment_ChangeStatus(paymentId, (PaymentStatus)newStatusId);
-                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, CustomAuthorizeAttribute.getCurrentUser().Id, Request.UserHostAddress, (int)LogActivity.ChangeStatus, pay.ToString(), pay.Amount);
+                LogManager.Log_Logs_Add((int)DB_Table.Payment_Payment, pay.DocNumber, User.GetUserId(), HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.ChangeStatus, pay.ToString(), pay.Amount);
                 return RedirectToAction("PaymentDetail", new { paymentId = paymentId });
             }
             catch (Exception ex)

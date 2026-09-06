@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @model List<BaseSite.Models.DBModel.Order_Order>
 
 @{
@@ -8,9 +8,9 @@
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
 
     List<int> printed = new List<int>();
-    if (Request.Cookies["printed"] != null)
+    if (Context.Request.Cookies["printed"] != null)
     {
-        var list = Request.Cookies["Printed"].Value.Split(',').ToList();
+        var list = Context.Request.Cookies["Printed"].Split(',').ToList();
         int tmp;
         foreach (var item in list)
         {
@@ -45,7 +45,7 @@
     @*<div class="col-md-1 col-xs-12">
             <a class="btn btn-link" id="OrderRegisterBtn" title="ثبت سفارش" href="@Url.Action("AddOrder")" target="_blank"><i class="fa fa-calendar-plus-o fa-3x"></i></a>
         </div>*@
-    @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Search))
+    @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Cartable_Search)))
     {
         <div class="col-md-10 col-md-offset-1 col-xs-12" id="DivSearch">
             <form method="post" action="@Url.Action("SearchCartable")">
@@ -132,7 +132,7 @@
             grid.Column("Tb_OrderTypes.Name", header: "نوع سفارش", format: item => item.Tb_OrderTypes.Name),
             grid.Column(header: "جزئیات",
                 format: @<text>
-                        @if (BaseSite.Controllers.CustomAuthorizeAttribute.isAuthorize(BaseSite.Models.OPERATIONS.Cartable_Detail))
+                        @if (User.IsInRole(nameof(BaseSite.Models.OPERATIONS.Cartable_Detail)))
                         {
                             if (printed.Contains(item.Id))
                             {
