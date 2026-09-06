@@ -396,3 +396,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/BaseSite/.keys/key-7a8a73f0-3899-485a-8682-3cad5d49567a.xml
+/BaseSite.Web/.keys/key-7430acad-1539-4fed-bc10-0e5bb2c94c58.xml
