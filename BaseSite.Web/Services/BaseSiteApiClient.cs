@@ -8,6 +8,13 @@ namespace BaseSite.Web.Services;
 
 public sealed class BaseSiteApiClient(HttpClient httpClient, ApiSession session)
 {
+    public Task<List<ReportInfo>?> GetReportsAsync(CancellationToken token=default) => GetAsync<List<ReportInfo>>("api/reports",token);
+    public Task<List<OrderLookup>?> FindReportCustomersAsync(string text,CancellationToken token=default) => GetAsync<List<OrderLookup>>("api/reports/customers?term="+Uri.EscapeDataString(text),token);
+    public Task<ReportResult?> RunReportAsync(string key,ReportFilter filter,CancellationToken token=default) {
+        var culture=System.Globalization.CultureInfo.InvariantCulture;
+        var query=$"dateFrom={filter.DateFrom!.Value.ToString("yyyy-MM-dd",culture)}&dateTo={filter.DateTo!.Value.ToString("yyyy-MM-dd",culture)}&customerId={filter.CustomerId}&part={filter.Part}";
+        return GetAsync<ReportResult>("api/reports/"+Uri.EscapeDataString(key)+"?"+query,token);
+    }
     public Task<DeliveryPage?> GetDeliveriesAsync(DeliverySearch filter, CancellationToken token = default) {
         var query = new List<string> { $"page={filter.Page}", $"pageSize={filter.PageSize}" };
         if(filter.DocumentNumber.HasValue) query.Add($"documentNumber={filter.DocumentNumber}");

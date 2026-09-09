@@ -31,5 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
+    <EmbeddedResource Include="Api\Queries\ReportColumns.json" />
   </ItemGroup>
 </Project>

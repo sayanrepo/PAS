@@ -114,6 +114,16 @@ Check(DeliveryItems.ForSale(sourceSale).Single().Id==1,"New deliveries only offe
 Check(DeliveryItems.ForSale(sourceSale,7).Single().Id==2,"Delivery details only contain their own assigned goods");
 var badDeliveryRange=new DeliverySearch{DateFrom=date.AddDays(1),DateTo=date};
 Check(!Validator.TryValidateObject(badDeliveryRange,new ValidationContext(badDeliveryRange),new List<ValidationResult>(),true),"Reversed delivery date range is rejected");
+Check(ReportCatalog.All.Count==16 && ReportCatalog.All.Select(x=>x.Info.Key).Distinct().Count()==16,"Report catalog includes all sixteen legacy reports with unique routes");
+var reportUser=new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity([
+ new(System.Security.Claims.ClaimTypes.Role,"Report"),new(System.Security.Claims.ClaimTypes.Role,"Report_KPI")],"test"));
+Check(ReportCatalog.All.Count(x=>ReportCatalog.CanRead(reportUser,x))==5,"KPI access does not grant access to sales or financial reports");
+var noReportUser=new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity([new(System.Security.Claims.ClaimTypes.Role,"Report_KPI")],"test"));
+Check(!ReportCatalog.All.Any(x=>ReportCatalog.CanRead(noReportUser,x)),"Report section permission is required in addition to report permission");
+var invalidReportFilter=new ReportFilter{DateFrom=date.AddDays(1),DateTo=date};
+Check(!Validator.TryValidateObject(invalidReportFilter,new ValidationContext(invalidReportFilter),new List<ValidationResult>(),true),"Reports reject reversed date ranges");
+Check(BaseSite.Api.Controllers.ReportsController.ShDate(date)=="1405/06/17","Report procedure parameters use the legacy Persian date format");
+Check(typeof(BaseSite.Api.Controllers.ReportsController).Assembly.GetManifestResourceNames().Contains("BaseSite.Api.Queries.ReportColumns.json"),"Persian report column labels are included in published assemblies");
 Console.WriteLine($"{passed} document checks passed; no database was accessed.");
 
 internal static class SampleOrders

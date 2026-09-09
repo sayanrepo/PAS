@@ -1,0 +1,85 @@
+@page "/reports/{Key}"
+@using System.ComponentModel.DataAnnotations
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>@(report?.Title??"نمایش گزارش") | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+ <div class="page-heading"><div><MudText Typo="Typo.h5">@(report?.Title??"نمایش گزارش")</MudText><MudText Color="Color.Secondary">@report?.Category</MudText></div><MudButton Href="/reports" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به گزارشات</MudButton></div>
+ @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+ @if(report is not null && report.Mode!="powerbi") {
+  <MudPaper Class="filter-panel mb-4" Elevation="0"><MudGrid>
+   @if(report.CustomerFilter) { <MudItem xs="12" md="4"><MudAutocomplete T="OrderLookup" @bind-Value="customer" Label="مشتری" SearchFunc="FindCustomers" ToStringFunc="@(x=>x?.Name??"")" Clearable="true" Variant="Variant.Outlined" /></MudItem> }
+   @if(report.PartFilter) { <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="part" Label="جزء" Variant="Variant.Outlined">@for(var i=0;i<parts.Length;i++) {<MudSelectItem T="int" Value="@i">@parts[i]</MudSelectItem>}</MudSelect></MudItem> }
+   <MudItem xs="12" sm="6" md="3"><PersianDateFilter @bind-Value="dateFrom" Label="از تاریخ" /></MudItem>
+   <MudItem xs="12" sm="6" md="3"><PersianDateFilter @bind-Value="dateTo" Label="تا تاریخ" /></MudItem>
+   <MudItem xs="12" md="2"><MudButton OnClick="Run" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">نمایش گزارش</MudButton></MudItem>
+  </MudGrid></MudPaper>
+ }
+ @if(busy) { <MudProgressLinear Indeterminate="true" Class="mb-4" /> }
+ @if(result?.EmbedUrl is not null) {
+  <MudAlert Severity="Severity.Info" Class="mb-3">فیلترها و ابزارهای نمایش داخل گزارش در دسترس هستند.</MudAlert>
+  <div class="d-flex justify-end mb-3"><MudButton Href="@result.EmbedUrl" Target="_blank" StartIcon="@Icons.Material.Filled.OpenInNew">باز کردن در پنجره جدید</MudButton><MudButton OnClick="Run" Disabled="busy">بارگذاری مجدد</MudButton></div>
+  <iframe @key="frameKey" src="@result.EmbedUrl" title="@report?.Title" class="report-frame" allowfullscreen></iframe>
+ } else if(result is not null) {
+  <MudText Class="mb-3">بازه گزارش: @appliedFrom تا @appliedTo @appliedCustomer</MudText>
+  @if(result.ChartLabels.Count>0) {
+   <MudPaper Class="pa-4 mb-4" Elevation="0">
+    <MudText Typo="Typo.h6">فروش و وصول ماهانه (ریال)</MudText>
+    <MudChart T="double" ChartType="ChartType.Bar" ChartSeries="@(new List<ChartSeries<double>>{new(){Name="فروش",Data=result.OrderAmounts.ToArray()},new(){Name="وصول",Data=result.PaymentAmounts.ToArray()}})" ChartLabels="@result.ChartLabels.ToArray()" Width="100%" Height="380px" />
+   </MudPaper>
+  }
+  @foreach(var table in result.Tables) {
+   <MudPaper Class="table-panel mb-5" Elevation="0">
+    <MudText Typo="Typo.h6" Class="pa-4">@table.Title</MudText>
+    <MudTable T="List<string>" Items="table.Rows" Dense="true" Bordered="true" Striped="true" RowsPerPage="20" Breakpoint="Breakpoint.None">
+     <HeaderContent>@foreach(var column in table.Columns) {<MudTh>@column</MudTh>}</HeaderContent>
+     <RowTemplate>@foreach(var cell in context) {<MudTd>@cell</MudTd>}</RowTemplate>
+     <NoRecordsContent><MudText Class="pa-5">داده‌ای برای این بازه یافت نشد.</MudText></NoRecordsContent>
+     <PagerContent><MudTablePager PageSizeOptions="@(new[]{20,50,100})" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+    </MudTable>
+   </MudPaper>
+  }
+  @if(result.Tables.Count==0) { <MudAlert Severity="Severity.Info">داده‌ای برای نمایش وجود ندارد.</MudAlert> }
+ } else if(!busy && report is not null && error is null) { <MudAlert Severity="Severity.Info">فیلترهای موردنظر را انتخاب و «نمایش گزارش» را بزنید.</MudAlert> }
+</MudRTLProvider>
+@code {
+ [Parameter] public string Key {get;set;}="";
+ private string? loadedKey,dateFrom,dateTo,error,appliedFrom,appliedTo,appliedCustomer;
+ private ReportInfo? report;
+ private ReportResult? result;
+ private OrderLookup? customer;
+ private int part,frameKey;
+ private bool busy=true;
+ private readonly string[] parts=["پنل داخل کابین","پنل طبقات","پنل سردرب","نمایشگر","پوش باتون","ملحقات"];
+ protected override async Task OnParametersSetAsync() {if(Session.IsInitialized && loadedKey!=Key) await Load();}
+ protected override async Task OnAfterRenderAsync(bool firstRender) {if(!firstRender)return;await Session.InitializeAsync();if(loadedKey!=Key) await Load();StateHasChanged();}
+ private async Task Load() {
+  if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
+  loadedKey=Key;result=null;report=null;error=null;customer=null;part=0;busy=true;
+  try {
+   report=(await Api.GetReportsAsync())?.SingleOrDefault(x=>x.Key==Key);
+   if(report is null) throw new InvalidOperationException("گزارش یافت نشد یا دسترسی مشاهده آن را ندارید.");
+   var p=new System.Globalization.PersianCalendar();var year=p.GetYear(DateTime.Today);
+   dateFrom=PersianDates.Format(report.Daily?DateTime.Today:p.ToDateTime(year,1,1,0,0,0,0));
+   dateTo=PersianDates.Format(report.Daily?DateTime.Today:p.ToDateTime(year,12,p.GetDaysInMonth(year,12),0,0,0,0));
+  } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
+  if(report is not null && !report.CustomerFilter) await Run();
+ }
+ private async Task<IEnumerable<OrderLookup>> FindCustomers(string text,CancellationToken token) {
+  try{return await Api.FindReportCustomersAsync(text??"",token)??[];}catch(OperationCanceledException){return [];}catch(Exception ex){error=ex.Message;return [];}
+ }
+ private async Task Run() {
+  if(busy || report is null)return;busy=true;error=null;result=null;
+  try {
+   var filter=new ReportFilter{DateFrom=PersianDates.Parse(dateFrom,"از تاریخ"),DateTo=PersianDates.Parse(dateTo,"تا تاریخ"),CustomerId=customer?.Id??0,Part=part};
+   var errors=new List<ValidationResult>();
+   if(!Validator.TryValidateObject(filter,new ValidationContext(filter),errors,true)) throw new InvalidOperationException("بازه تاریخ را به‌درستی وارد کنید.");
+   if(report.CustomerFilter && customer is null) throw new InvalidOperationException("مشتری را انتخاب کنید.");
+   result=await Api.RunReportAsync(report.Key,filter);frameKey++;
+   appliedFrom=dateFrom;appliedTo=dateTo;appliedCustomer=customer is null?"":"— "+customer.Name;
+   if(!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+  }catch(Exception ex){error=ex.Message;}finally{busy=false;}
+ }
+}
+

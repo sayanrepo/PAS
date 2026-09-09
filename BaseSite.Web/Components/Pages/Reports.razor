@@ -1,0 +1,42 @@
+@page "/reports"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>گزارشات | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+ <div class="page-heading"><div><MudText Typo="Typo.h5">گزارشات</MudText><MudText Color="Color.Secondary">گزارش موردنظر را بر اساس عنوان یا دسته پیدا کنید.</MudText></div></div>
+ @if(error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
+ @if(loading) { <MudProgressLinear Indeterminate="true" /> }
+ else {
+  <MudPaper Class="filter-panel mb-5" Elevation="0"><MudGrid>
+   <MudItem xs="12" md="8"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجوی عنوان گزارش" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" /></MudItem>
+   <MudItem xs="12" md="4"><MudSelect T="string" @bind-Value="category" Label="دسته گزارش" Variant="Variant.Outlined"><MudSelectItem Value="@("")">همه دسته‌ها</MudSelectItem>@foreach(var c in reports.Select(x=>x.Category).Distinct()) { <MudSelectItem Value="@c">@c</MudSelectItem> }</MudSelect></MudItem>
+  </MudGrid></MudPaper>
+  @foreach(var group in Filtered.GroupBy(x=>x.Category)) {
+   <section class="report-category">
+    <div class="report-category-heading"><MudIcon Icon="@CategoryIcon(group.Key)" /><h2>@group.Key</h2><span>@group.Count() گزارش</span></div>
+    <div class="report-cards">
+     @foreach(var report in group) {
+      <a class="report-card" href="@($"/reports/{report.Key}")"><span class="report-card-icon"><MudIcon Icon="@(report.Mode=="powerbi" ? Icons.Material.Filled.BarChart : Icons.Material.Filled.Description)" /></span><span class="report-card-title">@report.Title</span><span class="report-card-action">مشاهده <MudIcon Icon="@Icons.Material.Filled.ArrowBack" Size="Size.Small" /></span></a>
+     }
+    </div>
+   </section>
+  }
+  @if(!Filtered.Any()) { <MudAlert Severity="Severity.Info">گزارشی با این مشخصات در دسترس شما نیست.</MudAlert> }
+ }
+</MudRTLProvider>
+@code {
+ private List<ReportInfo> reports=[];
+ private string? search,error;
+ private string category="";
+ private bool loading=true;
+ private IEnumerable<ReportInfo> Filtered=>reports.Where(x=>(category=="" || x.Category==category) && (string.IsNullOrWhiteSpace(search) || Normalize(x.Title).Contains(Normalize(search))));
+ private static string Normalize(string value)=>value.Trim().Replace('ي','ی').Replace('ك','ک').Replace('‌',' ');
+ private static string CategoryIcon(string category)=>category switch {"واحد فروش"=>Icons.Material.Filled.PointOfSale,"تولید"=>Icons.Material.Filled.PrecisionManufacturing,"شاخص‌های عملکرد"=>Icons.Material.Filled.Insights,_=>Icons.Material.Filled.FolderOpen};
+ protected override async Task OnAfterRenderAsync(bool firstRender) {
+  if(!firstRender) return;await Session.InitializeAsync();
+  if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
+  try {reports=await Api.GetReportsAsync()??[];if(!Session.IsAuthenticated) Navigation.NavigateTo("/login");}
+  catch(Exception ex) {error=ex.Message;} finally {loading=false;StateHasChanged();}
+ }
+}
