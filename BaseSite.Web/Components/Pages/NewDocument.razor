@@ -1,0 +1,102 @@
+@page "/documents/{Kind}/new"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>افزودن @Title | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading"><MudText Typo="Typo.h5">افزودن @Title</MudText><MudButton Href="@($"/documents/{Kind}")">بازگشت</MudButton></div>
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (!ready) { <MudProgressLinear Indeterminate="true" /> }
+    else if (CanAdd)
+    {
+        @if (Kind == "orders") { <MudAlert Severity="Severity.Info" Class="mb-4">این فرم برای ثبت اطلاعات اولیه پیش‌فاکتور سفارش است. اقلام و مشخصات پنل‌ها در این مرحله ثبت نمی‌شوند.</MudAlert> }
+        <EditForm Model="model" OnValidSubmit="Save">
+            <DataAnnotationsValidator /><ValidationSummary />
+            <MudPaper Class="filter-panel" Elevation="0">
+                <MudGrid>
+                    <MudItem xs="12" md="6"><MudAutocomplete T="OrderLookup" Label="مشتری" Value="customer" ValueChanged="SelectCustomer" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? "")" Required="true" Clearable="true" Variant="Variant.Outlined" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ClienteleName" Label="سفارش دهنده" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
+                    @if (Kind == "orders") { <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ProjectName" Label="نام پروژه" Immediate="true" Variant="Variant.Outlined" MaxLength="100" /></MudItem> }
+                    <MudItem xs="12" md="6"><PersianDateFilter @bind-Value="deliveryDate" Label="تاریخ تحویل" /></MudItem>
+                    <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع سفارش" @bind-Value="model.OrderTypeId" Variant="Variant.Outlined">
+                        @foreach (var item in options.OrderTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect></MudItem>
+                    @if (Kind != "services") { <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع معامله" @bind-Value="model.TradeTypeId" Variant="Variant.Outlined">
+                        @foreach (var item in options.TradeTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect></MudItem> }
+                    <MudItem xs="12"><MudTextField @bind-Value="model.DeliveryAddress" Label="محل ارسال" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
+                    <MudItem xs="12"><MudTextField @bind-Value="model.Comment" Label="@(Kind == "services" ? "شرح خدمات" : "توضیحات")" Lines="3" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
+                    @if (Kind == "services") { <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.ServiceCost" Label="مبلغ خدمات (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem> }
+                    @if (Kind != "orders") {
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.DeliveryCost" Label="کرایه حمل (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Tax" Label="عوارض (درصد)" Min="0" Max="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Discount" Label="تخفیف (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                    }
+                </MudGrid>
+            </MudPaper>
+            @if (Kind == "sales") {
+                <MudPaper Class="filter-panel mt-4" Elevation="0">
+                    <MudText Typo="Typo.h6" Class="mb-3">اقلام فروش کالا</MudText>
+                    @foreach (var item in model.Items) {
+                        <MudGrid @key="item" Class="mb-3">
+                            <MudItem xs="12" md="5"><MudTextField @bind-Value="item.Name" Label="شرح کالا" Immediate="true" Variant="Variant.Outlined" MaxLength="100" /></MudItem>
+                            <MudItem xs="6" md="2"><MudNumericField @bind-Value="item.Count" Label="تعداد" Min="1" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                            <MudItem xs="6" md="4"><MudNumericField @bind-Value="item.UnitPrice" Label="قیمت واحد (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                            <MudItem xs="12" md="1"><MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" OnClick="() => model.Items.Remove(item)" aria-label="حذف ردیف کالا" /></MudItem>
+                        </MudGrid>
+                    }
+                    <MudButton OnClick="() => model.Items.Add(new())" StartIcon="@Icons.Material.Filled.Add">افزودن کالا</MudButton>
+                </MudPaper>
+            }
+            <MudButton ButtonType="ButtonType.Submit" Disabled="saving" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4">ثبت پیش‌فاکتور</MudButton>
+        </EditForm>
+    }
+</MudRTLProvider>
+@code {
+    [Parameter] public string Kind { get; set; } = "";
+    private string Title => Kind switch { "orders" => "سفارش", "sales" => "فروش کالا", "services" => "خدمات", _ => "سند" };
+    private string Role => Kind switch { "orders" => "Order_Add", "sales" => "Sale_Add", "services" => "Service_Add", _ => "" };
+    private bool CanAdd => Role != "" && Session.User?.Roles.Contains(Role) == true;
+    private NewDocumentRequest model = new();
+    private NewDocumentOptions options = new();
+    private OrderLookup? customer;
+    private string? deliveryDate, error, loadedKind;
+    private bool ready, saving;
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedKind != Kind) await Load(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        if (loadedKind != Kind) await Load();
+        StateHasChanged();
+    }
+    private async Task Load() {
+        ready = false; error = null; loadedKind = Kind; model = new(); customer = null; deliveryDate = null;
+        if (!CanAdd) error = "شما دسترسی افزودن این سند را ندارید.";
+        else try {
+            options = await Api.GetNewDocumentOptionsAsync(Kind) ?? new();
+            model.OrderTypeId = options.OrderTypes.Count > 0 ? (byte?)options.OrderTypes[0].Id : null;
+            model.TradeTypeId = options.TradeTypes.Count > 0 ? (byte?)options.TradeTypes[0].Id : null;
+            if (Kind == "sales") model.Items.Add(new());
+        } catch (Exception ex) { error = ex.Message; }
+        ready = true;
+    }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token) {
+        try { return await Api.FindNewDocumentCustomersAsync(Kind, term ?? "", token) ?? []; }
+        catch (OperationCanceledException) { return []; }
+        catch (Exception ex) { error = ex.Message; return []; }
+    }
+    private void SelectCustomer(OrderLookup? value) { customer = value; model.CustomerId = value?.Id ?? 0; }
+    private async Task Save() {
+        if (saving || !CanAdd) return;
+        saving = true; error = null;
+        try {
+            if (customer is null) throw new InvalidOperationException("مشتری را انتخاب کنید.");
+            model.CustomerId = customer.Id;
+            model.FactorDate = PersianDates.Parse(deliveryDate, "تاریخ تحویل");
+            var result = await Api.CreateDocumentAsync(Kind, model);
+            Navigation.NavigateTo($"/documents/{Kind}/{result.Id}");
+        } catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+}

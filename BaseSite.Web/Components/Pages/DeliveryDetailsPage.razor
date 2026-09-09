@@ -1,0 +1,111 @@
+@page "/documents/deliveries/{Id:int}"
+@page "/documents/deliveries/new"
+@using System.ComponentModel.DataAnnotations
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>@Title | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+ <div class="page-heading"><MudText Typo="Typo.h5">@Title</MudText><MudButton Href="/documents/deliveries" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به تحویل‌ها</MudButton></div>
+ @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+ @if(loading) { <MudProgressLinear Indeterminate="true" /> }
+ else if(Id==0 && canAdd) {
+  <MudPaper Class="filter-panel" Elevation="0">
+   <MudText Class="mb-4">نوع و شماره سند سفارش یا فروش کالا را انتخاب کنید تا اقلام قابل تحویل نمایش داده شوند.</MudText>
+   <MudGrid>
+    <MudItem xs="12" md="4"><MudSelect T="string" @bind-Value="kind" Label="نوع سند" Variant="Variant.Outlined"><MudSelectItem Value="@("orders")">سفارش</MudSelectItem><MudSelectItem Value="@("sales")">فروش کالا</MudSelectItem></MudSelect></MudItem>
+    <MudItem xs="12" md="4"><MudNumericField T="int?" @bind-Value="sourceNumber" Immediate="true" HideSpinButtons="true" Label="شماره سند مبدأ" Variant="Variant.Outlined" /></MudItem>
+    <MudItem xs="12" md="4"><MudButton OnClick="LoadSource" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary">دریافت اقلام</MudButton></MudItem>
+   </MudGrid>
+  </MudPaper>
+  @if(draft is not null) {
+   <EditForm Model="draft.Form" OnSubmit="Save" Context="formContext">
+    <MudPaper Class="filter-panel mt-4" Elevation="0">
+     <MudText Typo="Typo.h6" Class="mb-4">مشتری: @draft.Customer — سند @loadedNumber</MudText>
+     <MudGrid>
+      <MudItem xs="12" md="4"><MudSelect T="short" @bind-Value="draft.Form.PackTypeId" Label="نوع بسته‌بندی" Variant="Variant.Outlined">@foreach(var x in lookups.Packs) { <MudSelectItem T="short" Value="@((short)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
+      <MudItem xs="12" md="4"><MudSelect T="byte" @bind-Value="draft.Form.DeliveryLocationId" Label="محل تحویل" Variant="Variant.Outlined">@foreach(var x in lookups.Locations) { <MudSelectItem T="byte" Value="@((byte)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
+      <MudItem xs="12" md="4"><MudSelect T="byte" @bind-Value="draft.Form.VehicleTypeId" Label="وسیله حمل" Variant="Variant.Outlined">@foreach(var x in lookups.Vehicles) { <MudSelectItem T="byte" Value="@((byte)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.SendResponsible" Label="مسئول ارسال" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieveResponsible" Label="مسئول دریافت" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverName" Label="تحویل گیرنده" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverPhone" Label="تلفن" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverMobile" Label="موبایل" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.CarierAgencyName" Label="باربری" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.CarierAgencyBill" Label="شماره بارنامه" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.VehiclePlaque" Label="پلاک خودرو" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.DriverName" Label="راننده" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.DriverPhone" Label="تلفن راننده" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+      <MudItem xs="12"><MudTextField @bind-Value="draft.Form.DestinationAddress" Label="آدرس تحویل" Lines="2" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+     </MudGrid>
+     <MudTable T="DeliveryItem" Items="draft.Form.Items" Class="mt-4" Dense="true" Bordered="true">
+      <HeaderContent><MudTh>انتخاب</MudTh><MudTh>شرح کالا</MudTh><MudTh>تعداد</MudTh><MudTh>توضیحات تحویل</MudTh></HeaderContent>
+      <RowTemplate><MudTd><MudCheckBox @bind-Value="context.Selected" aria-label="@($"انتخاب {context.Name}")" /></MudTd><MudTd>@context.Name</MudTd><MudTd>@context.Count</MudTd><MudTd><MudTextField @bind-Value="context.Comment" Immediate="true" MaxLength="255" /></MudTd></RowTemplate>
+      <NoRecordsContent><MudText Class="pa-4">قلمی برای تحویل باقی نمانده است.</MudText></NoRecordsContent>
+     </MudTable>
+     <MudText Class="mt-4">تحویل با تاریخ امروز و وضعیت «صادر شده» ثبت می‌شود.</MudText>
+     <MudButton ButtonType="ButtonType.Submit" Disabled="@(busy || !draft.Form.Items.Any(x=>x.Selected))" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ثبت تحویل</MudButton>
+    </MudPaper>
+   </EditForm>
+  }
+ } else if(detail is not null) {
+  <MudPaper Class="filter-panel" Elevation="0">
+   <dl class="order-specs">
+    <div><dt>شماره سند</dt><dd>@detail.Summary.DocumentNumber</dd></div><div><dt>تاریخ</dt><dd>@PersianDates.Format(detail.Summary.Date)</dd></div>
+    <div><dt>نوع</dt><dd>@detail.Summary.Kind</dd></div><div><dt>مشتری</dt><dd>@detail.Summary.Customer</dd></div>
+    <div><dt>نام پروژه</dt><dd>@detail.Summary.ProjectName</dd></div><div><dt>وضعیت</dt><dd>@detail.Summary.Status</dd></div>
+    <div><dt>شماره فاکتور</dt><dd>@detail.Summary.FactorNumber</dd></div>
+    @foreach(var field in detail.Fields) { <div><dt>@field.Key</dt><dd>@field.Value</dd></div> }
+   </dl>
+   <MudText Typo="Typo.h6" Class="mt-4 mb-2">اقلام تحویل</MudText>
+   <MudTable T="DeliveryItem" Items="detail.Items" Dense="true" Bordered="true">
+    <HeaderContent><MudTh>شرح کالا</MudTh><MudTh>تعداد</MudTh><MudTh>توضیحات</MudTh></HeaderContent>
+    <RowTemplate><MudTd>@context.Name</MudTd><MudTd>@context.Count</MudTd><MudTd>@context.Comment</MudTd></RowTemplate>
+    <NoRecordsContent><MudText Class="pa-4">قلمی ثبت نشده است.</MudText></NoRecordsContent>
+   </MudTable>
+  </MudPaper>
+ }
+</MudRTLProvider>
+@code {
+ [Parameter] public int Id {get;set;}
+ private string Title=>Id==0 ? "افزودن تحویل" : "جزئیات تحویل";
+ private DeliveryDetail? detail;
+ private DeliveryDraft? draft;
+ private DeliveryLookups lookups=new();
+ private string kind="orders";
+ private int? sourceNumber,loadedNumber,loadedId;
+ private string? error;
+ private bool loading=true,busy,canAdd;
+ public override Task SetParametersAsync(ParameterView parameters) { if(!parameters.TryGetValue<int>(nameof(Id),out _)) Id=0; return base.SetParametersAsync(parameters); }
+ protected override async Task OnParametersSetAsync() { if(Session.IsInitialized && loadedId!=Id) await Load(); }
+ protected override async Task OnAfterRenderAsync(bool firstRender) { if(!firstRender) return; await Session.InitializeAsync(); if(loadedId!=Id) await Load(); StateHasChanged(); }
+ private async Task Load() {
+  if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
+  loading=true;loadedId=Id;detail=null;draft=null;error=null;
+  canAdd=Session.User?.Roles.Contains("Delivery_Add")==true;
+  try {
+   if(Id==0) { if(!canAdd) throw new InvalidOperationException("شما دسترسی افزودن تحویل را ندارید."); lookups=await Api.GetDeliveryLookupsAsync()??new(); }
+   else detail=await Api.GetDeliveryAsync(Id);
+   if(!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+  } catch(Exception ex) {error=ex.Message;} finally {loading=false;}
+ }
+ private async Task LoadSource() {
+  if(busy) return;busy=true;error=null;draft=null;
+  try {
+   if(sourceNumber is null or <=0) throw new InvalidOperationException("شماره سند مبدأ را وارد کنید.");
+   var result=await Api.GetDeliveryDraftAsync(kind,sourceNumber.Value);
+   if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
+   draft=result;loadedNumber=sourceNumber;
+  } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
+ }
+ private async Task Save() {
+  if(busy || draft is null || !canAdd) return;busy=true;error=null;
+  try {
+   if(kind!=draft.Form.Kind || sourceNumber!=loadedNumber) throw new InvalidOperationException("سند مبدأ تغییر کرده است؛ ابتدا دریافت اقلام را بزنید.");
+   var errors=new List<ValidationResult>();
+   if(!Validator.TryValidateObject(draft.Form,new ValidationContext(draft.Form),errors,true)) throw new InvalidOperationException(string.Join(" ",errors.Select(x=>x.ErrorMessage)));
+   var result=await Api.CreateDeliveryAsync(draft.Form);
+   Navigation.NavigateTo(Session.User?.Roles.Contains("Delivery_Detail")==true ? $"/documents/deliveries/{result.Id}" : "/documents/deliveries");
+  } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
+ }
+}

@@ -1,0 +1,66 @@
+@using System.Globalization
+<div class="persian-picker" @onkeydown="OnKeyDown">
+    <label for="@inputId">@Label</label>
+    <div class="date-entry">
+        <input id="@inputId" value="@Value" @oninput="TextChanged" @onfocus="Open" @onclick="Open" placeholder="سال/ماه/روز" autocomplete="off" aria-expanded="@open" aria-controls="@(inputId + "-calendar")" />
+        <button type="button" @onclick="Toggle" aria-label="@($"انتخاب {Label}")"><span aria-hidden="true">▦</span></button>
+    </div>
+    @if (open)
+    {
+        <div class="calendar" id="@(inputId + "-calendar")" role="dialog" aria-label="@($"تقویم شمسی {Label}")">
+            <div class="calendar-heading">
+                <button type="button" @onclick="Previous" aria-label="ماه قبل">‹</button>
+                <select aria-label="ماه" @bind="month">@for (var i = 1; i <= 12; i++) { <option value="@i">@Months[i - 1]</option> }</select>
+                <input type="number" aria-label="سال شمسی" min="1" max="9377" @bind="year" />
+                <button type="button" @onclick="Next" aria-label="ماه بعد">›</button>
+            </div>
+            <div class="calendar-days">
+                @foreach (var name in Weekdays) { <span class="weekday">@name</span> }
+                @for (var i = 0; i < Offset; i++) { <span></span> }
+                @for (var i = 1; i <= Days; i++)
+                {
+                    var day = i;
+                    var date = Calendar.ToDateTime(SafeYear, SafeMonth, day, 0, 0, 0, 0);
+                    <button type="button" class="@(Value == PersianDates.Format(date) ? "selected" : "")"
+                            aria-label="@PersianDates.Format(date)" aria-pressed="@(Value == PersianDates.Format(date))"
+                            @onclick="() => Select(date)">@Digits(day)</button>
+                }
+            </div>
+            <div class="calendar-actions">
+                <button type="button" @onclick="() => Select(DateTime.Today)">امروز</button>
+                <button type="button" @onclick="Clear">پاک کردن</button>
+                <button type="button" @onclick="Close">بستن</button>
+            </div>
+        </div>
+    }
+</div>
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    private readonly string inputId = "date-" + Guid.NewGuid().ToString("N");
+    private static readonly PersianCalendar Calendar = new();
+    private static readonly string[] Months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
+    private static readonly string[] Weekdays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+    private bool open;
+    private int year = Calendar.GetYear(DateTime.Today), month = Calendar.GetMonth(DateTime.Today);
+    private int SafeYear => Math.Clamp(year, 1, 9377);
+    private int SafeMonth => Math.Clamp(month, 1, 12);
+    private int Days => Calendar.GetDaysInMonth(SafeYear, SafeMonth);
+    private int Offset => ((int)Calendar.ToDateTime(SafeYear, SafeMonth, 1, 0, 0, 0, 0).DayOfWeek + 1) % 7;
+    private static string Digits(int day) => string.Concat(day.ToString().Select(c => "۰۱۲۳۴۵۶۷۸۹"[c - '0']));
+    private void Open() {
+        if (open) return;
+        try { var date = PersianDates.Parse(Value, Label) ?? DateTime.Today; year = Calendar.GetYear(date); month = Calendar.GetMonth(date); }
+        catch (InvalidOperationException) { year = Calendar.GetYear(DateTime.Today); month = Calendar.GetMonth(DateTime.Today); }
+        open = true;
+    }
+    private void Toggle() { if (open) Close(); else Open(); }
+    private void Close() => open = false;
+    private void OnKeyDown(KeyboardEventArgs e) { if (e.Key == "Escape") Close(); }
+    private Task TextChanged(ChangeEventArgs e) => ValueChanged.InvokeAsync(e.Value?.ToString());
+    private async Task Select(DateTime date) { await ValueChanged.InvokeAsync(PersianDates.Format(date)); Close(); }
+    private async Task Clear() { await ValueChanged.InvokeAsync(null); Close(); }
+    private void Previous() { year = SafeYear; month = SafeMonth; if (month > 1) month--; else if (year > 1) { year--; month = 12; } }
+    private void Next() { year = SafeYear; month = SafeMonth; if (month < 12) month++; else if (year < 9377) { year++; month = 1; } }
+}

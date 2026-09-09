@@ -1,0 +1,127 @@
+@page "/documents/payments/{Id:int}"
+@page "/documents/payments/new"
+@using System.ComponentModel.DataAnnotations
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>@Title | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">@Title @payment?.Summary.DocumentNumber</MudText>
+        <MudButton Href="/documents/payments" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به اسناد دریافتی</MudButton>
+    </div>
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (loading) { <MudProgressLinear Indeterminate="true" /> }
+    else if (Id == 0 && canAdd)
+    {
+        <EditForm Model="model" OnSubmit="Save">
+            <MudPaper Class="filter-panel" Elevation="0">
+                <MudGrid>
+                    <MudItem xs="12" md="6"><MudAutocomplete T="OrderLookup" Label="مشتری" @bind-Value="customer" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? "")" Clearable="true" Variant="Variant.Outlined" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ProjectName" Label="نام پروژه" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
+                    <MudItem xs="12" md="6"><MudSelect T="byte?" @bind-Value="model.PaymentTypeId" Label="نحوه وصول" Variant="Variant.Outlined">
+                        @foreach (var item in lookups.Types) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect></MudItem>
+                    <MudItem xs="12" md="6"><MudSelect T="byte?" @bind-Value="model.BabatId" Label="بابت" Variant="Variant.Outlined">
+                        @foreach (var item in lookups.Babats) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect></MudItem>
+                    <MudItem xs="12" md="6"><PersianDateFilter @bind-Value="documentDate" Label="تاریخ سند" /></MudItem>
+                    <MudItem xs="12" md="6"><PersianDateFilter @bind-Value="dueDate" Label="تاریخ سررسید" /></MudItem>
+                    <MudItem xs="12" md="6"><MudSelect T="short?" @bind-Value="model.BankId" Label="نام بانک" Clearable="true" Variant="Variant.Outlined">
+                        @foreach (var item in lookups.Banks) { <MudSelectItem T="short?" Value="@((short?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.BankBranchCode" Label="کد شعبه" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ReferenceNumber" Label="شماره چک / حواله" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.AccountNumber" Label="شماره حساب" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
+                    <MudItem xs="12" md="6"><MudNumericField @bind-Value="model.Amount" Label="مبلغ (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                    <MudItem xs="12" md="6"><MudCheckBox @bind-Value="model.Returned" Label="برگشتی" /></MudItem>
+                    <MudItem xs="12"><MudTextField @bind-Value="model.Comment" Label="توضیحات" Lines="3" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
+                </MudGrid>
+                <MudText Class="mt-4" Typo="Typo.body2">سند جدید با وضعیت «تأیید نشده» ثبت می‌شود.</MudText>
+                <MudButton ButtonType="ButtonType.Submit" Disabled="saving" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ثبت سند دریافتی</MudButton>
+            </MudPaper>
+        </EditForm>
+    }
+    else if (payment is not null)
+    {
+        <MudPaper Class="filter-panel" Elevation="0">
+            <dl class="order-specs">
+                <div><dt>شماره سند</dt><dd>@payment.Summary.DocumentNumber</dd></div>
+                <div><dt>ثبت کننده</dt><dd>@payment.Summary.Receiver</dd></div>
+                <div><dt>مشتری</dt><dd>@payment.Summary.Customer</dd></div>
+                <div><dt>نام پروژه</dt><dd>@payment.ProjectName</dd></div>
+                <div><dt>نحوه وصول</dt><dd>@payment.Summary.PaymentType</dd></div>
+                <div><dt>بابت</dt><dd>@payment.Summary.Babat</dd></div>
+                <div><dt>تاریخ سند</dt><dd>@PersianDates.Format(payment.Summary.DocumentDate)</dd></div>
+                <div><dt>تاریخ سررسید</dt><dd>@PersianDates.Format(payment.Summary.DueDate)</dd></div>
+                <div><dt>نام بانک</dt><dd>@payment.Summary.Bank</dd></div>
+                <div><dt>کد شعبه</dt><dd>@payment.BankBranchCode</dd></div>
+                <div><dt>شماره چک / حواله</dt><dd>@payment.ReferenceNumber</dd></div>
+                <div><dt>شماره حساب</dt><dd>@payment.AccountNumber</dd></div>
+                <div><dt>مبلغ (ریال)</dt><dd>@payment.Summary.Amount.ToString("N0")</dd></div>
+                <div><dt>وضعیت</dt><dd>@payment.Summary.Status</dd></div>
+                <div><dt>برگشتی</dt><dd>@(payment.Returned ? "بله" : "خیر")</dd></div>
+                <div><dt>توضیحات</dt><dd>@payment.Comment</dd></div>
+            </dl>
+        </MudPaper>
+    }
+</MudRTLProvider>
+@code {
+    [Parameter] public int Id { get; set; }
+    private string Title => Id == 0 ? "افزودن سند دریافتی" : "جزئیات سند دریافتی";
+    private NewPaymentRequest model = new();
+    private PaymentDetail? payment;
+    private PaymentLookups lookups = new();
+    private OrderLookup? customer;
+    private string? documentDate, dueDate, error;
+    private bool loading = true, saving, canAdd;
+    private int? loadedId;
+    public override Task SetParametersAsync(ParameterView parameters) {
+        if (!parameters.TryGetValue<int>(nameof(Id), out _)) Id = 0;
+        return base.SetParametersAsync(parameters);
+    }
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await Load(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (loadedId != Id) await Load();
+        StateHasChanged();
+    }
+    private async Task Load() {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; loadedId = Id; payment = null; error = null;
+        canAdd = Session.User?.Roles.Contains("Payment_Add") == true;
+        try {
+            if (Id == 0) {
+                if (!canAdd) throw new InvalidOperationException("شما دسترسی افزودن سند دریافتی را ندارید.");
+                model = new(); customer = null;
+                documentDate = dueDate = PersianDates.Format(DateTime.Today);
+                lookups = await Api.GetPaymentLookupsAsync() ?? new();
+                if (lookups.Babats.Any(x => x.Id == 14)) model.BabatId = 14;
+            } else payment = await Api.GetPaymentAsync(Id);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        } catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string text, CancellationToken token) {
+        try { return await Api.FindPaymentCustomersAsync(text ?? "", token) ?? []; }
+        catch (OperationCanceledException) { return []; }
+        catch (Exception ex) { error = ex.Message; return []; }
+    }
+    private async Task Save() {
+        if (saving || !canAdd) return;
+        saving = true; error = null;
+        try {
+            model.CustomerId = customer?.Id ?? 0;
+            model.DocumentDate = PersianDates.Parse(documentDate, "تاریخ سند");
+            model.DueDate = PersianDates.Parse(dueDate, "تاریخ سررسید");
+            var errors = new List<ValidationResult>();
+            if (!Validator.TryValidateObject(model, new ValidationContext(model), errors, true)) throw new InvalidOperationException(string.Join(" ", errors.Select(x => x.ErrorMessage)));
+            var result = await Api.CreatePaymentAsync(model);
+            if (Session.User?.Roles.Contains("Payment_Detail") == true) Navigation.NavigateTo($"/documents/payments/{result.Id}");
+            else Navigation.NavigateTo("/documents/payments");
+        } catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+}

@@ -43,7 +43,7 @@ else if (summary is not null)
     <MudText Typo="Typo.h6" Class="mb-4">دسترسی سریع</MudText>
     <MudGrid Spacing="2">
         <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/orders" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Assignment">سفارش‌ها</MudButton></MudItem>
-        <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/sales" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PointOfSale">فروش</MudButton></MudItem>
+        <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/sales" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PointOfSale">فروش کالا</MudButton></MudItem>
         <MudItem xs="12" sm="6" md="3"><MudButton Href="/documents/deliveries" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.LocalShipping">تحویل</MudButton></MudItem>
         <MudItem xs="12" sm="6" md="3"><MudButton Href="/customers" FullWidth="true" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.People">مشتریان</MudButton></MudItem>
     </MudGrid>
@@ -57,7 +57,7 @@ else if (summary is not null)
     private IEnumerable<Metric> Metrics => summary is null ? [] :
     [
         new("سفارش‌ها", summary.Orders, Icons.Material.Filled.Assignment, "teal"),
-        new("فروش", summary.Sales, Icons.Material.Filled.PointOfSale, "amber"),
+        new("فروش کالا", summary.Sales, Icons.Material.Filled.PointOfSale, "amber"),
         new("تحویل", summary.Deliveries, Icons.Material.Filled.LocalShipping, "blue"),
         new("پرداخت", summary.Payments, Icons.Material.Filled.Payments, "violet"),
         new("خدمات", summary.Services, Icons.Material.Filled.HomeRepairService, "rose"),

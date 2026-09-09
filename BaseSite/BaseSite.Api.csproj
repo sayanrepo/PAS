@@ -26,7 +26,6 @@
   <ItemGroup>
     <Content Remove="Contents\**\*" />
     <Content Remove="GuideBook\**\*" />
-    <Content Remove="Images\**\*" />
     <Content Remove="Reports\**\*" />
     <Content Remove="Views\**\*" />
   </ItemGroup>

@@ -86,6 +86,7 @@ namespace BaseSite.Models.Order
                         .Include(m => m.Order_Status).Include(m => m.Tb_OrderTypes).Include(m => m.Tb_PackTypes).Include(m => m.Tb_ElevatorBoards)
                         .Where(m => m.Id == orderId).SingleOrDefault();
 
+                if (order == null) return null;
                 order.SumCostPanel = order.SumCostHall = order.SumCostDoorTop = order.SumCostAttachment = order.SumCostAddition = order.SumCostDeduction = order.SumCostTax = order.SumCostDiscountRate = 0;
                 foreach (Order_Cabin c in order.Order_Cabin)
                 {

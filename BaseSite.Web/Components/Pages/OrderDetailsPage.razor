@@ -1,0 +1,138 @@
+@page "/documents/orders/{Id:int}"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>جزئیات سفارش | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+<div class="order-detail">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">جزئیات سفارش @order?.Summary.DocumentNumber</MudText>
+        <MudButton Href="/documents/orders" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به سفارش‌ها</MudButton>
+    </div>
+    @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+    else if (error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
+    else if (order is not null)
+    {
+        <section class="order-section order-main" aria-label="مشخصات سفارش">
+            <h2 class="order-section-title">سفارش</h2>
+            <div class="order-section-body">
+                <dl class="order-fields order-top-fields">
+                    <OrderValue Label="شماره سند" Value="@(order.Summary.DocumentNumber.ToString())" />
+                    <OrderValue Label="وضعیت" Value="@(order.Summary.Status)" />
+                    <OrderValue Label="نوع معامله" Value="@(order.Summary.TradeType)" />
+                    <OrderValue Label="تاریخ سفارش" Value="@(PersianDates.Format(order.Summary.OrderDate))" />
+                    <OrderValue Label="تاریخ تحویل" Value="@(PersianDates.Format(order.Summary.FactorDate))" />
+                </dl>
+                <dl class="order-fields order-customer-fields">
+                    <OrderValue Label="مشتری" Value="@(order.Summary.Customer)" />
+                    <OrderValue Label="نام پروژه" Value="@(order.Summary.ProjectName)" />
+                    <OrderValue Label="سفارش دهنده" Value="@(order.ClienteleName)" />
+                    <OrderValue Label="نوع تابلو" Value="@(order.ElevatorBoard)" />
+                    <OrderValue Label="محل ارسال" Value="@(order.DeliveryAddress)" Class="order-wide" />
+                    <OrderValue Label="نوع بسته بندی" Value="@(order.PackType)" />
+                    <OrderValue Label="توضیحات" Value="@(order.Comment)" Class="order-full" />
+                </dl>
+                <dl class="order-fields order-totals">
+                    <OrderValue Label="پنل کابین" Value="@(order.CabinTotal.ToString("N0"))" />
+                    <OrderValue Label="پنل طبقات" Value="@(order.HallTotal.ToString("N0"))" />
+                    <OrderValue Label="پنل سردرب" Value="@(order.DoorTopTotal.ToString("N0"))" />
+                    <OrderValue Label="کرایه حمل" Value="@((order.DeliveryCost ?? 0).ToString("N0"))" />
+                    <OrderValue Label="عوارض" Value="@($"{order.TaxPercent:N2}٪ — {order.TaxTotal:N0}")" />
+                    <OrderValue Label="ملحقات" Value="@(order.AttachmentTotal.ToString("N0"))" />
+                    <OrderValue Label="اضافات" Value="@(order.AdditionTotal.ToString("N0"))" />
+                    <OrderValue Label="کسورات" Value="@(order.DeductionTotal.ToString("N0"))" />
+                    <OrderValue Label="تخفیف درصدی" Value="@($"{order.DiscountPercent:N2}٪ — {order.DiscountTotal:N0}")" />
+                    <OrderValue Label="جمع کل (ریال)" Value="@(order.Summary.Amount.ToString("N0"))" Class="order-grand-total" />
+                </dl>
+            </div>
+        </section>
+        @foreach (var panel in order.Panels)
+        {
+            <section class="order-section" aria-label="@panel.Kind">
+                <header class="order-section-title order-panel-title">
+                    <span>مرحله تولید: @(panel.Specifications.FirstOrDefault(x => x.Label == "وضعیت تولید")?.Value ?? "—")</span>
+                    <h2>@PanelTitle(panel.Kind)</h2>
+                    <span>@((panel.Count > 0 ? panel.Amount / panel.Count : 0).ToString("N0")) ریال / واحد</span>
+                </header>
+                <div class="order-section-body">
+                    <dl class="order-fields order-panel-fields">
+                        <OrderValue Label="مدل پنل" Value="@(panel.Name)" />
+                        @foreach (var spec in panel.Specifications.Where(x => x.Label != "وضعیت تولید"))
+                        {
+                            <OrderValue Label="@spec.Label" Value="@spec.Value" Class="@(spec.Label.Contains("توضیحات") || spec.Label.Contains("متن") ? "order-full" : "")" />
+                        }
+                        <OrderValue Label="تعداد" Value="@(panel.Count.ToString())" />
+                        <OrderValue Label="بارکد" Value="@(panel.DocumentNumber.ToString())" />
+                        <OrderValue Label="مبلغ کل پنل" Value="@(panel.Amount.ToString("N0"))" />
+                    </dl>
+                    <div class="order-extras">
+                        @foreach (var kind in new[] { "ملحقات", "اضافات" })
+                        {
+                            var extras = panel.Extras.Where(x => x.Kind == kind).ToList();
+                            <section>
+                                <h3>@kind</h3>
+                                <table><thead><tr><th>عنوان</th>@if (kind == "ملحقات") { <th>تعداد</th> }<th>مبلغ (ریال)</th></tr></thead>
+                                <tbody>
+                                    @foreach (var extra in extras) { <tr><td>@extra.Name</td>@if (kind == "ملحقات") { <td>@extra.Count</td> }<td>@extra.Amount.ToString("N0")</td></tr> }
+                                    @if (extras.Count == 0) { <tr><td colspan="3">موردی ثبت نشده است.</td></tr> }
+                                </tbody></table>
+                            </section>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
+        <section class="order-section">
+            <h2 class="order-section-title">کسورات</h2>
+            <div class="order-section-body">
+                <table><thead><tr><th>عنوان</th><th>مبلغ (ریال)</th></tr></thead><tbody>
+                @foreach (var item in order.Deductions) { <tr><td>@item.Name</td><td>@item.Amount.ToString("N0")</td></tr> }
+                @if (order.Deductions.Count == 0) { <tr><td colspan="2">کسوراتی ثبت نشده است.</td></tr> }
+                </tbody></table>
+            </div>
+        </section>
+        <dl class="order-fields order-customer-fields order-additional">
+            <OrderValue Label="شماره فاکتور" Value="@(order.Summary.FactorNumber.ToString())" />
+            <OrderValue Label="سفارش گیرنده" Value="@(order.Summary.Receiver)" />
+            <OrderValue Label="تاریخ درخواست تولید" Value="@(PersianDates.Format(order.ProductionRequestDate))" />
+        </dl>
+    }
+</div>
+</MudRTLProvider>
+
+@code {
+    private static string PanelTitle(string kind) => kind switch { "پنل کابین" => "پنل شاسی داخل کابین", "پنل طبقات" => "پنل شاسی طبقات", _ => kind };
+    [Parameter] public int Id { get; set; }
+    private OrderDetail? order;
+    private bool loading = true;
+    private string? error;
+    private int? loadedId;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Session.IsInitialized && loadedId != Id) await LoadAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (loadedId != Id) await LoadAsync();
+        StateHasChanged();
+    }
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true;
+        order = null;
+        error = null;
+        loadedId = Id;
+        try
+        {
+            order = await Api.GetOrderAsync(Id);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+}

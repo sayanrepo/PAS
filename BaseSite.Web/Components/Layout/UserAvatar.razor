@@ -1,0 +1,18 @@
+<img class="user-avatar @Class" src="@source" alt="عکس پروفایل" @onerror="UseDefaultImage" />
+
+@code {
+    [Parameter] public string? ImagePath { get; set; }
+    [Parameter] public string? Class { get; set; }
+    private string? previousPath;
+    private string source = "Images/System/profile.png";
+
+    protected override void OnParametersSet()
+    {
+        if (previousPath == ImagePath) return;
+        previousPath = ImagePath;
+        var fileName = Path.GetFileName((ImagePath ?? string.Empty).Replace('\\', '/'));
+        source = "Images/System/" + Uri.EscapeDataString(string.IsNullOrWhiteSpace(fileName) ? "profile.png" : fileName);
+    }
+
+    private void UseDefaultImage() => source = "Images/System/profile.png";
+}

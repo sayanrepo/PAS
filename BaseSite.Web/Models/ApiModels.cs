@@ -18,6 +18,25 @@ public sealed class LoginResponse
     public CurrentUser User { get; set; } = new();
 }
 
+public sealed class ChangePasswordRequest
+{
+    [Required(ErrorMessage = "نام کاربری را وارد کنید.")]
+    [MaxLength(255, ErrorMessage = "نام کاربری نباید بیشتر از ۲۵۵ کاراکتر باشد.")]
+    public string UserName { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "رمز عبور فعلی را وارد کنید.")]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "رمز عبور جدید را وارد کنید.")]
+    [MinLength(4, ErrorMessage = "رمز عبور باید حداقل چهار کاراکتر باشد.")]
+    public string NewPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "تکرار رمز عبور جدید را وارد کنید.")]
+    [Compare(nameof(NewPassword), ErrorMessage = "تکرار رمز عبور با رمز عبور جدید یکسان نیست.")]
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string ConfirmPassword { get; set; } = string.Empty;
+}
+
 public sealed class CurrentUser
 {
     public int Id { get; set; }

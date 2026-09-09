@@ -1,0 +1,8 @@
+<div class="order-value @Class">
+    <dt>@Label</dt><dd>@(string.IsNullOrWhiteSpace(Value) ? "—" : Value)</dd>
+</div>
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public string? Class { get; set; }
+}

@@ -21,7 +21,7 @@ public static class Theme
         LayoutProperties = new LayoutProperties
         {
             DefaultBorderRadius = "12px",
-            DrawerWidthLeft = "272px"
+            DrawerWidthRight = "272px"
         },
         Typography = new Typography
         {

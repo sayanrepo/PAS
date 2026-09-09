@@ -1,0 +1,159 @@
+@page "/documents/payments"
+@using System.ComponentModel.DataAnnotations
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>اسناد دریافتی | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">اسناد دریافتی</MudText>
+        @if (ready && Session.User?.Roles.Contains("Payment_Add") == true) {
+            <MudButton Href="/documents/payments/new" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">افزودن</MudButton>
+        }
+    </div>
+    @if (ready && CanSearch)
+    {
+        <MudPaper Class="filter-panel orders-filters" Elevation="0">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="4">
+                    <MudAutocomplete T="OrderLookup" @bind-Value="selectedCustomer" @bind-Text="customerText" Label="مشتری" SearchFunc="FindCustomersAsync"
+                                     ToStringFunc="@(x => x?.Name ?? string.Empty)" Clearable="true" ResetValueOnEmptyText="true" CoerceText="false" Strict="false"
+                                     Variant="Variant.Outlined" Margin="Margin.Dense" AdornmentIcon="@Icons.Material.Filled.Person" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderFrom" Label="تاریخ سند از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderTo" Label="تاریخ سند تا" /></MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="byte?" @bind-Value="typeId" Label="نحوه وصول" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Types) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorFrom" Label="تاریخ سررسید از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorTo" Label="تاریخ سررسید تا" /></MudItem>
+                <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
+                <MudItem xs="12" md="4"><MudSelect T="byte?" @bind-Value="babatId" Label="بابت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (var item in lookups.Babats) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                </MudSelect></MudItem>
+                <MudItem xs="12" md="4"><MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (var item in lookups.Statuses) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                </MudSelect></MudItem>
+
+
+            </MudGrid>
+            <div class="d-flex justify-center gap-3 mt-4">
+                <MudButton OnClick="SearchAsync" Disabled="loading" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">جستجو</MudButton>
+                <MudButton OnClick="ResetAsync" Disabled="loading" Variant="Variant.Text">پاک کردن فیلترها</MudButton>
+            </div>
+        </MudPaper>
+    }
+    @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert> }
+    @if (ready && CanRead)
+    {
+        <MudPaper Class="table-panel orders-table mt-4" Elevation="0">
+            <MudTable T="PaymentSummary" @ref="table" ServerData="LoadOrdersAsync" Dense="true" Hover="true" Bordered="true" Striped="true" RowsPerPage="20" Breakpoint="Breakpoint.None">
+                <HeaderContent>
+                    <MudTh>ردیف</MudTh><MudTh>شماره سند</MudTh><MudTh>ثبت کننده</MudTh><MudTh>مشتری</MudTh><MudTh>نحوه وصول</MudTh>
+                    <MudTh>تاریخ سند</MudTh><MudTh>تاریخ سررسید</MudTh><MudTh>نام بانک</MudTh><MudTh>بابت</MudTh><MudTh>مبلغ</MudTh><MudTh>وضعیت</MudTh><MudTh>جزئیات</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.RowNumber</MudTd><MudTd>@context.DocumentNumber</MudTd><MudTd>@context.Receiver</MudTd><MudTd>@context.Customer</MudTd><MudTd>@context.PaymentType</MudTd>
+                    <MudTd><span dir="ltr">@PersianDates.Format(context.DocumentDate)</span></MudTd><MudTd><span dir="ltr">@PersianDates.Format(context.DueDate)</span></MudTd>
+                    <MudTd>@context.Bank</MudTd><MudTd>@context.Babat</MudTd><MudTd>@context.Amount.ToString("N0")</MudTd><MudTd>@context.Status</MudTd>
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" Size="Size.Small" Disabled="@(!CanDetail)"
+                        Href="@($"/documents/payments/{context.Id}")" aria-label="@($"جزئیات سند دریافتی {context.DocumentNumber}")" title="جزئیات سند دریافتی" /></MudTd>
+                </RowTemplate>
+                <NoRecordsContent><MudText Class="pa-5">سند دریافتی یافت نشد.</MudText></NoRecordsContent>
+                <LoadingContent><MudText Class="pa-5">در حال دریافت اسناد دریافتی…</MudText></LoadingContent>
+                <PagerContent><MudTablePager PageSizeOptions="@(new[] { 20, 50, 100 })" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+            </MudTable>
+        </MudPaper>
+    }
+    else if (!ready) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+</MudRTLProvider>
+
+@code {
+    private MudTable<PaymentSummary>? table;
+    private PaymentLookups lookups = new();
+    private PaymentSearch applied = new();
+    private OrderLookup? selectedCustomer;
+    private string? customerText, orderFrom, orderTo, factorFrom, factorTo, error;
+    private byte? statusId, typeId, babatId;
+    private int? documentNumber;
+    private bool ready, loading;
+    private bool CanRead => Session.User?.Roles.Contains("Payment") == true;
+    private bool CanSearch => Session.User?.Roles.Contains("Payment_Search") == true;
+    private bool CanDetail => Session.User?.Roles.Contains("Payment_Detail") == true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        try
+        {
+            if (!CanRead) error = "شما دسترسی مشاهده اسناد دریافتی را ندارید.";
+            else if (CanSearch) lookups = await Api.GetPaymentLookupsAsync() ?? new();
+        }
+        catch (Exception ex) { error = ex.Message; }
+        ready = true;
+        StateHasChanged();
+    }
+
+    private async Task<IEnumerable<OrderLookup>> FindCustomersAsync(string text, CancellationToken token)
+    {
+        try { return await Api.FindPaymentCustomersAsync(text ?? "", token) ?? []; }
+        catch (OperationCanceledException) { return []; }
+        catch (Exception ex) { error = ex.Message; return []; }
+    }
+
+    private async Task SearchAsync()
+    {
+        error = null;
+        try
+        {
+            var exactCustomer = selectedCustomer is not null && selectedCustomer.Name == customerText;
+            var next = new PaymentSearch
+            {
+                DocumentNumber = documentNumber, CustomerId = exactCustomer ? selectedCustomer!.Id : null,
+                Customer = exactCustomer ? null : customerText, StatusId = statusId, PaymentTypeId = typeId, BabatId = babatId,
+                DocumentDateFrom = PersianDates.Parse(orderFrom, "تاریخ سند از"), DocumentDateTo = PersianDates.Parse(orderTo, "تاریخ سند تا"),
+                DueDateFrom = PersianDates.Parse(factorFrom, "تاریخ سررسید از"), DueDateTo = PersianDates.Parse(factorTo, "تاریخ سررسید تا")
+            };
+            var errors = new List<ValidationResult>();
+            if (!Validator.TryValidateObject(next, new ValidationContext(next), errors, true))
+                throw new InvalidOperationException(errors[0].ErrorMessage);
+            applied = next;
+            if (table is not null)
+            {
+                if (table.CurrentPage != 0) table.NavigateTo(0);
+                else await table.ReloadServerData();
+            }
+        }
+        catch (Exception ex) { error = ex.Message; }
+    }
+
+    private async Task ResetAsync()
+    {
+        selectedCustomer = null;
+        customerText = orderFrom = orderTo = factorFrom = factorTo = null;
+        statusId = typeId = babatId = null;
+        documentNumber = null;
+        await SearchAsync();
+    }
+
+    private async Task<TableData<PaymentSummary>> LoadOrdersAsync(TableState state, CancellationToken token)
+    {
+        loading = true;
+        try
+        {
+            applied.Page = state.Page;
+            applied.PageSize = state.PageSize;
+            var result = await Api.GetPaymentsAsync(applied, token);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+            return new() { Items = result?.Items ?? [], TotalItems = result?.TotalCount ?? 0 };
+        }
+        catch (OperationCanceledException) { return new() { Items = [], TotalItems = 0 }; }
+        catch (Exception ex) { error = ex.Message; return new() { Items = [], TotalItems = 0 }; }
+        finally { loading = false; }
+    }
+}

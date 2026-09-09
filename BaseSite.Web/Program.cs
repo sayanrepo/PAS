@@ -15,6 +15,7 @@ builder.Services.AddDataProtection()
     .SetApplicationName("BaseSite.Web");
 builder.Services.AddMudServices();
 builder.Services.AddScoped<ApiSession>();
+builder.Services.AddSingleton<ProfileImageStore>();
 builder.Services.AddHttpClient<BaseSiteApiClient>(httpClient =>
 {
     var discoveredAddress = builder.Configuration["services:basesite-api:http:0"];
@@ -36,6 +37,8 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 
+// Serve profile images created after the application was built or published.
+app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapStaticAssets();

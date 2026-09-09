@@ -1,0 +1,16 @@
+.persian-picker { position: relative; margin-top: 6px; direction: rtl; }
+label { position: absolute; top: -8px; right: 12px; padding: 0 5px; background: white; font-size: 12px; color: #526460; z-index: 1; }
+.date-entry { display: flex; border: 1px solid #b9c6c3; border-radius: 12px; min-height: 40px; }
+.date-entry input { width: 100%; min-width: 0; border: 0; background: transparent; text-align: center; direction: ltr; padding: 8px; font: inherit; border-radius: 12px; }
+button { cursor: pointer; font: inherit; border: 0; background: transparent; color: #0f766e; border-radius: 6px; padding: 6px 10px; }
+button:hover, button:focus-visible { background: #dff2ee; }
+.calendar { position: absolute; top: 48px; right: 0; z-index: 1300; width: 300px; max-width: calc(100vw - 40px); background: white; padding: 12px; border: 1px solid #d4e2df; border-radius: 14px; box-shadow: 0 10px 30px #123c3733; }
+.calendar-heading { display: flex; gap: 4px; align-items: center; margin-bottom: 8px; }
+.calendar-heading input { width: 74px; min-width: 0; }
+.calendar-heading select { flex: 1; min-width: 0; }
+.calendar-heading input, .calendar-heading select { font: inherit; border: 1px solid #ddd; border-radius: 5px; padding: 4px; }
+.calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; gap: 2px; }
+.calendar-days button { padding: 5px 0; }
+.weekday { font-size: 12px; color: #758681; padding: 4px; }
+.calendar-days .selected { background: #0f766e; color: white; }
+.calendar-actions { display: flex; justify-content: space-between; border-top: 1px solid #eee; margin-top: 8px; padding-top: 6px; font-size: 12px; }

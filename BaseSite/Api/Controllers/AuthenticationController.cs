@@ -1,11 +1,10 @@
-using System.Security.Claims;
 using BaseSite.Api.Authentication;
 using BaseSite.Api.Contracts;
 using BaseSite.Models;
 using BaseSite.Models.Account;
-using BaseSite.Models.DBModel;
 using BaseSite.Models.Log;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BaseSite.Api.Controllers;
 
@@ -49,22 +48,51 @@ public sealed class AuthenticationController(AccessTokenService accessTokens) : 
 
     [Authorize]
     [HttpGet("me")]
-    public ActionResult<CurrentUserDto> Me() => Ok(new CurrentUserDto
-    {
-        Id = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0,
-        UserName = User.FindFirstValue(ClaimTypes.Name) ?? string.Empty,
-        FullName = User.FindFirstValue("panta:full_name") ?? string.Empty,
-        ImagePath = User.FindFirstValue("panta:image_path") ?? "profile.png",
-        Roles = User.FindAll(ClaimTypes.Role).Select(claim => claim.Value).ToArray()
-    });
+    public ActionResult<CurrentUserDto> Me() => Ok(GetCurrentUser());
 
     [Authorize]
     [HttpPost("change-password")]
     public IActionResult ChangePassword(ChangePasswordRequest request)
     {
         var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
-        var message = AccountManager.Account_User_ChangePassword(userId, request.UserName, request.CurrentPassword, request.NewPassword);
-        return Ok(new { message });
+        if (!AccountManager.Account_User_TryChangePassword(userId, request.UserName, request.CurrentPassword, request.NewPassword, out var message))
+            return BadRequest(new ProblemDetails { Title = message });
+
+        LogManager.Log_Logs_Add((int)DB_Table.Account_Users, userId, userId,
+            HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, "تغییر نام کاربری و رمز عبور حساب کاربری خود");
+        return Ok(accessTokens.Create(GetCurrentUser()));
+    }
+
+    [Authorize]
+    [HttpPost("change-image")]
+    public IActionResult ChangeImage(ChangeImageRequest request)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        // The web server stores uploaded images using an owner-specific, generated filename.
+        if (!System.Text.RegularExpressions.Regex.IsMatch(request.ImagePath ?? string.Empty,
+                $@"\A{userId}_[a-f0-9]{{32}}\.(jpg|png|webp)\z"))
+            return BadRequest(new ProblemDetails { Title = "نام فایل تصویر معتبر نیست." });
+
+        AccountManager.Account_User_ChangeImage(userId, request.ImagePath);
+        LogManager.Log_Logs_Add((int)DB_Table.Account_Users, userId, userId,
+            HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Edit, "تغییر موفق تصویر پروفایل خود");
+        return Ok(accessTokens.Create(GetCurrentUser()));
+    }
+
+    private CurrentUserDto GetCurrentUser()
+    {
+        var user = AccountManager.Account_User_Get(int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!));
+        return new CurrentUserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName ?? string.Empty,
+            FullName = user.FullName ?? string.Empty,
+            ImagePath = user.ImagePath ?? "profile.png",
+            Roles = user.Account_UserPost.Count > 0
+                ? AccountManager.Account_Operation_Get((AccountRole)user.Account_UserPost.First().PostId)
+                    .Distinct().Select(operation => operation.ToString()).ToArray()
+                : []
+        };
     }
 
     [Authorize]

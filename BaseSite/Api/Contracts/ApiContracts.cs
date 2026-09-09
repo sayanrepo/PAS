@@ -10,9 +10,19 @@ public sealed class LoginRequest
 
 public sealed class ChangePasswordRequest
 {
+    [System.ComponentModel.DataAnnotations.Required]
+    [System.ComponentModel.DataAnnotations.MaxLength(255)]
     public string UserName { get; set; } = string.Empty;
+    [System.ComponentModel.DataAnnotations.Required]
     public string CurrentPassword { get; set; } = string.Empty;
+    [System.ComponentModel.DataAnnotations.Required]
+    [System.ComponentModel.DataAnnotations.MinLength(4)]
     public string NewPassword { get; set; } = string.Empty;
+}
+
+public sealed class ChangeImageRequest
+{
+    public string ImagePath { get; set; } = string.Empty;
 }
 
 public sealed class LoginResponse

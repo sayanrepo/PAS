@@ -648,23 +648,50 @@ namespace BaseSite.Models.Account
 
         public static string Account_User_ChangePassword(int Id, string newUserName, string currentPassword, string newPassword)
         {
+            Account_User_TryChangePassword(Id, newUserName, currentPassword, newPassword, out var message);
+            return message;
+        }
+
+        public static bool Account_User_TryChangePassword(int Id, string newUserName, string currentPassword, string newPassword, out string message)
+        {
+            message = "نام کاربری و رمز عبور با موفقیت تغییر کرد";
+            if (string.IsNullOrWhiteSpace(newUserName))
+            {
+                message = "نام کاربری را وارد کنید.";
+                return false;
+            }
+            newUserName = newUserName.Trim();
+            if (newUserName.Length > 255)
+            {
+                message = "نام کاربری نباید بیشتر از ۲۵۵ کاراکتر باشد.";
+                return false;
+            }
             using (var context = new PantaEntities())
             {
-                if (context.Account_Users.Any(u => u.UserName == newUserName && u.Id != Id))
-                    return "نام کاربری وارد شده در سیستم وجود دارد";
+                if (context.Account_Users.Any(u => u.UserName.ToLower() == newUserName.ToLower() && u.Id != Id))
+                {
+                    message = "نام کاربری وارد شده در سیستم وجود دارد";
+                    return false;
+                }
 
                 Account_Users user = context.Account_Users.Where(u => u.Id == Id).FirstOrDefault();
-                if (user.Password != GetMD5(currentPassword))
-                    return "رمز عبور فعلی اشتباه است";
+                if (user == null || string.IsNullOrEmpty(currentPassword) || user.Password != GetMD5(currentPassword))
+                {
+                    message = "رمز عبور فعلی اشتباه است";
+                    return false;
+                }
 
                 if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 4)
-                    return "رمز عبور حداقل باید چهار کارکتر داشته باشد";
+                {
+                    message = "رمز عبور حداقل باید چهار کارکتر داشته باشد";
+                    return false;
+                }
 
                 user.UserName = newUserName;
                 user.Password = GetMD5(newPassword);
                 context.SaveChanges();
 
-                return "نام کاربری و رمز عبور با موفقیت تغییر کرد";
+                return true;
             }
         }
 

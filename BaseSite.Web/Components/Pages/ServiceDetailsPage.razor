@@ -1,0 +1,71 @@
+@page "/documents/services/{Id:int}"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>جزئیات خدمات | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">جزئیات خدمات @sale?.Summary.DocumentNumber</MudText>
+        <MudButton Href="/documents/services" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به خدمات</MudButton>
+    </div>
+    @if (loading) { <MudProgressLinear Indeterminate="true" /> }
+    else if (error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
+    else if (sale is not null)
+    {
+        <MudPaper Class="filter-panel" Elevation="0">
+            <dl class="order-specs">
+                <div><dt>شماره سند</dt><dd>@sale.Summary.DocumentNumber</dd></div>
+                <div><dt>شماره فاکتور</dt><dd>@sale.Summary.FactorNumber</dd></div>
+                <div><dt>مشتری</dt><dd>@sale.Summary.Customer</dd></div>
+                <div><dt>سفارش گیرنده</dt><dd>@sale.Summary.Receiver</dd></div>
+                <div><dt>سفارش دهنده</dt><dd>@sale.ClienteleName</dd></div>
+                <div><dt>تاریخ سفارش</dt><dd>@PersianDates.Format(sale.Summary.OrderDate)</dd></div>
+                <div><dt>تاریخ تحویل</dt><dd>@PersianDates.Format(sale.Summary.FactorDate)</dd></div>
+                <div><dt>وضعیت فاکتور</dt><dd>@sale.Summary.Status</dd></div>
+                <div><dt>نوع سفارش</dt><dd>@sale.Summary.OrderType</dd></div>
+                <div><dt>محل ارسال</dt><dd>@sale.DeliveryAddress</dd></div>
+                <div><dt>شرح خدمات</dt><dd>@sale.Comment</dd></div>
+            </dl>
+        </MudPaper>
+        <MudPaper Class="filter-panel mt-4" Elevation="0">
+            <dl class="order-specs">
+                <div><dt>مبلغ خدمات (ریال)</dt><dd>@sale.ServiceCost.ToString("N0")</dd></div>
+                <div><dt>کرایه حمل (ریال)</dt><dd>@sale.DeliveryCost.ToString("N0")</dd></div>
+                <div><dt>عوارض (درصد)</dt><dd>@sale.TaxPercent</dd></div>
+                <div><dt>تخفیف (ریال)</dt><dd>@sale.Discount.ToString("N0")</dd></div>
+                <div><dt>مبلغ کل فاکتور (ریال)</dt><dd>@sale.Summary.Amount.ToString("N0")</dd></div>
+            </dl>
+        </MudPaper>
+    }
+</MudRTLProvider>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private ServiceDetail? sale;
+    private bool loading = true;
+    private string? error;
+    private int? loadedId;
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Session.IsInitialized && loadedId != Id) await LoadAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (loadedId != Id) await LoadAsync();
+        StateHasChanged();
+    }
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; sale = null; error = null; loadedId = Id;
+        try {
+            sale = await Api.GetServiceAsync(Id);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+}

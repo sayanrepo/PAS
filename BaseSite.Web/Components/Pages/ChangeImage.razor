@@ -1,0 +1,104 @@
+@page "/account/change-image"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject ProfileImageStore Images
+@inject NavigationManager Navigation
+
+<PageTitle>تغییر عکس پروفایل | پانتا</PageTitle>
+<MudText Typo="Typo.h5" Class="mb-5">تغییر عکس پروفایل</MudText>
+
+@if (ready)
+{
+    <MudPaper Class="account-panel" Elevation="0">
+        <div class="text-center mb-5">
+            <UserAvatar ImagePath="@Session.User?.ImagePath" Class="profile-avatar" />
+            <MudText Typo="Typo.body2">عکس فعلی</MudText>
+        </div>
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert>
+        }
+        @if (saved)
+        {
+            <MudAlert Severity="Severity.Success" Class="mb-4">عکس پروفایل با موفقیت تغییر کرد.</MudAlert>
+        }
+        <label for="profile-image-file">انتخاب عکس جدید</label>
+        <InputFile @key="fileInputKey" id="profile-image-file" OnChange="SelectImageAsync" accept="image/jpeg,image/png,image/webp" disabled="@busy" class="d-block my-3" />
+        <MudText Typo="Typo.caption">JPG، PNG یا WebP؛ حداکثر ۲ مگابایت</MudText>
+        @if (preview is not null)
+        {
+            <img class="profile-image-preview" src="@preview" alt="پیش‌نمایش عکس جدید" />
+        }
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(busy || selectedImage is null)" Class="mt-4">@(busy ? "در حال پردازش…" : "ذخیره عکس")</MudButton>
+    </MudPaper>
+}
+
+@code {
+    private bool ready, busy, saved;
+    private int fileInputKey;
+    private byte[]? selectedImage;
+    private string? preview, error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        ready = true;
+        StateHasChanged();
+    }
+
+    private async Task SelectImageAsync(InputFileChangeEventArgs args)
+    {
+        if (busy) return;
+        busy = true;
+        saved = false;
+        error = null;
+        selectedImage = null;
+        preview = null;
+        try
+        {
+            if (args.File.Size <= 0 || args.File.Size > ProfileImageStore.MaxBytes)
+                throw new InvalidOperationException("حجم تصویر باید بین یک بایت و ۲ مگابایت باشد.");
+            await using var stream = args.File.OpenReadStream(ProfileImageStore.MaxBytes);
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+            var bytes = buffer.ToArray();
+            var extension = ProfileImageStore.GetExtension(bytes);
+            preview = $"data:image/{(extension == "jpg" ? "jpeg" : extension)};base64,{Convert.ToBase64String(bytes)}";
+            selectedImage = bytes;
+        }
+        catch (Exception ex)
+        {
+            error = ex is InvalidOperationException ? ex.Message : "خواندن تصویر ممکن نشد. دوباره فایل را انتخاب کنید.";
+        }
+        finally { busy = false; }
+    }
+
+    private async Task SaveAsync()
+    {
+        if (busy || selectedImage is null) return;
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        busy = true;
+        saved = false;
+        error = null;
+        try
+        {
+            var user = await Api.GetCurrentUserAsync();
+            if (user is null) { Navigation.NavigateTo("/login"); return; }
+            var fileName = await Images.SaveAsync(user.Id, selectedImage);
+            var login = await Api.ChangeImageAsync(fileName);
+            await Session.SignInAsync(login);
+            selectedImage = null;
+            preview = null;
+            fileInputKey++;
+            saved = true;
+        }
+        catch (Exception ex)
+        {
+            error = ex is InvalidOperationException ? ex.Message : "ذخیره تصویر انجام نشد. دوباره تلاش کنید.";
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        }
+        finally { busy = false; }
+    }
+}
