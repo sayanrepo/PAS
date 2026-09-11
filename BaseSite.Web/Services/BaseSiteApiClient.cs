@@ -8,6 +8,19 @@ namespace BaseSite.Web.Services;
 
 public sealed class BaseSiteApiClient(HttpClient httpClient, ApiSession session)
 {
+    public Task<BasicTable?> GetBasicTableAsync(string key,int? parentId=null,CancellationToken token=default) => GetAsync<BasicTable>("api/basic/"+Uri.EscapeDataString(key)+(parentId.HasValue?$"?parentId={parentId}":""),token);
+    public Task SaveBasicAsync(string key,int id,BasicSave value) => BasicWrite(id==0?HttpMethod.Post:HttpMethod.Put,"api/basic/"+Uri.EscapeDataString(key)+(id==0?"":$"/{id}"),value);
+    public Task DeleteBasicAsync(string key,int id) => BasicWrite(HttpMethod.Delete,$"api/basic/{Uri.EscapeDataString(key)}/{id}",null);
+    public Task ChangeBasicPricesAsync(string key,BasicPriceChange change) => BasicWrite(HttpMethod.Post,$"api/basic/{Uri.EscapeDataString(key)}/prices",change);
+    public Task<CompatibilityGrid?> GetCompatibilityAsync(int primary,int secondary) => GetAsync<CompatibilityGrid>($"api/basic/compatibility/{primary}/{secondary}",default);
+    public Task SaveCompatibilityAsync(int primary,int secondary,CompatibilityCell cell) => BasicWrite(HttpMethod.Put,$"api/basic/compatibility/{primary}/{secondary}",cell);
+    private async Task BasicWrite(HttpMethod method,string url,object? value) {
+        using var request=CreateRequest(method,url);
+        if(value is not null) request.Content=JsonContent.Create(value);
+        using var response=await httpClient.SendAsync(request);
+        if(response.StatusCode==HttpStatusCode.Unauthorized) await session.SignOutAsync();
+        if(!response.IsSuccessStatusCode) throw new InvalidOperationException(await ReadErrorAsync(response,default));
+    }
     public Task<List<ReportInfo>?> GetReportsAsync(CancellationToken token=default) => GetAsync<List<ReportInfo>>("api/reports",token);
     public Task<List<OrderLookup>?> FindReportCustomersAsync(string text,CancellationToken token=default) => GetAsync<List<OrderLookup>>("api/reports/customers?term="+Uri.EscapeDataString(text),token);
     public Task<ReportResult?> RunReportAsync(string key,ReportFilter filter,CancellationToken token=default) {

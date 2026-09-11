@@ -1,0 +1,81 @@
+@inject BaseSiteApiClient Api
+<MudPaper Class="filter-panel mb-5" Elevation="0">
+ @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-3">@error</MudAlert> }
+ @if(table is null) { @if(loading){<MudProgressLinear Indeterminate="true" />} }
+ else {
+  <div class="page-heading"><MudText Typo="Typo.h6">@table.Title</MudText><div class="d-flex gap-2"><MudButton OnClick="Reload" Disabled="busy" StartIcon="@Icons.Material.Filled.Refresh">تازه‌سازی</MudButton>@if(table.CanAdd){<MudButton OnClick="New" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">افزودن</MudButton>}</div></div>
+  <MudGrid Class="mb-4">
+   @if(table.ParentKey is not null) { <MudItem xs="12" md="6"><MudSelect T="int?" Value="table.ParentId" ValueChanged="ChangeParent" Label="@(table.ParentKey=="countries"?"کشور":"استان")" Variant="Variant.Outlined" Disabled="busy">@foreach(var p in table.Parents){<MudSelectItem T="int?" Value="@((int?)p.Id)">@p.Name</MudSelectItem>}</MudSelect></MudItem> }
+   <MudItem xs="12" md="6"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجو" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.Search" /></MudItem>
+  </MudGrid>
+  @if(table.CanEdit && table.Fields.Any(f=>f.Key=="Cost"&&f.CanEdit)) {
+   <MudExpansionPanels Class="mb-4"><MudExpansionPanel Text="تغییر گروهی قیمت‌ها">
+    <MudGrid><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="pricePercent" Label="تغییر درصدی" Immediate="true" /></MudItem><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="priceAmount" Label="تغییر ریالی" Immediate="true" /></MudItem><MudItem xs="12" md="4"><MudButton OnClick="PreviewPrices" Disabled="busy">پیش‌نمایش تغییرات</MudButton></MudItem></MudGrid>
+    @if(pricePreview is not null) {
+     <MudText Class="my-3">تغییر قیمت @pricePreview.Rows.Count مورد مطابق فهرست هنگام پیش‌نمایش:</MudText>
+     <MudTable T="BasicPriceRow" Items="pricePreview.Rows" Dense="true" RowsPerPage="5">
+      <HeaderContent><MudTh>نام</MudTh><MudTh>قیمت فعلی</MudTh><MudTh>قیمت جدید</MudTh></HeaderContent>
+      <RowTemplate><MudTd>@table.Rows.FirstOrDefault(x=>x.Id==context.Id)?.Values.GetValueOrDefault("Name")</MudTd><MudTd>@context.ExpectedCost.ToString("N0")</MudTd><MudTd>@((context.ExpectedCost*(1+pricePreview.Percent/100)+pricePreview.Amount).ToString("N0"))</MudTd></RowTemplate>
+      <PagerContent><MudTablePager PageSizeOptions="@(new[]{5,10,25})" RowsPerPageString="تعداد در صفحه" /></PagerContent>
+     </MudTable>
+     <MudButton OnClick="ApplyPrices" Disabled="busy" Color="Color.Primary" Variant="Variant.Filled" Class="mt-3">ثبت قیمت‌های پیش‌نمایش‌شده</MudButton>
+    }
+   </MudExpansionPanel></MudExpansionPanels>
+  }
+  @if(edit is not null) {
+   <EditForm Model="edit" OnSubmit="Save" Context="editContext">
+    <MudText Typo="Typo.subtitle1" Class="mb-3">@(editId==0?"افزودن مورد جدید":"ویرایش اطلاعات")</MudText>
+    <MudGrid>
+     @foreach(var field in table.Fields) {
+      var f=field;
+      <MudItem xs="12" md="4">
+       @if(f.Kind=="bool") {<MudCheckBox T="bool" Value="@Bool(f.Key)" ValueChanged="@(v=>Set(f.Key,v.ToString()))" Label="@f.Label" Disabled="@(busy || !Editable(f))" />}
+       else if(f.Kind=="choice") {<MudSelect T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Label="@f.Label" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined">@foreach(var c in f.Choices){<MudSelectItem T="string" Value="@c.Id.ToString()">@c.Name</MudSelectItem>}</MudSelect>}
+       else {<MudTextField T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Immediate="true" Label="@f.Label" MaxLength="@f.MaxLength" InputType="@(f.Kind=="number"?InputType.Number:InputType.Text)" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined" />}
+      </MudItem>
+     }
+    </MudGrid>
+    <div class="d-flex gap-2 my-4"><MudButton ButtonType="ButtonType.Submit" Disabled="busy" Color="Color.Primary" Variant="Variant.Filled">ذخیره</MudButton><MudButton OnClick="Cancel" Disabled="busy">انصراف</MudButton></div>
+   </EditForm>
+  }
+  @if(pendingDelete is not null) {
+   <MudAlert Severity="Severity.Warning" Class="mb-4">حذف «@pendingDelete.Values.GetValueOrDefault("Name")»؟ @((TableKey is "countries" or "provinces")?"زیرمجموعه‌های آن نیز از فهرست‌های فعال حذف می‌شوند.":"")
+    <div class="d-flex gap-2 mt-2"><MudButton OnClick="Delete" Disabled="busy" Color="Color.Error">تأیید حذف</MudButton><MudButton OnClick="@(()=>pendingDelete=null)" Disabled="busy">انصراف</MudButton></div>
+   </MudAlert>
+  }
+  @if(loading){<MudProgressLinear Indeterminate="true" />}
+  <MudTable T="BasicRecord" Items="Filtered" Dense="true" Hover="true" Bordered="true" RowsPerPage="10" Breakpoint="Breakpoint.None">
+   <HeaderContent>@foreach(var f in table.Fields){<MudTh>@f.Label</MudTh>}<MudTh>عملیات</MudTh></HeaderContent>
+   <RowTemplate>
+    @foreach(var f in table.Fields){<MudTd>@Display(context,f)</MudTd>}
+    <MudTd><div class="d-flex">@if(table.CanEdit){<MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Disabled="busy" OnClick="@(()=>Edit(context))" title="ویرایش" aria-label="@($"ویرایش {context.Values.GetValueOrDefault("Name")}")" />}@if(table.CanDelete){<MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Error" Disabled="busy" OnClick="@(()=>pendingDelete=context)" title="حذف" aria-label="@($"حذف {context.Values.GetValueOrDefault("Name")}")" />}</div></MudTd>
+   </RowTemplate>
+   <NoRecordsContent><MudText Class="pa-4">موردی یافت نشد.</MudText></NoRecordsContent>
+   <PagerContent><MudTablePager PageSizeOptions="@(new[]{10,25,50})" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+  </MudTable>
+ }
+</MudPaper>
+@code {
+ [Parameter] public string TableKey {get;set;}="";
+ private BasicTable? table;private BasicSave? edit;private BasicRecord? pendingDelete;
+ private int editId;private bool loading,busy;private string? error,search,loadedKey;
+ private double pricePercent,priceAmount;private BasicPriceChange? pricePreview;
+ private IEnumerable<BasicRecord> Filtered=>table?.Rows.Where(x=>string.IsNullOrWhiteSpace(search)||x.Values.Values.Any(v=>v.Contains(search,StringComparison.OrdinalIgnoreCase)))??[];
+ protected override async Task OnParametersSetAsync(){if(loadedKey!=TableKey){loadedKey=TableKey;await Load(null);}}
+ private async Task Load(int? parent){loading=true;error=null;try{table=await Api.GetBasicTableAsync(TableKey,parent);}catch(Exception ex){error=ex.Message;}finally{loading=false;}}
+ private async Task Reload(){Cancel();await Load(table?.ParentId);}
+ private async Task ChangeParent(int? id){Cancel();await Load(id);}
+ private void New(){if(table is null)return;pendingDelete=null;editId=0;edit=new(){ParentId=table.ParentId,Values=table.Fields.ToDictionary(f=>f.Key,f=>f.Kind=="bool"?(f.Key=="IsDeliveryItem"?"False":"True"):f.Kind=="choice"?(f.Choices.FirstOrDefault()?.Id.ToString()??"1"):f.Kind=="number"?(f.Key=="SurfaceArea"?"1":"0"):"")};}
+ private void Edit(BasicRecord row){pendingDelete=null;editId=row.Id;edit=new(){ParentId=table?.ParentId,Values=new(row.Values)};}
+ private void Cancel(){edit=null;pendingDelete=null;pricePreview=null;}
+ private void PreviewPrices(){error=null;pricePreview=new(){Percent=pricePercent,Amount=priceAmount,Rows=Filtered.Select(x=>new BasicPriceRow{Id=x.Id,ExpectedCost=double.Parse(x.Values["Cost"],System.Globalization.CultureInfo.InvariantCulture)}).ToList()};if(pricePreview.Rows.Count==0||pricePreview.Rows.Any(x=>!double.IsFinite(x.ExpectedCost*(1+pricePercent/100)+priceAmount)||x.ExpectedCost*(1+pricePercent/100)+priceAmount<0)){pricePreview=null;error="فهرست خالی است یا تغییر واردشده قیمت نامعتبر ایجاد می‌کند.";}}
+ private async Task ApplyPrices(){if(busy||pricePreview is null)return;busy=true;error=null;try{await Api.ChangeBasicPricesAsync(TableKey,pricePreview);Cancel();await Load(table?.ParentId);}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
+ private bool Editable(BasicField field)=>editId==0?field.CanAdd:field.CanEdit;
+ private string Value(string key)=>edit?.Values.GetValueOrDefault(key)??"";
+ private bool Bool(string key)=>bool.TryParse(Value(key),out var value)&&value;
+ private void Set(string key,string? value){if(edit is not null)edit.Values[key]=value??"";}
+ private static string Display(BasicRecord row,BasicField f){var value=row.Values.GetValueOrDefault(f.Key)??"";if(f.Kind=="bool")return bool.TryParse(value,out var b)&&b?"بله":"خیر";if(f.Kind=="choice")return f.Choices.FirstOrDefault(x=>x.Id.ToString()==value)?.Name??value;return value;}
+ private async Task Save(){if(busy||edit is null)return;busy=true;error=null;try{await Api.SaveBasicAsync(TableKey,editId,edit);Cancel();await Load(table?.ParentId);}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
+ private async Task Delete(){if(busy||pendingDelete is null)return;busy=true;error=null;try{await Api.DeleteBasicAsync(TableKey,pendingDelete.Id);Cancel();await Load(table?.ParentId);}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
+}
+

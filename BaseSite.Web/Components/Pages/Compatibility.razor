@@ -1,0 +1,52 @@
+@page "/basic/compatibility"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+<PageTitle>جداول سازگاری | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+ <div class="page-heading"><MudText Typo="Typo.h5">جداول سازگاری</MudText></div>
+ <MudPaper Class="filter-panel mb-4" Elevation="0"><MudGrid>
+  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="primary" Label="نوع پنل" Variant="Variant.Outlined" Disabled="busy"><MudSelectItem Value="3">داخل کابین</MudSelectItem><MudSelectItem Value="7">طبقات</MudSelectItem><MudSelectItem Value="10">سردرب</MudSelectItem></MudSelect></MudItem>
+  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="secondary" Label="نوع جزء" Variant="Variant.Outlined" Disabled="busy"><MudSelectItem Value="4">پوش باتون</MudSelectItem><MudSelectItem Value="6">نمایشگر</MudSelectItem></MudSelect></MudItem>
+  <MudItem xs="12" md="4"><MudButton OnClick="Load" Disabled="@(busy||!ready)" Variant="Variant.Filled" Color="Color.Primary">نمایش جدول</MudButton></MudItem>
+ </MudGrid></MudPaper>
+ <MudText Class="mb-4">سازگار: قابل نصب · مشروط: نصب با رعایت شرایط · نامناسب: قابل نصب ولی انتخاب نامناسب · ناسازگار: غیرقابل نصب</MudText>
+ @if(error is not null){<MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert>}
+ @if(busy){<MudProgressLinear Indeterminate="true" />}
+ @if(grid is not null) {
+  <MudTextField @bind-Value="search" Label="جستجوی مدل پنل" Immediate="true" Clearable="true" Variant="Variant.Outlined" Class="mb-4" />
+  <div class="compatibility-scroll"><table class="compatibility-table">
+   <caption>@(loadedPrimary==3?"پنل داخل کابین":loadedPrimary==7?"پنل طبقات":"پنل سردرب") / @(loadedSecondary==4?"پوش باتون":"نمایشگر")</caption>
+   <thead><tr><th>مدل پنل / جزء</th>@foreach(var part in grid.Parts){<th>@part.Name</th>}</tr></thead>
+   <tbody>@foreach(var panel in grid.Panels.Where(x=>string.IsNullOrWhiteSpace(search)||x.Name.Contains(search))){
+    <tr><th>@panel.Name</th>@foreach(var part in grid.Parts){
+     var panelId=panel.Id;var partId=part.Id;var value=CellValue(panelId,partId);
+     <td @key="(panelId,partId,revision)" class="@CellClass(value)">
+      @if(grid.CanEdit){<select value="@value.ToString(System.Globalization.CultureInfo.InvariantCulture)" disabled="@busy" aria-label="@($"{panel.Name} / {part.Name}")" @onchange="@(e=>SaveCell(panelId,partId,e.Value?.ToString()))"><option value="1">سازگار</option><option value="0.75">نامناسب</option><option value="0.5">مشروط</option><option value="0">ناسازگار</option></select>}
+      else {<span>@CellText(value)</span>}
+     </td>
+    }</tr>
+   }</tbody>
+  </table></div>
+  @if(grid.Panels.Count==0||grid.Parts.Count==0){<MudAlert Severity="Severity.Info">مدل یا جزئی برای این جدول ثبت نشده است.</MudAlert>}
+ }
+</MudRTLProvider>
+@code {
+ private int primary=3,secondary=4,loadedPrimary,loadedSecondary;
+ private int revision;
+ private Dictionary<(int,int),double> cellValues=[];
+ private bool ready,busy;private string? error,search;private CompatibilityGrid? grid;
+ protected override async Task OnAfterRenderAsync(bool firstRender){if(!firstRender)return;await Session.InitializeAsync();if(!Session.IsAuthenticated){Navigation.NavigateTo("/login");return;}ready=true;await Load();StateHasChanged();}
+ private async Task Load(){if(busy)return;busy=true;error=null;grid=null;try{var p=primary;var s=secondary;grid=await Api.GetCompatibilityAsync(p,s);cellValues=grid?.Cells.GroupBy(x=>(x.PanelId,x.PartId)).ToDictionary(g=>g.Key,g=>g.Last().Value)??[];loadedPrimary=p;loadedSecondary=s;}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
+ private double CellValue(int panel,int part)=>cellValues.GetValueOrDefault((panel,part),1);
+ private static string CellClass(double value)=>value switch{1=>"compatible",.75=>"unsuitable",.5=>"conditional",_=>"incompatible"};
+ private static string CellText(double value)=>value switch{1=>"سازگار",.75=>"نامناسب",.5=>"مشروط",_=>"ناسازگار"};
+ private async Task SaveCell(int panel,int part,string? text){
+  if(busy||grid is null||!grid.CanEdit||!double.TryParse(text,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out var value))return;
+  busy=true;error=null;try{
+   var cell=new CompatibilityCell{PanelId=panel,PartId=part,Value=value};
+   await Api.SaveCompatibilityAsync(loadedPrimary,loadedSecondary,cell);
+   grid.Cells.RemoveAll(x=>x.PanelId==panel&&x.PartId==part);grid.Cells.Add(cell);cellValues[(panel,part)]=value;
+  }catch(Exception ex){error=ex.Message;}finally{busy=false;revision++;}
+ }
+}

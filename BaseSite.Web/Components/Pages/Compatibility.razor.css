@@ -1,0 +1,8 @@
+.compatibility-scroll { overflow:auto; max-height:70vh; border:1px solid #ddd; border-radius:12px; background:white; }
+.compatibility-table { border-collapse:separate; border-spacing:0; width:100%; text-align:center; }
+.compatibility-table caption { padding:12px; font-weight:bold; }
+.compatibility-table th,.compatibility-table td { padding:10px; border-bottom:1px solid #ddd; border-inline-end:1px solid #ddd; min-width:145px; }
+.compatibility-table thead th { position:sticky; top:0; background:#eff3f5; z-index:2; }
+.compatibility-table tbody th { position:sticky; right:0; background:#f5f7f9; z-index:1; min-width:210px; }
+.compatibility-table select { width:100%; min-width:110px; background:transparent; padding:6px; cursor:pointer; }
+.compatible { background:#e1f4e6; color:#17572a; }.unsuitable { background:#dff3f5; color:#19525a; }.conditional { background:#fff1c9; color:#6c5308; }.incompatible { background:#ffe2e2; color:#802727; }

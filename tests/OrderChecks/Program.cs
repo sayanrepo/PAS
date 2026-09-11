@@ -124,6 +124,19 @@ var invalidReportFilter=new ReportFilter{DateFrom=date.AddDays(1),DateTo=date};
 Check(!Validator.TryValidateObject(invalidReportFilter,new ValidationContext(invalidReportFilter),new List<ValidationResult>(),true),"Reports reject reversed date ranges");
 Check(BaseSite.Api.Controllers.ReportsController.ShDate(date)=="1405/06/17","Report procedure parameters use the legacy Persian date format");
 Check(typeof(BaseSite.Api.Controllers.ReportsController).Assembly.GetManifestResourceNames().Contains("BaseSite.Api.Queries.ReportColumns.json"),"Persian report column labels are included in published assemblies");
+Check(BasicCatalog.All.Select(x=>x.Page).Distinct().Count()==9 && BasicCatalog.All.Count==16,"Nine base information pages cover all sixteen legacy data tables plus separate compatibility page");
+Check(BasicCatalog.All.All(x=>x.EntityType.GetProperty("Id") is not null && x.EntityType.GetProperty("Name") is not null && x.EntityType.GetProperty("Deleted")?.PropertyType==typeof(bool)),"Base information catalog only contains supported soft-deletable entities");
+Check(BasicCatalog.ValidPair(3,4)&&BasicCatalog.ValidPair(7,6)&&BasicCatalog.ValidPair(10,4)&&!BasicCatalog.ValidPair(11,4),"Compatibility accepts only the legacy panel and component combinations");
+Check(new[]{0d,.5,.75,1d}.All(BasicCatalog.ValidCompatibility)&&!BasicCatalog.ValidCompatibility(.2)&&!BasicCatalog.ValidCompatibility(double.NaN),"Compatibility accepts precisely the four legacy states");
+var samplePanel=new Tb_CabinPanels{Id=17,Name="مدل نمونه",Cost=5000};
+BasicCatalog.Set(samplePanel,"Available",true);BasicCatalog.Set(samplePanel,"StartFrom",2d);
+Check(samplePanel.Available==true&&samplePanel.StartFrom==2&&samplePanel.Id==17&&samplePanel.Cost==5000,"Typed field conversion preserves unrelated panel values");
+var basicController=new BaseSite.Api.Controllers.BasicInformationController(Microsoft.Extensions.Logging.Abstractions.NullLogger<BaseSite.Api.Controllers.BasicInformationController>.Instance);
+basicController.ControllerContext=new Microsoft.AspNetCore.Mvc.ControllerContext{HttpContext=new Microsoft.AspNetCore.Http.DefaultHttpContext{
+ User=new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity([new(System.Security.Claims.ClaimTypes.Role,"Setting_CabinPanel")],"test"))}};
+Check(await basicController.Add("cabins",new BasicSave()) is Microsoft.AspNetCore.Mvc.ForbidResult,"Read permission cannot create base information records");
+Check(await basicController.Delete("cabins",17) is Microsoft.AspNetCore.Mvc.ForbidResult,"Read permission cannot delete base information records");
+Check(await basicController.Prices("cabins",new BasicPriceChange()) is Microsoft.AspNetCore.Mvc.ForbidResult,"Bulk price changes require both edit and price permissions");
 Console.WriteLine($"{passed} document checks passed; no database was accessed.");
 
 internal static class SampleOrders

@@ -1,0 +1,17 @@
+@page "/basic/{Page}"
+@inject ApiSession Session
+@inject NavigationManager Navigation
+<PageTitle>@Title | پانتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+ <div class="page-heading"><MudText Typo="Typo.h5">@Title</MudText></div>
+ @if(!ready) { <MudProgressLinear Indeterminate="true" /> }
+ else if(Keys.Length==0) { <MudAlert Severity="Severity.Warning">صفحه اطلاعات پایه یافت نشد.</MudAlert> }
+ else { @foreach(var key in Keys) { <BaseSite.Web.Components.Shared.BasicTableEditor @key="key" TableKey="@key" /> } }
+</MudRTLProvider>
+@code {
+ [Parameter] public string Page {get;set;}="";
+ private bool ready;
+ private string Title=>Page switch{"cities"=>"شهرها","orders"=>"اطلاعات پایه سفارش","attachments"=>"ملحقات","buttons"=>"پوش باتون","monitors"=>"نمایشگر","metals"=>"فلز رویه","cabins"=>"پنل داخل کابین","halls"=>"پنل طبقات","door-tops"=>"پنل سردرب",_=>"اطلاعات پایه"};
+ private string[] Keys=>Page switch {"cities"=>["countries","provinces","cities"],"orders"=>["packs","boards","deductions","additions"],"cabins"=>["cabins","cabin-metals"],"halls"=>["halls","hall-metals"],"attachments" or "buttons" or "monitors" or "metals" or "door-tops"=>[Page],_=>[]};
+ protected override async Task OnAfterRenderAsync(bool firstRender) {if(!firstRender)return;await Session.InitializeAsync();if(!Session.IsAuthenticated){Navigation.NavigateTo("/login");return;}ready=true;StateHasChanged();}
+}
