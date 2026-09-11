@@ -4,18 +4,20 @@
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
 
+<MudRTLProvider RightToLeft="true">
 <MudLayout>
-    <MudAppBar Elevation="0" Color="Color.Surface" Dense="true">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Primary" Edge="Edge.Start" OnClick="ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="me-3">سامانه یکپارچه فروش و تولید</MudText>
+    <MudAppBar Class="app-topbar" Elevation="0" Color="Color.Default">
+        <MudIconButton Class="sidebar-toggle" Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" OnClick="ToggleDrawer"
+                       aria-label="@(drawerOpen ? "بستن منوی اصلی" : "باز کردن منوی اصلی")" aria-expanded="@(drawerOpen ? "true" : "false")" aria-controls="app-sidebar" />
+        <MudText Typo="Typo.h6" Class="topbar-title">سامانه یکپارچه فروش و تولید</MudText>
         <MudSpacer />
         @if (Session.User is not null)
         {
-            <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <MudMenu Class="account-menu" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                 <ActivatorContent Context="accountMenu">
-                    <MudButton OnClick="accountMenu.ToggleAsync" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowDropDown" aria-label="تنظیمات حساب کاربری">
-                        <UserAvatar ImagePath="@Session.User.ImagePath" Class="me-2" />
-                        @Session.User.FullName
+                    <MudButton Class="account-menu-button" OnClick="accountMenu.ToggleAsync" Color="Color.Inherit" EndIcon="@Icons.Material.Filled.ExpandMore" aria-label="تنظیمات حساب کاربری">
+                        <UserAvatar ImagePath="@Session.User.ImagePath" />
+                        <span class="account-menu-name">@Session.User.FullName</span>
                     </MudButton>
                 </ActivatorContent>
                 <ChildContent>
@@ -28,8 +30,8 @@
         }
     </MudAppBar>
 
-    <MudDrawer @bind-Open="drawerOpen" Anchor="Anchor.Right" Elevation="1" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
-        <NavMenu />
+    <MudDrawer id="app-sidebar" Class="app-sidebar" @bind-Open="drawerOpen" Anchor="Anchor.Right" Elevation="0" Variant="DrawerVariant.Responsive" ClipMode="DrawerClipMode.Always">
+        <NavMenu OnClose="CloseDrawer" />
     </MudDrawer>
 
     <MudMainContent>
@@ -38,6 +40,7 @@
         </article>
     </MudMainContent>
 </MudLayout>
+</MudRTLProvider>
 
 <div id="blazor-error-ui" data-nosnippet>
     خطای پیش‌بینی‌نشده‌ای رخ داد.
@@ -60,6 +63,7 @@
     }
 
     private void ToggleDrawer() => drawerOpen = !drawerOpen;
+    private void CloseDrawer() => drawerOpen = false;
 
     private async Task LogoutAsync()
     {

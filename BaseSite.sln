@@ -15,6 +15,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseSite.Api", "BaseSite\Ba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaseSite.Web", "BaseSite.Web\BaseSite.Web.csproj", "{A73CB6BE-388A-40E8-896C-CC8E70E1730C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13AD434E-4F43-4A85-B051-3C6A38535A25}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{2BA387CA-49D1-4A84-83F5-B2195578B60D}"
+	ProjectSection(SolutionItems) = preProject
+		docs\overview.md = docs\overview.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "decisions", "decisions", "{29DAE13E-8D9B-4C3A-AE54-AF6C6FEA60C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "modules", "modules", "{FBD96423-9BB0-47FD-B62B-EE67A6E20771}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -92,6 +106,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{90668E44-E2AD-455B-86E6-F7D6836C3860} = {2E1A13CF-17AF-F509-FE4B-1C9CE6057703}
 		{A73CB6BE-388A-40E8-896C-CC8E70E1730C} = {2E1A13CF-17AF-F509-FE4B-1C9CE6057703}
+		{29DAE13E-8D9B-4C3A-AE54-AF6C6FEA60C1} = {2BA387CA-49D1-4A84-83F5-B2195578B60D}
+		{FBD96423-9BB0-47FD-B62B-EE67A6E20771} = {2BA387CA-49D1-4A84-83F5-B2195578B60D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BDEA6637-D55A-493E-9E67-456C904DD28C}

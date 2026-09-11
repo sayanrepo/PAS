@@ -8,20 +8,20 @@ public static class Theme
     {
         PaletteLight = new PaletteLight
         {
-            Primary = "#0f766e",
+            Primary = "#3b5ccc",
             Secondary = "#d97706",
-            Background = "#f4f7f6",
+            Background = "#f4f6fa",
             Surface = "#ffffff",
-            AppbarBackground = "#ffffff",
-            AppbarText = "#12332f",
-            DrawerBackground = "#103c37",
-            DrawerText = "#e7f7f4",
-            DrawerIcon = "#9dd9d1"
+            AppbarBackground = "#2d4468",
+            AppbarText = "#f5f7fc",
+            DrawerBackground = "#18243b",
+            DrawerText = "#edf2fb",
+            DrawerIcon = "#b4c7e7"
         },
         LayoutProperties = new LayoutProperties
         {
             DefaultBorderRadius = "12px",
-            DrawerWidthRight = "272px"
+            DrawerWidthRight = "296px"
         },
         Typography = new Typography
         {

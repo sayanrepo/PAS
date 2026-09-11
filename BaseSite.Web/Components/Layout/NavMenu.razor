@@ -1,21 +1,29 @@
-<MudNavMenu Class="nav-menu">
+@implements IDisposable
+@inject NavigationManager Navigation
+
+<MudIconButton Class="sidebar-close" Icon="@Icons.Material.Filled.Close" Size="Size.Small" OnClick="() => OnClose.InvokeAsync()" aria-label="بستن سایدبار" />
+
+<MudNavMenu Class="nav-menu" aria-label="منوی اصلی">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">داشبورد</MudNavLink>
-    <MudNavGroup Title="عملیات فروش" Icon="@Icons.Material.Filled.ReceiptLong" Expanded="true">
+    <MudNavGroup Title="فروش و مدیریت سفارش" Icon="@Icons.Material.Filled.ReceiptLong" @bind-Expanded="salesExpanded">
         <MudNavLink Href="/documents/orders" Icon="@Icons.Material.Filled.Assignment">سفارش‌ها</MudNavLink>
         <MudNavLink Href="/documents/sales" Icon="@Icons.Material.Filled.PointOfSale">فروش کالا</MudNavLink>
+        <MudNavLink Href="/documents/services" Icon="@Icons.Material.Filled.HomeRepairService">خدمات</MudNavLink>
         <MudNavLink Href="/documents/store" Icon="@Icons.Material.Filled.Storefront">فروشگاه</MudNavLink>
+    </MudNavGroup>
+    <MudNavGroup Title="مالی و حسابداری" Icon="@Icons.Material.Filled.AccountBalanceWallet" @bind-Expanded="financeExpanded">
         <MudNavLink Href="/documents/payments" Icon="@Icons.Material.Filled.Payments">اسناد دریافتی</MudNavLink>
     </MudNavGroup>
-    <MudNavGroup Title="عملیات اجرایی" Icon="@Icons.Material.Filled.PrecisionManufacturing">
-        <MudNavLink Href="/documents/services" Icon="@Icons.Material.Filled.HomeRepairService">خدمات</MudNavLink>
+    <MudNavGroup Title="لجستیک و توزیع" Icon="@Icons.Material.Filled.LocalShipping" @bind-Expanded="logisticsExpanded">
         <MudNavLink Href="/documents/deliveries" Icon="@Icons.Material.Filled.LocalShipping">تحویل</MudNavLink>
     </MudNavGroup>
-    <MudNavGroup Title="ارتباط با مشتری" Icon="@Icons.Material.Filled.Groups">
+    <MudNavGroup Title="ارتباط با مشتریان" Icon="@Icons.Material.Filled.Groups" @bind-Expanded="crmExpanded">
         <MudNavLink Href="/customers" Icon="@Icons.Material.Filled.People">اشخاص و مشتریان</MudNavLink>
         <MudNavLink Href="/documents/activities" Icon="@Icons.Material.Filled.CalendarMonth">فعالیت‌های CRM</MudNavLink>
     </MudNavGroup>
     <MudNavLink Href="/reports" Icon="@Icons.Material.Filled.Assessment">گزارشات</MudNavLink>
-    <MudNavGroup Title="اطلاعات پایه" Icon="@Icons.Material.Filled.Settings">
+    <MudDivider Class="sidebar-divider" />
+    <MudNavGroup Title="اطلاعات پایه" Icon="@Icons.Material.Filled.Settings" @bind-Expanded="basicExpanded">
         <MudNavLink Href="/basic/cities">شهرها</MudNavLink>
         <MudNavLink Href="/basic/orders">سفارش</MudNavLink>
         <MudNavLink Href="/basic/attachments">ملحقات</MudNavLink>
@@ -27,10 +35,41 @@
         <MudNavLink Href="/basic/door-tops">پنل سردرب</MudNavLink>
         <MudNavLink Href="/basic/compatibility">جداول سازگاری</MudNavLink>
     </MudNavGroup>
+    <MudNavLink Disabled="true" Icon="@Icons.Material.Filled.ManageAccounts">کاربران</MudNavLink>
 </MudNavMenu>
 
-<div class="sidebar-version" dir="ltr">Version @AppVersion</div>
+<div class="sidebar-version"><span lang="en" dir="ltr">SAYANTIN</span><span dir="ltr">v @AppVersion</span></div>
 
 @code {
+    [Parameter] public EventCallback OnClose { get; set; }
     private static readonly string AppVersion = typeof(NavMenu).Assembly.GetName().Version!.ToString(3);
+    private bool salesExpanded, financeExpanded, logisticsExpanded, crmExpanded, basicExpanded;
+
+    protected override void OnInitialized()
+    {
+        ExpandCurrentSection();
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private void ExpandCurrentSection()
+    {
+        var path = new Uri(Navigation.Uri).AbsolutePath.TrimEnd('/');
+        salesExpanded = path.Length == 0 || InSection(path, "/documents/orders", "/documents/sales", "/documents/services", "/documents/store");
+        financeExpanded = InSection(path, "/documents/payments");
+        logisticsExpanded = InSection(path, "/documents/deliveries");
+        crmExpanded = InSection(path, "/customers", "/documents/activities");
+        basicExpanded = InSection(path, "/basic");
+    }
+
+    private static bool InSection(string path, params string[] routes) =>
+        routes.Any(route => path.Equals(route, StringComparison.OrdinalIgnoreCase)
+            || path.StartsWith(route + "/", StringComparison.OrdinalIgnoreCase));
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args) => InvokeAsync(() =>
+    {
+        ExpandCurrentSection();
+        StateHasChanged();
+    });
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
 }
