@@ -1,4 +1,4 @@
-@page "/documents/{Kind}"
+@page "/documents/activities"
 @using System.Globalization
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
@@ -62,7 +62,8 @@
 </MudPaper>
 
 @code {
-    [Parameter] public string Kind { get; set; } = "orders";
+    private const string Kind = "activities";
+    private const string Title = "فعالیت‌های CRM";
 
     private static readonly CultureInfo PersianCulture = CultureInfo.GetCultureInfo("fa-IR");
     private List<DocumentSummary> items = [];
@@ -70,25 +71,6 @@
     private string? customer;
     private bool loading = true;
     private string? error;
-    private string? loadedKind;
-
-    private string Title => Kind.ToLowerInvariant() switch
-    {
-        "orders" => "سفارش‌ها",
-        "sales" => "فروش کالا",
-        "store" => "فروشگاه",
-        "payments" => "اسناد دریافتی",
-        "deliveries" => "تحویل‌ها",
-        "services" => "خدمات",
-        "activities" => "فعالیت‌های CRM",
-        _ => "اسناد"
-    };
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Session.IsInitialized && loadedKind != Kind)
-            await LoadAsync();
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -110,7 +92,6 @@
         try
         {
             items = await Api.GetDocumentsAsync(Kind, documentNumber, customer) ?? [];
-            loadedKind = Kind;
             if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
         }
         catch (Exception ex)

@@ -137,6 +137,32 @@ basicController.ControllerContext=new Microsoft.AspNetCore.Mvc.ControllerContext
 Check(await basicController.Add("cabins",new BasicSave()) is Microsoft.AspNetCore.Mvc.ForbidResult,"Read permission cannot create base information records");
 Check(await basicController.Delete("cabins",17) is Microsoft.AspNetCore.Mvc.ForbidResult,"Read permission cannot delete base information records");
 Check(await basicController.Prices("cabins",new BasicPriceChange()) is Microsoft.AspNetCore.Mvc.ForbidResult,"Bulk price changes require both edit and price permissions");
+var documentsController = new BaseSite.Api.Controllers.DocumentsController
+{
+    ControllerContext = new Microsoft.AspNetCore.Mvc.ControllerContext
+    {
+        HttpContext = new Microsoft.AspNetCore.Http.DefaultHttpContext
+        {
+            User = new System.Security.Claims.ClaimsPrincipal(new System.Security.Claims.ClaimsIdentity(
+                [new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Store")], "Test"))
+        }
+    }
+};
+foreach (var kind in new[] { "store", "STORE", "unknown" })
+    Check(documentsController.Get(kind).Result is Microsoft.AspNetCore.Mvc.NotFoundObjectResult,
+        "Removed and unknown document kinds return 404 even with a legacy store role");
+foreach (var kind in new[] { "orders", "sales", "payments", "deliveries", "services", "activities" })
+    Check(documentsController.Get(kind).Result is Microsoft.AspNetCore.Mvc.ForbidResult,
+        "Remaining document kinds still require their own permissions");
+Check(Enum.GetValues<BaseSite.Models.AccountRole>().All(role =>
+    BaseSite.Models.Account.AccountManager.Account_Operation_Get(role)
+        .All(operation => !operation.ToString().StartsWith("Store", StringComparison.Ordinal))),
+    "Account roles no longer grant store permissions");
+var documentRoutes = typeof(BaseSite.Web.Components.Pages.Documents)
+    .GetCustomAttributes(typeof(Microsoft.AspNetCore.Components.RouteAttribute), false)
+    .Cast<Microsoft.AspNetCore.Components.RouteAttribute>().Select(route => route.Template).ToArray();
+Check(documentRoutes.SequenceEqual(new[] { "/documents/activities" }),
+    "The remaining shared document page serves CRM activities without a store catch-all route");
 Console.WriteLine($"{passed} document checks passed; no database was accessed.");
 
 internal static class SampleOrders

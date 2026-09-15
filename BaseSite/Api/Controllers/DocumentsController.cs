@@ -21,7 +21,10 @@ public sealed class DocumentsController : ControllerBase
         [FromQuery] int take = 100)
     {
         take = Math.Clamp(take, 1, 200);
-        if (!CanRead(kind))
+        var canRead = CanRead(kind);
+        if (canRead is null)
+            return NotFound(new ProblemDetails { Title = "نوع سند شناخته نشد." });
+        if (canRead is false)
             return Forbid();
 
         using var db = new PantaEntities();
@@ -29,8 +32,7 @@ public sealed class DocumentsController : ControllerBase
         return kind.ToLowerInvariant() switch
         {
             "orders" => Ok(GetOrders(db, documentNumber, customer, take)),
-            "sales" => Ok(GetSales(db, 1, documentNumber, customer, take, "sales")),
-            "store" => Ok(GetSales(db, 2, documentNumber, customer, take, "store")),
+            "sales" => Ok(GetSales(db, documentNumber, customer, take)),
             "payments" => Ok(GetPayments(db, documentNumber, customer, take)),
             "deliveries" => Ok(GetDeliveries(db, documentNumber, customer, take)),
             "services" => Ok(GetServices(db, documentNumber, customer, take)),
@@ -39,16 +41,15 @@ public sealed class DocumentsController : ControllerBase
         };
     }
 
-    private bool CanRead(string kind) => kind.ToLowerInvariant() switch
+    private bool? CanRead(string kind) => kind.ToLowerInvariant() switch
     {
         "orders" => User.IsInRole(nameof(OPERATIONS.Order)),
         "sales" => User.IsInRole(nameof(OPERATIONS.Sale)),
-        "store" => User.IsInRole(nameof(OPERATIONS.Store)),
         "payments" => User.IsInRole(nameof(OPERATIONS.Payment)),
         "deliveries" => User.IsInRole(nameof(OPERATIONS.Delivery)),
         "services" => User.IsInRole(nameof(OPERATIONS.Service)),
         "activities" => User.IsInRole(nameof(OPERATIONS.CRM)),
-        _ => true
+        _ => null
     };
 
     private static List<DocumentSummaryDto> GetOrders(PantaEntities db, int? documentNumber, string? customer, int take)
@@ -64,14 +65,14 @@ public sealed class DocumentsController : ControllerBase
         }).ToList();
     }
 
-    private static List<DocumentSummaryDto> GetSales(PantaEntities db, byte storeId, int? documentNumber, string? customer, int take, string kind)
+    private static List<DocumentSummaryDto> GetSales(PantaEntities db, int? documentNumber, string? customer, int take)
     {
-        var query = db.Sale_Sale.AsNoTracking().Where(x => x.StoreId == storeId);
+        var query = db.Sale_Sale.AsNoTracking().Where(x => x.StoreId == 1);
         if (documentNumber.HasValue) query = query.Where(x => x.DocNumber == documentNumber.Value);
         if (!string.IsNullOrWhiteSpace(customer)) query = query.Where(x => (x.Account_Users.Name + " " + x.Account_Users.LastName).Contains(customer));
         return query.OrderByDescending(x => x.Id).Take(take).Select(x => new DocumentSummaryDto
         {
-            Kind = kind, Id = x.Id, DocumentNumber = x.DocNumber, FactorNumber = x.FactorNumber,
+            Kind = "sales", Id = x.Id, DocumentNumber = x.DocNumber, FactorNumber = x.FactorNumber,
             Customer = x.Account_Users.Name + " " + x.Account_Users.LastName, Status = x.Order_Status.Name,
             DocumentDate = x.DateOrder, DueDate = x.DateDelivery, Amount = x.Cost, Description = x.Comment
         }).ToList();

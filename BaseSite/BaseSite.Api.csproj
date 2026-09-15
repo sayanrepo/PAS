@@ -11,6 +11,9 @@
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <PackageReference Include="KavenegarDotNetCore" Version="1.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="App_Start\**\*.cs" />

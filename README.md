@@ -16,7 +16,37 @@ dotnet run --project BaseSite/BaseSite.Api.csproj
 dotnet run --project BaseSite.Web/BaseSite.Web.csproj --launch-profile http
 ```
 
-آدرس پیش‌فرض API در اجرای مستقل `http://localhost:5184` و آدرس Web برابر `http://localhost:5074` است. مقدار `BaseSiteApi:BaseUrl` را می‌توان در تنظیمات محیط مقصد تغییر داد.
+آدرس پیش‌فرض API در اجرای مستقل `https://localhost:58998` یا `http://localhost:58999` و آدرس Web برابر `http://localhost:5074` است. مقدار `BaseSiteApi:BaseUrl` را می‌توان در تنظیمات محیط مقصد تغییر داد.
+
+### نمایش و فراخوانی APIها
+
+در محیط `Development`، مستندات تعاملی Scalar در مسیر `/scalar` و سند OpenAPI در مسیر `/openapi/v1.json` در دسترس هستند. پروفایل اجرای `BaseSite.Api` مرورگر را روی Scalar باز می‌کند:
+
+- اجرای مستقل: `https://localhost:58998/scalar` یا `http://localhost:58999/scalar`.
+- اجرای Aspire: مسیر `/scalar` را به آدرس سرویس `basesite-api` در داشبورد اضافه کنید.
+- برای بررسی اتصال، درخواست `GET /api/status` را از Scalar اجرا کنید.
+- برای APIهای محافظت‌شده، ابتدا `POST /api/auth/login` را اجرا کنید و مقدار `accessToken` پاسخ را بدون پیشوند `Bearer` در بخش Authentication مربوط به `BaseSiteBearer` وارد کنید. سپس درخواست موردنظر را اجرا کنید؛ سطح دسترسی کاربر همچنان اعمال می‌شود.
+
+صفحه Scalar و سند OpenAPI در محیط‌های غیرتوسعه منتشر نمی‌شوند.
+
+## تنظیمات محیط‌ها
+
+در هر دو پروژه `BaseSite.Api` (پوشه `BaseSite`) و `BaseSite.Web`، تنظیمات مشترک در `appsettings.json` و تنظیمات هر محیط در `appsettings.Development.json` و `appsettings.Production.json` قرار دارند. ASP.NET Core فایل محیط جاری را به‌صورت خودکار روی تنظیمات مشترک اعمال می‌کند.
+
+پروفایل‌های اجرای محلی، محیط `Development` را انتخاب می‌کنند. در این محیط، Web در اجرای مستقل به `http://localhost:58999` متصل می‌شود. هنگام اجرای Aspire، آدرس کشف‌شدهٔ سرویس API اولویت دارد.
+
+فایل‌های `Production` با مقادیر قبلی پروژه مقداردهی شده‌اند. پیش از استقرار، اتصال دیتابیس، `Reports:GatewayUrl` و `Cors:Origins` در API و `BaseSiteApi:BaseUrl` در Web را متناسب با سرور مقصد تنظیم کنید. مقادیر محرمانه را از طریق متغیرهای محیطی مانند `ConnectionStrings__PantaEntities` وارد کنید؛ متغیرهای محیطی بر فایل‌های JSON اولویت دارند.
+
+برای اجرای مستقل در محیط Production، پروفایل Development را غیرفعال کنید:
+
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+dotnet run --project BaseSite/BaseSite.Api.csproj --no-launch-profile
+# در ترمینال جداگانه، با همان مقدار ASPNETCORE_ENVIRONMENT:
+dotnet run --project BaseSite.Web/BaseSite.Web.csproj --no-launch-profile
+```
+
+در سرور نیز `ASPNETCORE_ENVIRONMENT=Production` را برای هر دو برنامه تنظیم کنید. اگر `DOTNET_ENVIRONMENT` هم تعریف شده است، مقدار آن باید با محیط انتخاب‌شده هماهنگ باشد.
 
 ## مرزبندی پروژه‌ها
 

@@ -3,12 +3,12 @@
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
 
-<PageTitle>اشخاص و مشتریان | پانتا</PageTitle>
+<PageTitle>اشخاص و سازمان‌ها | پانتا</PageTitle>
 
 <div class="page-heading">
     <div>
-        <MudText Typo="Typo.h4">اشخاص و مشتریان</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">دفتر اطلاعات تماس و وضعیت مشتریان</MudText>
+        <MudText Typo="Typo.h4">اشخاص و سازمان‌ها</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">دفتر اطلاعات تماس و وضعیت اشخاص و سازمان‌ها</MudText>
     </div>
 </div>
 
@@ -37,7 +37,7 @@
             <MudTd DataLabel="شهر">@context.City</MudTd>
             <MudTd DataLabel="وضعیت"><MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">@context.Status</MudChip></MudTd>
         </RowTemplate>
-        <NoRecordsContent><div class="empty-state"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" /><span>مشتری‌ای یافت نشد.</span></div></NoRecordsContent>
+        <NoRecordsContent><div class="empty-state"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" /><span>موردی یافت نشد.</span></div></NoRecordsContent>
         <PagerContent><MudTablePager RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
     </MudTable>
 </MudPaper>

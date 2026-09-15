@@ -74,12 +74,6 @@ namespace BaseSite.Models.Account
                 res.Add(OPERATIONS.Sale_Detail);
                 res.Add(OPERATIONS.Sale_Print);
 
-                res.Add(OPERATIONS.Store);
-                res.Add(OPERATIONS.Store_Search);
-                res.Add(OPERATIONS.Store_Add);
-                res.Add(OPERATIONS.Store_Detail);
-                res.Add(OPERATIONS.Store_Print);
-
                 res.Add(OPERATIONS.Service);
                 res.Add(OPERATIONS.Service_Search);
                 res.Add(OPERATIONS.Service_Add);
@@ -125,9 +119,6 @@ namespace BaseSite.Models.Account
 
                 res.Add(OPERATIONS.Sale_Edit);
                 res.Add(OPERATIONS.Sale_Delete);
-
-                res.Add(OPERATIONS.Store_Edit);
-                res.Add(OPERATIONS.Store_Delete);
 
                 res.Add(OPERATIONS.Service_Edit);
                 res.Add(OPERATIONS.Service_Delete);
@@ -234,7 +225,6 @@ namespace BaseSite.Models.Account
             {
                 res.Add(OPERATIONS.Order_ChangeStatus);
                 res.Add(OPERATIONS.Sale_ChangeStatus);
-                res.Add(OPERATIONS.Store_ChangeStatus);
                 res.Add(OPERATIONS.Service_ChangeStatus);
 
                 res.Add(OPERATIONS.Payment_MaliConfirm);
