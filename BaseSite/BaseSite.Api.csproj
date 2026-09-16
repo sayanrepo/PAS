@@ -5,8 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>BaseSite.Api</AssemblyName>
     <RootNamespace>BaseSite</RootNamespace>
-    <RazorCompileOnBuild>false</RazorCompileOnBuild>
-    <RazorCompileOnPublish>false</RazorCompileOnPublish>
+    <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <RazorCompileOnPublish>true</RazorCompileOnPublish>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="EntityFramework" Version="6.5.1" />
@@ -35,5 +35,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ServiceDefaults\ServiceDefaults.csproj" />
     <EmbeddedResource Include="Api\Queries\ReportColumns.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- These are the unmodified legacy print templates. -->
+    <Content Include="Views\Order\PrintOrder.cshtml" />
+    <Content Include="Views\Order\PrintBill.cshtml" />
+    <Content Include="Views\Plan\PrintOrder.cshtml" />
   </ItemGroup>
 </Project>

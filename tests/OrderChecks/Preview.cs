@@ -32,7 +32,7 @@ internal static class Preview
             session.SignInAsync(new BaseSite.Web.Models.LoginResponse
             {
                 AccessToken = "preview-only", ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-                User = new() { Id = 1, FullName = "کاربر آزمایشی", Roles = ["Order", "Order_Search", "Order_Detail"] }
+                User = new() { Id = 1, FullName = "کاربر آزمایشی", Roles = ["Order", "Order_Search", "Order_Detail", "Order_Add", "Order_Edit_Factor", "Plan_Print", "Order_Print", "Logs_Detail"] }
             }).GetAwaiter().GetResult();
             return session;
         });
@@ -63,6 +63,7 @@ internal static class Preview
 
     private sealed class SampleApi : HttpMessageHandler
     {
+        private readonly Dictionary<int, OrderEditor> editors = [];
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             var path = request.RequestUri!.AbsolutePath;
@@ -71,7 +72,52 @@ internal static class Preview
             int? Int(string key) => int.TryParse(Get(key), out var value) ? value : null;
             DateTime? Date(string key) => DateTime.TryParse(Get(key), CultureInfo.InvariantCulture, DateTimeStyles.None, out var value) ? value : null;
             object data;
-            if (path == "/api/orders/lookups") data = new OrderLookups
+            if (path == "/api/orders/editor/customers") data = new[] { new OrderLookup { Id = 1, Name = "مشتری نمونه" } };
+            else if (path == "/api/orders/editor/new") data = SampleOrderEditor.Create(0);
+            else if (path == "/api/orders/editor" || path.StartsWith("/api/orders/editor/"))
+            {
+                var editorId = int.TryParse(path.Split('/').Last(), out var selectedId) ? selectedId : 100;
+                if (!editors.TryGetValue(editorId, out var editor)) editor = SampleOrderEditor.Create(editorId);
+                if (request.Method == HttpMethod.Post || request.Method == HttpMethod.Put)
+                {
+                    if (!editor.CanEdit) return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Conflict));
+                    editor.Form = request.Content!.ReadFromJsonAsync<OrderForm>(token).GetAwaiter().GetResult()!;
+                    editor.Detail.Summary.ProjectName = editor.Form.ProjectName;
+                    editors[editorId] = editor;
+                    data = new CreatedDocument { Id = editorId, DocumentNumber = editor.Detail.Summary.DocumentNumber };
+                }
+                else data = editor;
+            }
+            else if (path.EndsWith("/activity/comments", StringComparison.Ordinal) && request.Method == HttpMethod.Post)
+            {
+                var comment = request.Content!.ReadFromJsonAsync<BaseSite.Web.Models.OrderCommentRequest>(token).GetAwaiter().GetResult()!;
+                data = new BaseSite.Web.Models.OrderCommentItem { Id = 3, Owner = "کاربر آزمایشی", Comment = comment.Comment, CreatedAt = DateTime.Now };
+            }
+            else if (path.EndsWith("/activity", StringComparison.Ordinal))
+            {
+                data = new BaseSite.Web.Models.OrderActivity
+                {
+                    Comments =
+                    [
+                        new() { Id = 1, Owner = "مدیر فروش", Comment = "زمان تحویل با مشتری هماهنگ شد.", CreatedAt = new DateTime(2026, 9, 15, 9, 20, 0) },
+                        new() { Id = 2, Owner = "کاربر آزمایشی", Comment = "رنگ پنل مطابق نمونه تأیید شده است.", CreatedAt = new DateTime(2026, 9, 16, 11, 45, 0) }
+                    ],
+                    History =
+                    [
+                        new() { Id = 12, EventTime = new DateTime(2026, 9, 16, 10, 12, 0), User = "کاربر آزمایشی", Category = "سفارش", DocumentNumber = 1042, Activity = "ویرایش", Description = "اطلاعات سفارش ویرایش شد.", IpAddress = "192.168.1.24", Amount = 248500000 },
+                        new() { Id = 11, EventTime = new DateTime(2026, 9, 14, 8, 30, 0), User = "مدیر فروش", Category = "سفارش", DocumentNumber = 1042, Activity = "ایجاد", Description = "سفارش ایجاد شد.", IpAddress = "192.168.1.10" }
+                    ]
+                };
+            }
+            else if (path.Contains("/print/", StringComparison.Ordinal))
+            {
+                var title = path.EndsWith("/specification", StringComparison.Ordinal) ? "کارت مشخصات سفارش" : path.EndsWith("/bill", StringComparison.Ordinal) ? "صورتحساب فروش" : "فاکتور";
+                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StringContent($"<!doctype html><html lang=\"fa\" dir=\"rtl\"><head><meta charset=\"utf-8\"><title>{title}</title></head><body><h1>{title}</h1></body></html>", System.Text.Encoding.UTF8, "text/html")
+                });
+            }
+            else if (path == "/api/orders/lookups") data = new OrderLookups
             {
                 Statuses = [new() { Id = 1, Name = "پیش فاکتور" }, new() { Id = 2, Name = "در جریان تولید" }],
                 TradeTypes = [new() { Id = 1, Name = "فروش" }]

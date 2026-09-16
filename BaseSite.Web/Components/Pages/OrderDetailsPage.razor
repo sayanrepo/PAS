@@ -1,118 +1,240 @@
+@page "/documents/orders/new"
 @page "/documents/orders/{Id:int}"
+@page "/documents/orders/{Id:int}/edit"
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
-
-<PageTitle>جزئیات سفارش | پانتا</PageTitle>
+@inject IJSRuntime JS
+<PageTitle>سفارش | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
 <div class="order-detail">
     <div class="page-heading">
-        <MudText Typo="Typo.h5">جزئیات سفارش @order?.Summary.DocumentNumber</MudText>
+        <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد سفارش" : $"سفارش {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/orders" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به سفارش‌ها</MudButton>
     </div>
     @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
-    else if (error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
-    else if (order is not null)
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (success is not null) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+    @if (!loading && editor is not null)
     {
-        <section class="order-section order-main" aria-label="مشخصات سفارش">
-            <h2 class="order-section-title">سفارش</h2>
-            <div class="order-section-body">
-                <dl class="order-fields order-top-fields">
-                    <OrderValue Label="شماره سند" Value="@(order.Summary.DocumentNumber.ToString())" />
-                    <OrderValue Label="وضعیت" Value="@(order.Summary.Status)" />
-                    <OrderValue Label="نوع معامله" Value="@(order.Summary.TradeType)" />
-                    <OrderValue Label="تاریخ سفارش" Value="@(PersianDates.Format(order.Summary.OrderDate))" />
-                    <OrderValue Label="تاریخ تحویل" Value="@(PersianDates.Format(order.Summary.FactorDate))" />
-                </dl>
-                <dl class="order-fields order-customer-fields">
-                    <OrderValue Label="مشتری" Value="@(order.Summary.Customer)" />
-                    <OrderValue Label="نام پروژه" Value="@(order.Summary.ProjectName)" />
-                    <OrderValue Label="سفارش دهنده" Value="@(order.ClienteleName)" />
-                    <OrderValue Label="نوع تابلو" Value="@(order.ElevatorBoard)" />
-                    <OrderValue Label="محل ارسال" Value="@(order.DeliveryAddress)" Class="order-wide" />
-                    <OrderValue Label="نوع بسته بندی" Value="@(order.PackType)" />
-                    <OrderValue Label="توضیحات" Value="@(order.Comment)" Class="order-full" />
-                </dl>
-                <dl class="order-fields order-totals">
-                    <OrderValue Label="پنل کابین" Value="@(order.CabinTotal.ToString("N0"))" />
-                    <OrderValue Label="پنل طبقات" Value="@(order.HallTotal.ToString("N0"))" />
-                    <OrderValue Label="پنل سردرب" Value="@(order.DoorTopTotal.ToString("N0"))" />
-                    <OrderValue Label="کرایه حمل" Value="@((order.DeliveryCost ?? 0).ToString("N0"))" />
-                    <OrderValue Label="عوارض" Value="@($"{order.TaxPercent:N2}٪ — {order.TaxTotal:N0}")" />
-                    <OrderValue Label="ملحقات" Value="@(order.AttachmentTotal.ToString("N0"))" />
-                    <OrderValue Label="اضافات" Value="@(order.AdditionTotal.ToString("N0"))" />
-                    <OrderValue Label="کسورات" Value="@(order.DeductionTotal.ToString("N0"))" />
-                    <OrderValue Label="تخفیف درصدی" Value="@($"{order.DiscountPercent:N2}٪ — {order.DiscountTotal:N0}")" />
-                    <OrderValue Label="جمع کل (ریال)" Value="@(order.Summary.Amount.ToString("N0"))" Class="order-grand-total" />
-                </dl>
-            </div>
-        </section>
-        @foreach (var panel in order.Panels)
+        @if (Id > 0)
         {
-            <section class="order-section" aria-label="@panel.Kind">
-                <header class="order-section-title order-panel-title">
-                    <span>مرحله تولید: @(panel.Specifications.FirstOrDefault(x => x.Label == "وضعیت تولید")?.Value ?? "—")</span>
-                    <h2>@PanelTitle(panel.Kind)</h2>
-                    <span>@((panel.Count > 0 ? panel.Amount / panel.Count : 0).ToString("N0")) ریال / واحد</span>
-                </header>
-                <div class="order-section-body">
-                    <dl class="order-fields order-panel-fields">
-                        <OrderValue Label="مدل پنل" Value="@(panel.Name)" />
-                        @foreach (var spec in panel.Specifications.Where(x => x.Label != "وضعیت تولید"))
+            <div class="order-toolbar">
+                <nav class="order-tabs" aria-label="بخش‌های سفارش">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" aria-current="@(activeTab == 0 ? "page" : null)" @onclick="() => activeTab = 0">سفارش</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" aria-current="@(activeTab == 1 ? "page" : null)" @onclick="() => activeTab = 1">
+                        یادداشت ها
+                        @if (activity?.Comments.Count > 0) { <span class="order-tab-count">@activity.Comments.Count</span> }
+                    </button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" aria-current="@(activeTab == 2 ? "page" : null)" @onclick="() => activeTab = 2">تاریخچه فعالیتها</button>
+                </nav>
+                <div class="order-print-actions" aria-label="چاپ سفارش">
+                    @if (CanPrintSpecification)
+                    {
+                        <MudTooltip Text="چاپ کارت مشخصات سفارش"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ کارت مشخصات سفارش" aria-label="چاپ کارت مشخصات سفارش" OnClick='@(() => PrintAsync("specification"))' Disabled="printing" /></MudTooltip>
+                    }
+                    @if (CanPrintOrder)
+                    {
+                        <MudTooltip Text="چاپ صورتحساب فروش"><MudIconButton Icon="@Icons.Material.Filled.ReceiptLong" Color="Color.Primary" title="چاپ صورتحساب فروش" aria-label="چاپ صورتحساب فروش" OnClick='@(() => PrintAsync("bill"))' Disabled="printing" /></MudTooltip>
+                        <MudTooltip Text="چاپ فاکتور"><MudIconButton Icon="@Icons.Material.Filled.RequestQuote" Color="Color.Primary" title="چاپ فاکتور" aria-label="چاپ فاکتور" OnClick='@(() => PrintAsync("invoice"))' Disabled="printing" /></MudTooltip>
+                    }
+                </div>
+            </div>
+        }
+        <div class="@(activeTab == 0 ? null : "order-tab-hidden")">
+            @if (ReadOnly) { <MudAlert Severity="Severity.Info" Class="mb-4">این سفارش فقط قابل مشاهده است.</MudAlert> }
+            <EditForm Model="editor.Form" OnSubmit="SaveAsync" FormName="order">
+            <fieldset disabled="@(ReadOnly || saving)" class="order-form" aria-label="فرم سفارش">
+                <section class="order-section order-main" aria-label="مشخصات سفارش">
+                    <h2 class="order-section-title">سفارش</h2>
+                    <div class="order-section-body">
+                        <div class="order-fields order-top-fields">
+                            <label class="order-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                            <label class="order-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                            <label class="order-field"><span>نوع معامله</span><select @bind="form.TradeTypeId" @bind:after="Recalculate">@foreach (var option in Options("TradeTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="order-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
+                            <label class="order-field"><span>تاریخ تحویل</span><input aria-label="تاریخ تحویل" dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
+                        </div>
+                        <div class="order-fields order-customer-fields">
+                            <div class="order-field order-customer"><span>مشتری</span>
+                                <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" SearchFunc="FindCustomers" @bind-Text="customerText"
+                                    ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Label="مشتری"
+                                    Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" />
+                            </div>
+                            <label class="order-field"><span>نام پروژه</span><input type="text" maxlength="50" @bind="form.ProjectName" @bind:event="oninput"  /></label>
+                            <label class="order-field"><span>سفارش دهنده</span><input type="text" maxlength="50" @bind="form.ClienteleName" @bind:event="oninput"  /></label>
+                            <label class="order-field"><span>نوع تابلو</span><select @bind="form.ElevatorBoardId" @bind:after="Recalculate">@foreach (var option in Options("ElevatorBoards")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="order-field order-wide"><span>محل ارسال</span><input type="text" maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput"  /></label>
+                            <label class="order-field"><span>نوع بسته بندی</span><select @bind="form.PackTypeId" @bind:after="Recalculate">@foreach (var option in Options("PackTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="order-field order-full"><span>توضیحات</span><input type="text" maxlength="255" @bind="form.Comment" @bind:event="oninput"  /></label>
+                        </div>
+                        <div class="order-fields order-totals">
+                            <OrderValue Label="پنل کابین" Value='@PanelTotal("Cabin")' />
+                            <OrderValue Label="پنل طبقات" Value='@PanelTotal("Hall")' />
+                            <OrderValue Label="پنل سردرب" Value='@PanelTotal("DoorTop")' />
+                            <label class="order-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" @bind:after="Recalculate" /></label>
+                            <label class="order-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" @bind:after="Recalculate" /></label>
+                            <OrderValue Label="ملحقات" Value='@form.Panels.Where(x => x.ModelId > 0).Sum(x => x.Attachments.Sum(a => a.Cost)).ToString("N0")' />
+                            <OrderValue Label="اضافات" Value='@form.Panels.Where(x => x.ModelId > 0).Sum(x => x.Additions.Sum(a => a.Cost)).ToString("N0")' />
+                            <OrderValue Label="کسورات" Value='@form.Deductions.Sum(x => x.Cost).ToString("N0")' />
+                            <label class="order-field"><span>تخفیف (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.DiscountRate" @bind:after="Recalculate" /></label>
+                            <OrderValue Label="جمع کل (ریال)" Value='@form.Total.ToString("N0")' Class="order-grand-total" />
+                        </div>
+                        <div class="order-calculation">مبلغ عوارض: @form.TaxTotal.ToString("N0") ریال · مبلغ تخفیف: @form.DiscountTotal.ToString("N0") ریال</div>
+                    </div>
+                </section>
+                @foreach (var panel in form.Panels)
+                {
+                    <section @key="panel" class="order-section" aria-label="@PanelTitle(panel.Kind)">
+                        <header class="order-section-title order-panel-title">
+                            <span>مرحله تولید: @panel.ProductionStatus</span>
+                            <h2>@PanelTitle(panel.Kind)</h2>
+                            <span>@((panel.Count > 0 ? panel.Amount / panel.Count : 0).ToString("N0")) ریال / واحد</span>
+                        </header>
+                        <div class="order-section-body">
+                            <div class="order-fields order-panel-fields">
+                                <label class="order-field"><span>مدل پنل</span><select @bind="panel.ModelId" @bind:after="Recalculate">@foreach (var option in Options(panel.Kind + "Panels")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="order-field"><span>نمایشگر</span><select @bind="panel.MonitorId" @bind:after="Recalculate">@foreach (var option in Options("Monitors")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>فلز رویه</span><select @bind="panel.SurfaceMetalId" @bind:after="Recalculate">@foreach (var option in Options(panel.Kind == "DoorTop" ? "SurfaceMetals" : panel.Kind + "SurfaceMetals")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>تعداد</span><input type="number" min="1" max="10000" @bind="panel.Count" @bind:after="Recalculate" /></label>
+                                @if (panel.Kind == "Cabin") { <label class="order-field"><span>پوش باتون</span><select @bind="panel.PushButtonId" @bind:after="Recalculate">@foreach (var option in Options("PushButtons")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>تعداد طبقات</span><input type="number" min="0" max="200" @bind="panel.FloorCount" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>تعداد طبقات زیرین</span><input type="number" min="0" max="200" @bind="panel.UGFloorCount" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>نام گذاری و ترتیب طبقات</span><input type="text" maxlength="50" @bind="panel.FloorNames" @bind:event="oninput"  /></label>
+                                <label class="order-field"><span>نام گذاری و ترتیب طبقات زیرین</span><input type="text" maxlength="50" @bind="panel.UGFloorNames" @bind:event="oninput"  /></label>
+                                <label class="order-field"><span>کلید آیفون</span><input type="checkbox"  @bind="panel.PhoneCallButton" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>DO</span><input type="checkbox"  @bind="panel.DO" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>DC</span><input type="checkbox"  @bind="panel.DC" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>نحوه نصب</span><select @bind="panel.InstallationTypeId" @bind:after="Recalculate">@foreach (var option in Options("InstallationTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>فلز رویه دوم</span><select @bind="panel.SurfaceMetalId2" @bind:after="Recalculate"><option value="">—</option>@foreach (var option in Options("CabinSurfaceMetals")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>کد بلندگو</span><select @bind="panel.SpeakerId" @bind:after="Recalculate">@foreach (var option in Options("Speakers")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>کد لامپ اضطراری</span><select @bind="panel.EmergencyLightId" @bind:after="Recalculate">@foreach (var option in Options("EmergencyLights")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>شماره ورق</span><input type="number" min="0" @bind="panel.SheetNumber" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>متن برش لیزری</span><input type="text" maxlength="255" @bind="panel.LaserCuttingText" @bind:event="oninput"  /></label>
+                                <label class="order-field"><span>متن حک لیزری</span><input type="text" maxlength="255" @bind="panel.LaserEngravingText" @bind:event="oninput"  /></label> }
+                                @if (panel.Kind == "Hall") { <label class="order-field"><span>آسانسور</span><select @bind="panel.ElevatorTypeId" @bind:after="Recalculate">@foreach (var option in Options("ElevatorCounts")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>تعداد شاسی</span><select @bind="panel.PushButtonCountId" @bind:after="Recalculate">@foreach (var option in Options("HallPushButtonCounts")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>پوش باتون</span><select @bind="panel.PushButtonId" @bind:after="Recalculate">@foreach (var option in Options("PushButtons")) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="order-field"><span>تعداد طبقات</span><input type="number" min="0" max="200" @bind="panel.FloorCount" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>تعداد طبقات زیرین</span><input type="number" min="0" max="200" @bind="panel.UGFloorCount" @bind:after="Recalculate" /></label>
+                                <label class="order-field"><span>نام گذاری و ترتیب طبقات</span><input type="text" maxlength="50" @bind="panel.FloorNames" @bind:event="oninput"  /></label>
+                                <label class="order-field"><span>نام گذاری و ترتیب طبقات زیرین</span><input type="text" maxlength="50" @bind="panel.UGFloorNames" @bind:event="oninput"  /></label> }
+                                <label class="order-field order-full"><span>توضیحات</span><textarea maxlength="255" @bind="panel.Comment" @bind:event="oninput"></textarea></label>
+                            </div>
+                            <div class="order-extras">
+                                <OrderExtrasEditor Title="ملحقات" Items="panel.Attachments" Options='@Options("Attachments")' Attachments="true" ReadOnly="ReadOnly" OnChanged="Recalculate" />
+                                <OrderExtrasEditor Title="اضافات" Items="panel.Additions" Options='@Options("Additions")' ReadOnly="ReadOnly" OnChanged="Recalculate" />
+                            </div>
+                            <div class="order-panel-footer">
+                                <span>بارکد: @(panel.DocumentNumber == 0 ? "پس از ثبت" : panel.DocumentNumber.ToString()) · مبلغ کل پنل: @panel.Amount.ToString("N0") ریال</span>
+                                @if (!ReadOnly) { <button type="button" class="order-remove" @onclick="() => RemovePanel(panel)">حذف پنل</button> }
+                            </div>
+                        </div>
+                    </section>
+                }
+                @if (!ReadOnly)
+                {
+                    <div class="order-panel-actions">
+                        <button type="button" class="order-add" @onclick='() => AddPanel("Cabin")'>افزودن پنل کابین</button>
+                        <button type="button" class="order-add" @onclick='() => AddPanel("Hall")'>افزودن پنل طبقات</button>
+                        <button type="button" class="order-add" @onclick='() => AddPanel("DoorTop")'>افزودن پنل سردرب</button>
+                    </div>
+                }
+                <section class="order-section">
+                    <h2 class="order-section-title">کسورات</h2>
+                    <div class="order-section-body"><OrderExtrasEditor Title="کسورات" ShowTitle="false" Items="form.Deductions" Options='@Options("Deductions")' ReadOnly="ReadOnly" OnChanged="Recalculate" /></div>
+                </section>
+                <dl class="order-fields order-customer-fields order-additional">
+                    <OrderValue Label="شماره فاکتور" Value="@editor.Detail.Summary.FactorNumber.ToString()" />
+                    <OrderValue Label="سفارش گیرنده" Value="@editor.Detail.Summary.Receiver" />
+                    <OrderValue Label="تاریخ درخواست تولید" Value="@PersianDates.Format(editor.Detail.ProductionRequestDate)" />
+                </dl>
+            </fieldset>
+            @if (!ReadOnly)
+            {
+                <div class="order-save-actions">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت سفارش")</MudButton>
+                    <MudButton OnClick="ReloadAsync" Disabled="saving">بازنشانی تغییرات</MudButton>
+                </div>
+            }
+            </EditForm>
+        </div>
+        @if (Id > 0 && activeTab == 1)
+        {
+            <section class="order-tab-panel" aria-label="یادداشت ها">
+                <div class="order-comment-editor">
+                    <label for="order-comment">یادداشت جدید</label>
+                    <textarea id="order-comment" maxlength="4000" @bind="newComment" @bind:event="oninput" placeholder="متن یادداشت را وارد کنید"></textarea>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton>
+                </div>
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+                else if (!string.IsNullOrWhiteSpace(activityError)) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.Comments.Count is null or 0) { <div class="order-tab-empty">یادداشتی برای این سفارش ثبت نشده است.</div> }
+                else
+                {
+                    <div class="order-comments">
+                        @foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt))
                         {
-                            <OrderValue Label="@spec.Label" Value="@spec.Value" Class="@(spec.Label.Contains("توضیحات") || spec.Label.Contains("متن") ? "order-full" : "")" />
-                        }
-                        <OrderValue Label="تعداد" Value="@(panel.Count.ToString())" />
-                        <OrderValue Label="بارکد" Value="@(panel.DocumentNumber.ToString())" />
-                        <OrderValue Label="مبلغ کل پنل" Value="@(panel.Amount.ToString("N0"))" />
-                    </dl>
-                    <div class="order-extras">
-                        @foreach (var kind in new[] { "ملحقات", "اضافات" })
-                        {
-                            var extras = panel.Extras.Where(x => x.Kind == kind).ToList();
-                            <section>
-                                <h3>@kind</h3>
-                                <table><thead><tr><th>عنوان</th>@if (kind == "ملحقات") { <th>تعداد</th> }<th>مبلغ (ریال)</th></tr></thead>
-                                <tbody>
-                                    @foreach (var extra in extras) { <tr><td>@extra.Name</td>@if (kind == "ملحقات") { <td>@extra.Count</td> }<td>@extra.Amount.ToString("N0")</td></tr> }
-                                    @if (extras.Count == 0) { <tr><td colspan="3">موردی ثبت نشده است.</td></tr> }
-                                </tbody></table>
-                            </section>
+                            <article class="order-comment" @key="comment.Id">
+                                <header><strong>@comment.Owner</strong><time datetime="@comment.CreatedAt.ToString("O")">@FormatDateTime(comment.CreatedAt)</time></header>
+                                <p>@comment.Comment</p>
+                            </article>
                         }
                     </div>
-                </div>
+                }
             </section>
         }
-        <section class="order-section">
-            <h2 class="order-section-title">کسورات</h2>
-            <div class="order-section-body">
-                <table><thead><tr><th>عنوان</th><th>مبلغ (ریال)</th></tr></thead><tbody>
-                @foreach (var item in order.Deductions) { <tr><td>@item.Name</td><td>@item.Amount.ToString("N0")</td></tr> }
-                @if (order.Deductions.Count == 0) { <tr><td colspan="2">کسوراتی ثبت نشده است.</td></tr> }
-                </tbody></table>
-            </div>
-        </section>
-        <dl class="order-fields order-customer-fields order-additional">
-            <OrderValue Label="شماره فاکتور" Value="@(order.Summary.FactorNumber.ToString())" />
-            <OrderValue Label="سفارش گیرنده" Value="@(order.Summary.Receiver)" />
-            <OrderValue Label="تاریخ درخواست تولید" Value="@(PersianDates.Format(order.ProductionRequestDate))" />
-        </dl>
+        @if (Id > 0 && activeTab == 2)
+        {
+            <section class="order-tab-panel" aria-label="تاریخچه فعالیتها">
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+                else if (!string.IsNullOrWhiteSpace(activityError)) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.History.Count is null or 0) { <div class="order-tab-empty">فعالیتی برای این سفارش ثبت نشده است.</div> }
+                else
+                {
+                    <div class="order-history-table">
+                        <table>
+                            <thead><tr><th>زمان</th><th>کاربر</th><th>دسته‌بندی</th><th>شماره سند</th><th>فعالیت</th><th>توضیحات</th>@if (CanViewHistoryDetail) { <th>جزئیات</th> }</tr></thead>
+                            <tbody>
+                                @foreach (var item in activity.History)
+                                {
+                                    <tr @key="item.Id">
+                                        <td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td>@item.Description</td>
+                                        @if (CanViewHistoryDetail) { <td><MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistoryId = selectedHistoryId == item.Id ? null : item.Id)" /></td> }
+                                    </tr>
+                                    @if (CanViewHistoryDetail && selectedHistoryId == item.Id)
+                                    {
+                                        <tr class="order-history-detail"><td colspan="7"><span>آدرس IP: @(string.IsNullOrWhiteSpace(item.IpAddress) ? "—" : item.IpAddress)</span><span>مبلغ: @(item.Amount?.ToString("N0") ?? "—")</span></td></tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
+        }
     }
 </div>
 </MudRTLProvider>
-
 @code {
-    private static string PanelTitle(string kind) => kind switch { "پنل کابین" => "پنل شاسی داخل کابین", "پنل طبقات" => "پنل شاسی طبقات", _ => kind };
     [Parameter] public int Id { get; set; }
-    private OrderDetail? order;
-    private bool loading = true;
-    private string? error;
+    private OrderEditor? editor;
+    private OrderForm form => editor!.Form;
+    private OrderLookup? customer;
+    private OrderActivity? activity;
+    private string? factorDate, customerText, error, success, activityError, newComment;
+    private bool loading = true, saving, activityLoading, savingComment, printing;
+    private int activeTab;
+    private long? selectedHistoryId;
     private int? loadedId;
-
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Session.IsInitialized && loadedId != Id) await LoadAsync();
-    }
+    private bool ReadOnly => editor?.CanEdit != true || !OrderForm.IsEditable(form.StatusId);
+    private bool CanPrintSpecification => Session.User?.Roles.Contains("Plan_Print") == true;
+    private bool CanPrintOrder => Session.User?.Roles.Contains("Order_Print") == true;
+    private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
+    private List<OrderChoice> Options(string key) => editor!.Options.GetValueOrDefault(key) ?? [];
+    private static string PanelTitle(string kind) => kind switch { "Cabin" => "پنل شاسی داخل کابین", "Hall" => "پنل شاسی طبقات", _ => "پنل سردرب" };
+    private string PanelTotal(string kind) => form.Panels.Where(x => x.Kind == kind).Sum(x => x.Amount).ToString("N0");
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
@@ -120,19 +242,111 @@
         if (loadedId != Id) await LoadAsync();
         StateHasChanged();
     }
+    private async Task ReloadAsync() { success = null; await LoadAsync(); }
     private async Task LoadAsync()
     {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
-        loading = true;
-        order = null;
-        error = null;
-        loadedId = Id;
+        loading = true; editor = null; error = null; activity = null; activityError = null; loadedId = Id; activeTab = 0;
         try
         {
-            order = await Api.GetOrderAsync(Id);
-            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+            editor = await Api.GetOrderEditorAsync(Id) ?? throw new InvalidOperationException("سفارش یافت نشد.");
+            customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
+            customerText = customer?.Name;
+            factorDate = PersianDates.Format(form.FactorDate);
+            if (Id == 0)
+            {
+                foreach (var kind in new[] { "Cabin", "Hall", "DoorTop" })
+                    if (!form.Panels.Any(x => x.Kind == kind)) AddPanel(kind);
+                Recalculate();
+            }
+            else await LoadActivityAsync();
         }
         catch (Exception ex) { error = ex.Message; }
         finally { loading = false; }
+    }
+    private async Task LoadActivityAsync()
+    {
+        activityLoading = true; activityError = null;
+        try { activity = await Api.GetOrderActivityAsync(Id) ?? new(); }
+        catch (Exception ex) { activityError = ex.Message; }
+        finally { activityLoading = false; }
+    }
+    private async Task AddCommentAsync()
+    {
+        if (Id <= 0 || savingComment || string.IsNullOrWhiteSpace(newComment)) return;
+        savingComment = true; activityError = null;
+        try
+        {
+            var saved = await Api.AddOrderCommentAsync(Id, newComment);
+            activity ??= new(); activity.Comments.Add(saved); newComment = null;
+        }
+        catch (Exception ex) { activityError = ex.Message; }
+        finally { savingComment = false; }
+    }
+    private async Task PrintAsync(string kind)
+    {
+        if (Id <= 0 || printing) return;
+        error = null;
+        var popupId = await JS.InvokeAsync<string?>("orderPrint.reserve");
+        if (string.IsNullOrWhiteSpace(popupId)) { error = "مرورگر پنجره چاپ را مسدود کرد. اجازه باز شدن پنجره جدید را فعال کنید."; return; }
+        printing = true;
+        try
+        {
+            var html = await Api.GetOrderPrintAsync(Id, kind);
+            if (!await JS.InvokeAsync<bool>("orderPrint.show", popupId, html)) error = "پنجره چاپ بسته شده است.";
+        }
+        catch (Exception ex) { await JS.InvokeVoidAsync("orderPrint.close", popupId); error = ex.Message; }
+        finally { printing = false; }
+    }
+    private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";
+    private void CustomerChanged(OrderLookup? value) { customer = value; form.CustomerId = value?.Id ?? 0; }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token)
+    {
+        try { return await Api.FindOrderEditorCustomersAsync(term ?? "", token) ?? []; }
+        catch (OperationCanceledException) { return []; }
+        catch (Exception ex) { error = ex.Message; return []; }
+    }
+    private void Recalculate()
+    {
+        if (editor is null || ReadOnly) return;
+        foreach (var panel in form.Panels) panel.Calculate(editor.Options, form.StatusId);
+    }
+    private void AddPanel(string kind)
+    {
+        if (ReadOnly) return;
+        int Default(string key) => Options(key).FirstOrDefault()?.Id ?? 0;
+        form.Panels.Add(new() { Kind = kind, ModelId = Default(kind + "Panels"), Count = 1,
+            MonitorId = Default("Monitors"), PushButtonId = Default("PushButtons"),
+            SurfaceMetalId = Default(kind == "DoorTop" ? "SurfaceMetals" : kind + "SurfaceMetals"),
+            SpeakerId = (short)Default("Speakers"), EmergencyLightId = (short)Default("EmergencyLights"),
+            InstallationTypeId = (short)Default("InstallationTypes"), ElevatorTypeId = (short)Default("ElevatorCounts"),
+            PushButtonCountId = (short)Default("HallPushButtonCounts") });
+        Recalculate();
+    }
+    private void RemovePanel(OrderPanelForm panel) { if (ReadOnly) return; form.Panels.Remove(panel); Recalculate(); }
+    private async Task SaveAsync()
+    {
+        if (ReadOnly || saving) return;
+        error = success = null;
+        if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
+        try
+        {
+            form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل");
+            var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+            var objects = new List<object> { form };
+            objects.AddRange(form.Panels); objects.AddRange(form.Deductions);
+            foreach (var panel in form.Panels) { objects.AddRange(panel.Attachments); objects.AddRange(panel.Additions); }
+            if (objects.Any(x => !System.ComponentModel.DataAnnotations.Validator.TryValidateObject(x, new(x), validation, true)))
+                throw new InvalidOperationException("مقادیر فرم معتبر نیست. تعدادها، مبالغ و طول متن‌ها را بررسی کنید.");
+            Recalculate();
+            if (form.Subtotal < 0) throw new InvalidOperationException("کسورات از مبلغ پنل‌ها بیشتر است.");
+            saving = true;
+            var saved = await Api.SaveOrderAsync(Id, form);
+            if (Id == 0) Navigation.NavigateTo($"/documents/orders/{saved.Id}");
+            else await LoadAsync();
+            success = "سفارش ثبت شد.";
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
     }
 }

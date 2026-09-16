@@ -3,7 +3,7 @@
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
-<PageTitle>@(report?.Title??"نمایش گزارش") | پانتا</PageTitle>
+<PageTitle>@(report?.Title??"نمایش گزارش") | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
  <div class="page-heading"><div><MudText Typo="Typo.h5">@(report?.Title??"نمایش گزارش")</MudText><MudText Color="Color.Secondary">@report?.Category</MudText></div><MudButton Href="/reports" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به گزارشات</MudButton></div>
  @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }

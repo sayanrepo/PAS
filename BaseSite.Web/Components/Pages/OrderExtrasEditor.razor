@@ -1,0 +1,33 @@
+<section class="order-extras-section">
+    @if (ShowTitle) { <h3>@Title</h3> }
+    <table>
+        <thead><tr><th>عنوان</th>@if (Attachments) { <th>تعداد</th> }<th>مبلغ (ریال)</th>@if (!ReadOnly) { <th class="order-actions-cell">حذف</th> }</tr></thead>
+        <tbody>
+            @foreach (var row in Items)
+            {
+                <tr @key="row">
+                    <td><select aria-label="@($"عنوان {Title}")" @bind="row.LookupId" @bind:after="Changed">
+                        @foreach (var option in Options) { <option value="@option.Id">@option.Name</option> }
+                    </select></td>
+                    @if (Attachments) { <td><input aria-label="تعداد ملحقات" type="number" min="1" max="10000" @bind="row.Count" @bind:after="Changed" /></td> }
+                    <td><input aria-label="@($"مبلغ {Title}")" type="number" min="0" step="any" readonly="@Attachments" @bind="row.Cost" @bind:after="Changed" /></td>
+                    @if (!ReadOnly) { <td><button type="button" class="order-remove" @onclick="() => Remove(row)" aria-label="@($"حذف {Title}")">×</button></td> }
+                </tr>
+            }
+            @if (Items.Count == 0) { <tr><td colspan="@((Attachments ? 3 : 2) + (ReadOnly ? 0 : 1))">موردی ثبت نشده است.</td></tr> }
+        </tbody>
+    </table>
+    @if (!ReadOnly) { <button type="button" class="order-add" @onclick="Add">افزودن @Title</button> }
+</section>
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public bool ShowTitle { get; set; } = true;
+    [Parameter] public List<OrderExtraForm> Items { get; set; } = [];
+    [Parameter] public List<OrderChoice> Options { get; set; } = [];
+    [Parameter] public bool Attachments { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    [Parameter] public EventCallback OnChanged { get; set; }
+    private Task Changed() => OnChanged.InvokeAsync();
+    private async Task Add() { if (ReadOnly || Options.Count == 0) return; Items.Add(new() { LookupId = Options.FirstOrDefault(x => x.Id > 0)?.Id ?? Options[0].Id }); await Changed(); }
+    private async Task Remove(OrderExtraForm row) { if (ReadOnly) return; Items.Remove(row); await Changed(); }
+}

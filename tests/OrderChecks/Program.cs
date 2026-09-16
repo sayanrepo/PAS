@@ -163,6 +163,7 @@ var documentRoutes = typeof(BaseSite.Web.Components.Pages.Documents)
     .Cast<Microsoft.AspNetCore.Components.RouteAttribute>().Select(route => route.Template).ToArray();
 Check(documentRoutes.SequenceEqual(new[] { "/documents/activities" }),
     "The remaining shared document page serves CRM activities without a store catch-all route");
+OrderEditorChecks.Run(Check);
 Console.WriteLine($"{passed} document checks passed; no database was accessed.");
 
 internal static class SampleOrders

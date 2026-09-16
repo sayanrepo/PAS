@@ -22,7 +22,7 @@ builder.Services
         _ => { });
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<AccessTokenService>();
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddApiDocumentation();
 builder.Services.AddCors(options => options.AddPolicy("Web", policy => policy
     .WithOrigins(builder.Configuration.GetSection("Cors:Origins").Get<string[]>() ?? [])

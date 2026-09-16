@@ -83,6 +83,35 @@ public sealed class BaseSiteApiClient(HttpClient httpClient, ApiSession session)
     public Task<List<OrderLookup>?> FindOrderCustomersAsync(string term, CancellationToken cancellationToken) =>
         GetAsync<List<OrderLookup>>("api/orders/customers?term=" + Uri.EscapeDataString(term), cancellationToken);
     public Task<OrderDetail?> GetOrderAsync(int id) => GetAsync<OrderDetail>($"api/orders/{id}", default);
+    public Task<OrderEditor?> GetOrderEditorAsync(int id) => GetAsync<OrderEditor>(id == 0 ? "api/orders/editor/new" : $"api/orders/editor/{id}", default);
+    public Task<OrderActivity?> GetOrderActivityAsync(int id) => GetAsync<OrderActivity>($"api/orders/{id}/activity", default);
+    public async Task<OrderCommentItem> AddOrderCommentAsync(int id, string comment)
+    {
+        using var request = CreateRequest(HttpMethod.Post, $"api/orders/{id}/activity/comments");
+        request.Content = JsonContent.Create(new OrderCommentRequest { Comment = comment });
+        using var response = await httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(await ReadErrorAsync(response, default));
+        return await response.Content.ReadFromJsonAsync<OrderCommentItem>() ?? throw new InvalidOperationException("پاسخ ثبت یادداشت معتبر نیست.");
+    }
+    public async Task<string> GetOrderPrintAsync(int id, string kind)
+    {
+        using var request = CreateRequest(HttpMethod.Get, $"api/orders/{id}/print/{Uri.EscapeDataString(kind)}");
+        using var response = await httpClient.SendAsync(request);
+        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(await ReadErrorAsync(response, default));
+        return await response.Content.ReadAsStringAsync();
+    }
+    public Task<List<OrderLookup>?> FindOrderEditorCustomersAsync(string term, CancellationToken token) =>
+        GetAsync<List<OrderLookup>>("api/orders/editor/customers?term=" + Uri.EscapeDataString(term), token);
+    public async Task<CreatedDocument> SaveOrderAsync(int id, OrderForm form)
+    {
+        using var request = CreateRequest(id == 0 ? HttpMethod.Post : HttpMethod.Put,
+            id == 0 ? "api/orders/editor" : $"api/orders/editor/{id}");
+        request.Content = JsonContent.Create(form);
+        using var response = await httpClient.SendAsync(request);
+        if (response.StatusCode == HttpStatusCode.Unauthorized) { await session.SignOutAsync(); throw new InvalidOperationException("نشست شما پایان یافته است."); }
+        if (!response.IsSuccessStatusCode) throw new InvalidOperationException(await ReadErrorAsync(response, default));
+        return await response.Content.ReadFromJsonAsync<CreatedDocument>() ?? throw new InvalidOperationException("پاسخ ثبت معتبر نیست.");
+    }
 
     public Task<SalePage?> GetSalesAsync(SaleSearch filter, CancellationToken cancellationToken = default)
     {
