@@ -70,7 +70,7 @@ namespace NumberToWordsLib
         /// <summary>
         /// Equivalent names
         /// </summary>
-        public IList<string> Names { set; get; }
+        public IList<string> Names { set; get; } = Array.Empty<string>();
     }
 
     /// <summary>

@@ -82,7 +82,8 @@ namespace BaseSite.Models.Order
                         .Include(m => m.Order_DoorTop.Select(n => n.Tb_DoorTopPanels.Order_ProductStatus))
                         .Include(m => m.Order_DoorTop.Select(n => n.Order_ProductStatus))
                         .Include(m => m.Order_Deduction).Include(m => m.Order_Deduction.Select(n => n.Tb_Deductions))
-                        .Include(m => m.Account_Users).Include(m => m.Account_Users1).Include(m => m.Tb_TradeTypes)
+                        .Include(m => m.Account_Users).Include(m => m.Account_Users.Location_Cities.Location_Provinces)
+                        .Include(m => m.Account_Users1).Include(m => m.Tb_TradeTypes)
                         .Include(m => m.Order_Status).Include(m => m.Tb_OrderTypes).Include(m => m.Tb_PackTypes).Include(m => m.Tb_ElevatorBoards)
                         .Where(m => m.Id == orderId).SingleOrDefault();
 

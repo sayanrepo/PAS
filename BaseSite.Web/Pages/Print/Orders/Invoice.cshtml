@@ -1,0 +1,790 @@
+@page "/print/orders/{id:int}/invoice"
+@model BaseSite.Web.Pages.Print.Orders.InvoiceModel
+@{
+    Layout = "_PrintLayout";
+    ViewData["PrintKind"] = "invoice";
+    ViewData["Title"] = Model.Order.StatusId > 1 ? " " : "برآورد هزینه";
+    double sum = 0;
+    int index = 0;
+    int attachments = 0;
+    int additions = 0;
+}
+
+    <div class="container-fluid" id="divPrint">
+        <div class="row box" id="header">
+            <div class="col-xs-3 text-right">
+                <p><b>شماره سند: </b><b>@Model.Order.DocNumber</b></p>
+            </div>
+            <div class="col-xs-6 text-center" style="font-size:large;">
+                <u><b>@ViewData["Title"]</b></u>
+            </div>
+            <div class="col-xs-3 text-left">
+                <p><b>تاریخ: </b>@(Model.Order.StatusId < 7 ? PersianDates.Format(DateTime.Now) : Model.Order.ShDateFactor)</p>
+            </div>
+            <div class="col-xs-4 text-right">
+                <p><b>جهت پروژه: </b>@Model.Order.ProjectName</p>
+            </div>
+            <div class="col-xs-3 text-center">
+                <p><b>مشتری: </b>@Model.Order.Account_Users.FullName</p>
+            </div>
+            <div class="col-xs-5 text-left">
+                <p><b>نوع تابلو: </b>@Model.Order.Tb_ElevatorBoards.Name</p>
+            </div>
+            <div class="col-xs-11 text-right">
+                <p><b>نوع بسته بندی: </b>@Model.Order.Tb_PackTypes.Name</p>
+            </div>
+            <div class="col-xs-1 text-left">
+                <p>@Model.Order.FactorNumber</p>
+            </div>
+            
+            <div class="col-xs-12 text-right">
+                <p><b>محل ارسال: </b>@Model.Order.DeliveryAddress</p>
+            </div>
+        </div>
+
+        @if (Model.Order.Order_Cabin.Count > 0 && Model.Order.Order_Cabin.ElementAt(0).Tb_CabinPanels.Id > 0)
+        {
+            for (int i = 0; i < Model.Order.Order_Cabin.Count; i++)
+            {
+                if (Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                {
+                    for (int j = 0; j < Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                    {
+                        if (Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                        {
+                            attachments++;
+
+                        }
+                    }
+                    for (int j = 0; j < Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count; j++)
+                    {
+                        if (Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                        {
+                            additions++;
+
+                        }
+                    }
+                    <div class="row">
+                        <div style="width: 100%; display: table;">
+                            <div style="display: table-row">
+                                <div class="box" style="width: 30px; display: table-cell;padding:3px;">
+                                    <div><p> پنل <p /><p> شاسی </p><p> داخل </p> <p> کابین</p></div>
+                                </div>
+                                <div class="row box" style="display: table-cell;">
+                                    <div class="col-xs-7 text-right">
+                                        <p><b>مدل پنل: </b>@string.Format("{0} {1}", Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Name, Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Description)</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>نحوه نصب: </b>@Model.Order.Order_Cabin.ElementAt(i).Tb_InstallationTypes.Name</p>
+                                    </div>
+                                    <div class="col-xs-1 text-right">
+                                        <p><b>تعداد: </b>@Model.Order.Order_Cabin.ElementAt(i).Count</p>
+                                    </div>
+                                    
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد طبقات: </b>@Model.Order.Order_Cabin.ElementAt(i).FloorCount</p>
+                                    </div>
+                                    <div class="col-xs-6 text-right">
+                                        <b style="float:right; padding-left:5px;">نام و ترتیب طبقات: </b><p style="direction:ltr; float:right;">@Model.Order.Order_Cabin.ElementAt(i).FloorNames</p>
+                                    </div>
+                                    
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>کد بلندگو: </b>@Model.Order.Order_Cabin.ElementAt(i).Tb_Speakers.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>کد لامپ اضطراری: </b>@Model.Order.Order_Cabin.ElementAt(i).EmergencyLigh.Name</p>
+                                    </div>
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>پوش باتون: </b>@Model.Order.Order_Cabin.ElementAt(i).Tb_PushButtons.Name</p>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <p><b>فلزرویه: </b>@Model.Order.Order_Cabin.ElementAt(i).Tb_CabinSurfaceMetals.Name</p>
+                                    </div>
+                                    <div class="col-xs-8 text-right">
+                                        <p><b>نمایشگر: </b>@Model.Order.Order_Cabin.ElementAt(i).Tb_Monitors.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order.Order_Cabin.ElementAt(i).PhoneCallButton, new { @Name = "Order_Cabin[" + i.ToString() + "].PhoneCallButton" }) کلیدآیفون
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-1 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order.Order_Cabin.ElementAt(i).DO, new { @Name = "Order_Cabin[" + i.ToString() + "].DO" }) DO
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-1 text-right">
+                                        <label>
+                                            @Html.CheckBoxFor(m => m.Order.Order_Cabin.ElementAt(i).DC, new { @Name = "Order_Cabin[" + i.ToString() + "].DC" }) DC
+                                        </label>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <b style="float: right; padding-left: 5px; margin-bottom:3px; line-height: 20px;">متن برش لیزر: </b><p style="direction: ltr; float: right; margin-bottom:3px; line-height: 20px;">@Model.Order.Order_Cabin.ElementAt(i).LaserCuttingText</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <b style="float: right; padding-left: 5px; margin-bottom:3px; line-height: 20px;">متن حک لیزر: </b><p style="direction: ltr; float: right; margin-bottom:3px; line-height: 20px;">@Model.Order.Order_Cabin.ElementAt(i).LaserEngravingText</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p style="line-height:20px; margin-bottom:5px;"><b>توضیحات: </b>@Model.Order.Order_Cabin.ElementAt(i).Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div style="width: 100%; display: table;">
+                    <div style="display: table-row">
+                        <div class="box" style="width: 30px; display: table-cell;padding:3px;">
+                            <div><p> پنل <p /><p> شاسی </p><p> داخل </p> <p> کابین</p></div>
+                        </div>
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-8 text-right">
+                                <p><b>مدل پنل: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>نحوه نصب: </b></p>
+                            </div>
+                            
+                            <div class="col-xs-4 text-right">
+                                <p><b>تعداد طبقات: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>نام و ترتیب طبقات: </b></p>
+                            </div>
+                            
+                            <div class="col-xs-2 text-right">
+                                <p><b>کد بلندگو: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>کد لامپ اضطراری: </b></p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>پوش باتون: </b></p>
+                            </div>
+                            <div class="col-xs-4 text-right">
+                                <p><b>فلزرویه: </b></p>
+                            </div>
+                            <div class="col-xs-8 text-right">
+                                <p><b>نمایشگر: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <label>
+                                    <input type="checkbox" /> کلیدآیفون
+                                </label>
+                            </div>
+                            <div class="col-xs-1 text-right">
+                                <label>
+                                    <input type="checkbox" /> DO
+                                </label>
+                            </div>
+                            <div class="col-xs-1 text-right">
+                                <label>
+                                    <input type="checkbox" /> DC
+                                </label>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن برش لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;"></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <b style="float: right; padding-left: 5px; margin-bottom: 3px; line-height: 20px;">متن حک لیزر: </b><p style="direction: ltr; float: right; margin-bottom: 3px; line-height: 20px;"></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height:20px; margin-bottom:5px;"><b>توضیحات: </b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Order.Order_Hall.Count > 0 && Model.Order.Order_Hall.ElementAt(0).Tb_HallPanels.Id > 0)
+        {
+            for (int i = 0; i < Model.Order.Order_Hall.Count; i++)
+            {
+                if (Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                {
+                    for (int j = 0; j < Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                    {
+                        if (Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                        {
+                            attachments++;
+
+                        }
+                    }
+                    for (int j = 0; j < Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.Count; j++)
+                    {
+                        if (Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                        {
+                            additions++;
+
+                        }
+                    }
+                    <div class="row">
+                        <div style="width: 100%; display: table;">
+                            <div style="display: table-row">
+                                <div class="box" style="width: 30px; display: table-cell;padding:2px;">
+                                    <div><p> پنل <p /><p> شاسی </p><p> طبقات </p></div>
+                                </div>
+                                <div class="row box" style="display: table-cell;">
+                                    <div class="col-xs-10 text-right">
+                                        <p><b>مدل پنل: </b>@Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Name</p>
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <p><b>تعداد: </b>@Model.Order.Order_Hall.ElementAt(i).Count</p>
+                                    </div>
+
+                                    <div class="col-xs-12 text-right">
+                                        <p><b>پوش باتون: </b>@Model.Order.Order_Hall.ElementAt(i).Tb_PushButtons.Name</p>
+                                    </div>
+                                    <div class="col-xs-9 text-right">
+                                        <p><b>نمایشگر: </b>@Model.Order.Order_Hall.ElementAt(i).Tb_Monitors.Name</p>
+                                    </div>
+                                    <div class="col-xs-3 text-right">
+                                        <p><b>فلزرویه: </b>@Model.Order.Order_Hall.ElementAt(i).Tb_HallSurfaceMetals.Name</p>
+                                    </div>
+                                    <div class="col-xs-12 text-right">
+                                        <p style="line-height: 20px; margin-bottom: 5px;"><b>توضیحات: </b>@Model.Order.Order_Hall.ElementAt(i).Comment</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        }
+        else
+        {
+            <div class="row">
+                <div style="width: 100%; display: table;">
+                    <div style="display: table-row">
+                        <div class="box" style="width: 30px; display: table-cell;padding:2px;">
+                            <div><p> پنل <p /><p> شاسی </p><p> طبقات </p></div>
+                        </div>
+                        <div class="row box" style="display: table-cell;">
+                            <div class="col-xs-10 text-right">
+                                <p><b>مدل پنل: </b></p>
+                            </div>
+                            <div class="col-xs-2 text-right">
+                                <p><b>تعداد: </b></p>
+                            </div>
+
+                            <div class="col-xs-12 text-right">
+                                <p><b>پوش باتون: </b></p>
+                            </div>
+                            <div class="col-xs-9 text-right">
+                                <p><b>نمایشگر: </b></p>
+                            </div>
+                            <div class="col-xs-3 text-right">
+                                <p><b>فلزرویه: </b></p>
+                            </div>
+                            <div class="col-xs-12 text-right">
+                                <p style="line-height: 20px; margin-bottom: 5px;"><b>توضیحات: </b></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @for (int i = 0; i < Model.Order.Order_DoorTop.Count; i++)
+        {
+            if (Model.Order.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+            {
+                for (int j = 0; j < Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                {
+                    if (Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                    {
+                        attachments++;
+
+                    }
+                }
+                for (int j = 0; j < Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count; j++)
+                {
+                    if (Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                    {
+                        additions++;
+
+                    }
+                }
+                
+            }
+        }
+
+        <div style="min-height:450px;">
+            <div class="row" style="margin-top:4px;">
+                <div style="width:100%; display: table; line-height:17px;">
+                    <div style="display: table-row">
+                        <div class="box text-center" style="display: table-cell;">
+                            <p><b>ردیف</b></p>
+                        </div>
+                        <div class="box text-center" style="display: table-cell;">
+                            <p><b>شرح کالا</b></p>
+                        </div>
+                        <div class="box text-center" style="display: table-cell;">
+                            <p><b>تعداد</b></p>
+                        </div>
+                        <div class="box text-center" style="display: table-cell;">
+                            <p><b>فی</b></p>
+                        </div>
+                        <div class="box text-center" style="display: table-cell;">
+                            <p><b>جمع</b></p>
+                        </div>
+                    </div>
+                    @for (int i = 0; i < Model.Order.Order_Cabin.Count; i++)
+                    {
+                        if (Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                        {
+                            index++;
+                            sum += Model.Order.Order_Cabin.ElementAt(i).Cost;
+
+                            <div style="display: table-row">
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @index</p>
+                                </div>
+                                <div class="boxBottom text-right" style="display: table-cell;">
+                                    <p> @("پنل داخل کابین: " + Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Name)</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @Model.Order.Order_Cabin.ElementAt(i).Count</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @(Model.Order.Order_Cabin.ElementAt(i).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_Cabin.ElementAt(i).Cost / Model.Order.Order_Cabin.ElementAt(i).Count)))</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @string.Format("{0:n0}", Model.Order.Order_Cabin.ElementAt(i).Cost)</p>
+                                </div>
+                            </div>
+                        }
+                        if (Model.Order.Order_Cabin.ElementAt(i).MonitorId > 0)
+                        {
+                            index++;
+                            sum += (Model.Order.Order_Cabin.ElementAt(i).Count * Model.Order.Order_Cabin.ElementAt(i).CostMonitor);
+
+                            <div style="display: table-row">
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @index</p>
+                                </div>
+                                <div class="boxBottom text-right" style="display: table-cell;">
+                                    <p> @("نمایشگر: " + Model.Order.Order_Cabin.ElementAt(i).Tb_Monitors.Name)</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @Model.Order.Order_Cabin.ElementAt(i).Count</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @(Model.Order.Order_Cabin.ElementAt(i).Count == 0 ? "0" : string.Format("{0:n0}", Model.Order.Order_Cabin.ElementAt(i).CostMonitor))</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @string.Format("{0:n0}", (Model.Order.Order_Cabin.ElementAt(i).Count * Model.Order.Order_Cabin.ElementAt(i).CostMonitor))</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    @for (int i = 0; i < Model.Order.Order_Hall.Count; i++)
+                    {
+                        if (Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                        {
+                            index++;
+                            sum += Model.Order.Order_Hall.ElementAt(i).Cost;
+
+                            <div style="display: table-row">
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @index</p>
+                                </div>
+                                <div class="boxBottom text-right" style="display: table-cell;">
+                                    <p> @("پنل طبقات: " + Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Name)</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @Model.Order.Order_Hall.ElementAt(i).Count</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @(Model.Order.Order_Hall.ElementAt(i).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_Hall.ElementAt(i).Cost / Model.Order.Order_Hall.ElementAt(i).Count)))</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @string.Format("{0:n0}", Model.Order.Order_Hall.ElementAt(i).Cost)</p>
+                                </div>
+                            </div>
+                        }
+                    }
+                    @for (int i = 0; i < Model.Order.Order_DoorTop.Count; i++)
+                    {
+                        if (Model.Order.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                        {
+                            index++;
+                            sum += Model.Order.Order_DoorTop.ElementAt(i).Cost;
+
+                            <div style="display: table-row">
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @index</p>
+                                </div>
+                                <div class="boxBottom text-right" style="display: table-cell;">
+                                    <p> @("پنل سردرب: " + Model.Order.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Name)</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @Model.Order.Order_DoorTop.ElementAt(i).Count</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @(Model.Order.Order_DoorTop.ElementAt(i).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_DoorTop.ElementAt(i).Cost / Model.Order.Order_DoorTop.ElementAt(i).Count)))</p>
+                                </div>
+                                <div class="boxBottom text-center" style="display: table-cell;">
+                                    <p> @string.Format("{0:n0}", Model.Order.Order_DoorTop.ElementAt(i).Cost)</p>
+                                </div>
+                            </div>
+                        }
+                    }
+
+                    @if (attachments > 0)
+                    {
+                        <div style="display: table-row">
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p> <b>ملحقات / قطعات</b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p></p>
+                            </div>
+                        </div>
+
+                        for (int i = 0; i < Model.Order.Order_Cabin.Count; i++)
+                        {
+                            if (Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                            {
+                                for (int j = 0; j < Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                {
+                                    if (Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                                    {
+                                        index++;
+                                        sum += Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+
+                                        <div style="display: table-row">
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @index</p>
+                                            </div>
+                                            <div class="boxBottom text-right" style="display: table-cell;">
+                                                <p> @Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @(Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost / Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count)))</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @string.Format("{0:n0}", Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost)</p>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        for (int i = 0; i < Model.Order.Order_Hall.Count; i++)
+                        {
+                            if (Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                            {
+                                for (int j = 0; j < Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                {
+                                    if (Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                                    {
+                                        index++;
+                                        sum += Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+
+                                        <div style="display: table-row">
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @index</p>
+                                            </div>
+                                            <div class="boxBottom text-right" style="display: table-cell;">
+                                                <p> @Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @(Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost / Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count)))</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @string.Format("{0:n0}", Model.Order.Order_Hall.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost)</p>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                        for (int i = 0; i < Model.Order.Order_DoorTop.Count; i++)
+                        {
+                            if (Model.Order.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                            {
+                                for (int j = 0; j < Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.Count; j++)
+                                {
+                                    if (Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Id > 0)
+                                    {
+                                        index++;
+                                        sum += Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost;
+
+                                        <div style="display: table-row">
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @index</p>
+                                            </div>
+                                            <div class="boxBottom text-right" style="display: table-cell;">
+                                                <p> @Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Tb_Attachments.Name</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @(Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count == 0 ? "0" : string.Format("{0:n0}", (Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost / Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Count)))</p>
+                                            </div>
+                                            <div class="boxBottom text-center" style="display: table-cell;">
+                                                <p> @string.Format("{0:n0}", Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Attachment.ElementAt(j).Cost)</p>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            }
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:8px;">
+                <div class="col-xs-6">
+                    <div class="text-right" style="width:100%; display: table; line-height:17px;">
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>جمع: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", sum)</p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>تخفیف: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", Model.Order.SumCostDeduction += ((sum - Model.Order.SumCostDeduction + Model.Order.SumCostAddition) * (Model.Order.DiscountRate / 100)))</p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>اضافات: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", Model.Order.SumCostAddition)</p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>@Model.Order.Tax درصد ارزش افزوده: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", ((sum - Model.Order.SumCostDeduction + Model.Order.SumCostAddition) * (Model.Order.Tax / 100)))</p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>هزینه حمل: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p>@string.Format("{0:n0}", Model.Order.DeliveryCost)</p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                        <div style="display: table-row">
+                            <div class="boxBottom text-left" style="display: table-cell;">
+                                <p><b>قابل پرداخت: </b></p>
+                            </div>
+                            <div class="boxBottom text-center" style="display: table-cell;">
+                                <p><b>@string.Format("{0:n0}", Model.Order.Cost)</b></p>
+                            </div>
+                            <div class="boxBottom text-right" style="display: table-cell;">
+                                <p>ریال</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (additions > 0)
+                {
+                    <div class="col-xs-6" style="padding-top:10px;">
+                        <div class="text-right" style="width:90%; display: table; line-height:15px;">
+                            <div style="display: table-row">
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>اضافات</b></p>
+                                </div>
+                                <div class="box text-center" style="display: table-cell;">
+                                    <p><b>مبلغ</b></p>
+                                </div>
+                            </div>
+                            @for (int i = 0; i < Model.Order.Order_Cabin.Count; i++)
+                            {
+                                if (Model.Order.Order_Cabin.ElementAt(i).Tb_CabinPanels.Id > 0)
+                                {
+                                    for (int j = 0; j < Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                    {
+                                        if (Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                                        {
+                                            <div style="display: table-row">
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Name</p>
+                                                </div>
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @string.Format("{0:n0}", Model.Order.Order_Cabin.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost)</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                            }
+                            @for (int i = 0; i < Model.Order.Order_Hall.Count; i++)
+                            {
+                                if (Model.Order.Order_Hall.ElementAt(i).Tb_HallPanels.Id > 0)
+                                {
+                                    for (int j = 0; j < Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                    {
+                                        if (Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                                        {
+                                            <div style="display: table-row">
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Name</p>
+                                                </div>
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @string.Format("{0:n0}", Model.Order.Order_Hall.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost)</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                            }
+                            @for (int i = 0; i < Model.Order.Order_DoorTop.Count; i++)
+                            {
+                                if (Model.Order.Order_DoorTop.ElementAt(i).Tb_DoorTopPanels.Id > 0)
+                                {
+                                    for (int j = 0; j < Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.Count; j++)
+                                    {
+                                        if (Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Id > 0)
+                                        {
+                                            <div style="display: table-row">
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Tb_Additions.Name</p>
+                                                </div>
+                                                <div class="boxThin text-center" style="display: table-cell;">
+                                                    <p> @string.Format("{0:n0}", Model.Order.Order_DoorTop.ElementAt(i).Order_Panel_Addition.ElementAt(j).Cost)</p>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            @if (Model.Order.StatusId == 1)
+            {
+                <div id="background">
+                    <p class="bg-text">اعتبار پیش فاکتور <br /> 24 ساعت می باشد</p>
+                </div>
+            }
+        </div>
+
+        <div class="row box" style="margin-top:5px; margin-bottom:3px;">
+            <div class="col-xs-12 text-right" style="line-height:16px;font-size:13px;">
+                <p style="margin-bottom:0;">
+                    <b><input type="checkbox" disabled="disabled" /> مشتری تایید می نماید که موارد زیر مورد مطالعه و قبول می باشد</b><br />
+                    1- با توجه به سفارشی بودن فرآیند ساخت پنل، اعمال تغییرات و یا کنسل نمودن سفارش پس از تاییدیه و عودت کالا پس از تحویل امکان پذیر نمی باشد<br />
+                    2- خروجی تابلوی کنترل محل نصب، منطبق با محصولات این شرکت (نمایشگرهای طبقه و جهت VDC 24 آند مشترک و شاسی ها VDC 24) می باشد.<br />
+                    3- قطعی شدن سفارش منوط به پیش پرداخت می باشد و زمان تحویل حداقل 8 روز کاری می باشد.<br />
+                    
+                    4- محل تحویل کالای تولیدی این شرکت در درب کارخانه واقع در پرند می باشد. در صورت نیاز به ارسال کالا به محل مشتری، با پذیرش مسئولیت در قبال خسارات احتمالی توسط مشتری امکانپذیر است
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="text-right" style="width:100%; display: table;">
+                <div style="display: table-row;">
+                    <div class="box text-right" style="width:50%; display: table-cell;">
+                        <div class="row">
+                            <div class="col-xs-6"><b>مهر و امضای سفارش دهنده:</b></div>
+                            <div class="col-xs-6"><b>@Model.Order.ClienteleName</b></div>
+                        </div><br />
+                        <div class="row">
+                            <div class="col-xs-12"><b>تغییر در سفارش فقط با تاییدیه کتبی امکان پذیر می باشد</b></div>
+                        </div>
+                    </div>
+                    <div class="box text-right" style="display: table-cell;">
+                        <div class="row">
+                            <div class="col-xs-3">@Model.Order.DocNumber</div>
+                            <div class="col-xs-6"><b>نام و امضای سفارش گیرنده:</b></div>
+                            <div class="col-xs-3">@Model.Order.AccepterId</div>
+                        </div><br />
+                        <div class="row">
+                            @if (Model.Order.StatusId > 1)
+                            {
+                                <div class="col-xs-6">موعد تحویل: @(Model.Order.DateDelivery.HasValue ? PersianDates.Format(Model.Order.DateDelivery.Value.AddDays(10)) : PersianDates.Format(DateTime.Now.AddDays(10)))</div>
+                            }
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<style type="text/css">
+    #background {
+        position: absolute;
+        z-index: 0;
+        background: white;
+        display: block;
+        color: yellow;
+        width: 50%;
+        margin-top:-80px;
+        left:0;
+        text-align:right;
+        padding-right:30px;
+    }
+
+    /*#content {
+        position: absolute;
+        z-index: 1;
+    }*/
+
+    .bg-text {
+        color: lightsalmon !important;
+        font-size: 30px;
+        font-weight: bold;
+        transform: rotate(330deg);
+        -webkit-transform: rotate(330deg);
+        -moz-transform: rotate(330deg);
+    }
+</style >

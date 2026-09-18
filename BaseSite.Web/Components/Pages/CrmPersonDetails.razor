@@ -1,0 +1,242 @@
+@page "/crm/people/{Id:int}"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>پرونده CRM | پنتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="crm-detail">
+        <div class="page-heading">
+            <MudText Typo="Typo.h5">@(profile is null ? "پرونده CRM" : $"پرونده CRM: {profile.FullName}")</MudText>
+            <MudButton Href="/crm/people" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به پرونده مشتریان</MudButton>
+        </div>
+
+        @if (loading)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        }
+        else if (!string.IsNullOrWhiteSpace(error))
+        {
+            <MudAlert Severity="Severity.Error">@error</MudAlert>
+        }
+        else if (profile is not null)
+        {
+            <div class="crm-toolbar">
+                <nav class="crm-tabs" aria-label="بخش‌های پرونده CRM">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" aria-current="@(activeTab == 0 ? "page" : null)" @onclick="() => SelectTab(0)">مشخصات شخص</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" aria-current="@(activeTab == 1 ? "page" : null)" @onclick="() => SelectTab(1)">
+                        یادداشت‌ها
+                        @if (profile.Notes.Count > 0) { <span class="crm-tab-count">@profile.Notes.Count</span> }
+                    </button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" aria-current="@(activeTab == 2 ? "page" : null)" @onclick="() => SelectTab(2)">
+                        تاریخچه سفارشات
+                        @if (profile.Orders.Count > 0) { <span class="crm-tab-count">@profile.Orders.Count</span> }
+                    </button>
+                </nav>
+            </div>
+
+            @if (activeTab == 0)
+            {
+                <div class="crm-profile-sections">
+                    <section class="crm-section crm-section-main" aria-labelledby="person-info-title">
+                        <h2 id="person-info-title" class="crm-section-title">مشخصات شخص</h2>
+                        <div class="crm-section-body">
+                            <dl class="crm-info-grid crm-info-grid-main">
+                                <div><dt>نام</dt><dd>@ValueOrDash(profile.FullName)</dd></div>
+                                <div><dt>نوع شخص</dt><dd>@ValueOrDash(profile.PersonType)</dd></div>
+                                <div><dt>نوع همکاری</dt><dd>@ValueOrDash(profile.PartnerType)</dd></div>
+                                <div><dt>وضعیت</dt><dd>@ValueOrDash(profile.Status)</dd></div>
+                                <div><dt>شماره ملی/ثبت</dt><dd dir="ltr">@ValueOrDash(profile.NationalNumber)</dd></div>
+                                <div><dt>شماره شناسنامه/اقتصادی</dt><dd dir="ltr">@ValueOrDash(profile.EconomicalNumber)</dd></div>
+                                <div><dt>بخش</dt><dd>@ValueOrDash(profile.Department)</dd></div>
+                                <div><dt>نحوه آشنایی</dt><dd>@ValueOrDash(profile.FindoutWay)</dd></div>
+                                <div><dt>ایجادکننده</dt><dd>@ValueOrDash(profile.Registrar)</dd></div>
+                                <div><dt>زمان ایجاد</dt><dd dir="ltr">@PersianDates.Format(profile.RegistrationDate)</dd></div>
+                                <div class="crm-info-full"><dt>توضیحات</dt><dd>@ValueOrDash(profile.Comment)</dd></div>
+                            </dl>
+                        </div>
+                    </section>
+
+                    <section class="crm-section" aria-labelledby="contact-info-title">
+                        <h2 id="contact-info-title" class="crm-section-title">اطلاعات تماس</h2>
+                        <div class="crm-section-body">
+                            <dl class="crm-info-grid">
+                                <div><dt>تلفن ۱</dt><dd dir="ltr">@ValueOrDash(profile.Phone)</dd></div>
+                                <div><dt>تلفن ۲</dt><dd dir="ltr">@ValueOrDash(profile.Phone2)</dd></div>
+                                <div><dt>موبایل ۱</dt><dd dir="ltr">@ValueOrDash(profile.Mobile)</dd></div>
+                                <div><dt>موبایل ۲</dt><dd dir="ltr">@ValueOrDash(profile.Mobile2)</dd></div>
+                                <div><dt>فکس</dt><dd dir="ltr">@ValueOrDash(profile.Fax)</dd></div>
+                                <div><dt>ایمیل</dt><dd dir="ltr">@ValueOrDash(profile.Email)</dd></div>
+                                <div class="crm-info-full"><dt>سایت</dt><dd dir="ltr">@ValueOrDash(profile.Website)</dd></div>
+                            </dl>
+                        </div>
+                    </section>
+
+                    <section class="crm-section" aria-labelledby="related-info-title">
+                        <h2 id="related-info-title" class="crm-section-title">افراد مرتبط</h2>
+                        <div class="crm-section-body">
+                            <dl class="crm-related-grid">
+                                <div class="crm-related-card">
+                                    <dt>مدیر عامل</dt>
+                                    <dd>@ValueOrDash(profile.Responsible1)</dd>
+                                    <dd dir="ltr">@ValueOrDash(profile.ResponsiblePhone1)</dd>
+                                </div>
+                                <div class="crm-related-card">
+                                    <dt>مسئول سفارشات</dt>
+                                    <dd>@ValueOrDash(profile.Responsible2)</dd>
+                                    <dd dir="ltr">@ValueOrDash(profile.ResponsiblePhone2)</dd>
+                                </div>
+                                <div class="crm-related-card">
+                                    <dt>مسئول فنی</dt>
+                                    <dd>@ValueOrDash(profile.Responsible3)</dd>
+                                    <dd dir="ltr">@ValueOrDash(profile.ResponsiblePhone3)</dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </section>
+
+                    <div class="crm-address-grid">
+                        <section class="crm-section" aria-labelledby="home-address-title">
+                            <h2 id="home-address-title" class="crm-section-title">آدرس منزل / دفتر مرکزی</h2>
+                            <div class="crm-section-body">
+                                <dl class="crm-address-details">
+                                    <div><dt>شهر</dt><dd>@ValueOrDash(profile.City1)</dd></div>
+                                    <div><dt>کدپستی</dt><dd dir="ltr">@ValueOrDash(profile.PostalCode1)</dd></div>
+                                    <div class="crm-info-full"><dt>آدرس</dt><dd>@ValueOrDash(profile.Address1)</dd></div>
+                                </dl>
+                            </div>
+                        </section>
+                        <section class="crm-section" aria-labelledby="work-address-title">
+                            <h2 id="work-address-title" class="crm-section-title">آدرس محل کار / کارخانه</h2>
+                            <div class="crm-section-body">
+                                <dl class="crm-address-details">
+                                    <div><dt>شهر</dt><dd>@ValueOrDash(profile.City2)</dd></div>
+                                    <div><dt>کدپستی</dt><dd dir="ltr">@ValueOrDash(profile.PostalCode2)</dd></div>
+                                    <div class="crm-info-full"><dt>آدرس</dt><dd>@ValueOrDash(profile.Address2)</dd></div>
+                                </dl>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            }
+            else if (activeTab == 1)
+            {
+                <section class="crm-tab-panel" aria-label="یادداشت‌ها">
+                    <div class="crm-note-editor">
+                        <label for="crm-note">یادداشت جدید</label>
+                        <textarea id="crm-note" maxlength="4000" rows="4" placeholder="متن یادداشت را وارد کنید" @bind="newNote" @bind:event="oninput"></textarea>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddComment"
+                                   OnClick="AddNoteAsync" Disabled="@(savingNote || string.IsNullOrWhiteSpace(newNote))">
+                            @(savingNote ? "در حال ثبت…" : "ثبت یادداشت")
+                        </MudButton>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(actionError)) { <MudAlert Severity="Severity.Error" Class="mb-4">@actionError</MudAlert> }
+                    @if (profile.Notes.Count == 0)
+                    {
+                        <div class="crm-tab-empty">یادداشتی برای این شخص ثبت نشده است.</div>
+                    }
+                    else
+                    {
+                        <div class="crm-notes">
+                            @foreach (var note in profile.Notes.OrderByDescending(x => x.CreatedAt))
+                            {
+                                <article class="crm-note" @key="note.Id">
+                                    <header><strong>@note.Owner</strong><time>@FormatDateTime(note.CreatedAt)</time></header>
+                                    <p>@note.Comment</p>
+                                </article>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+            else
+            {
+                <section class="crm-tab-panel" aria-label="تاریخچه سفارشات">
+                    @if (profile.Orders.Count == 0)
+                    {
+                        <div class="crm-tab-empty">سفارشی برای این شخص ثبت نشده است.</div>
+                    }
+                    else
+                    {
+                        <div class="crm-order-table">
+                            <table>
+                                <thead><tr><th>نوع</th><th>شماره سند</th><th>شماره فاکتور</th><th>تاریخ سفارش</th><th>تاریخ تحویل</th><th>پروژه</th><th>سفارش‌گیرنده</th><th>وضعیت</th><th>مبلغ</th><th>جزئیات</th></tr></thead>
+                                <tbody>
+                                    @foreach (var item in profile.Orders)
+                                    {
+                                        <tr @key="@(item.Kind + item.Id)">
+                                            <td>@(item.Kind == "orders" ? "سفارش" : item.Returned ? "فروش مرجوعی" : "فروش کالا")</td>
+                                            <td>@item.DocumentNumber</td>
+                                            <td>@item.FactorNumber</td>
+                                            <td>@PersianDates.Format(item.OrderDate)</td>
+                                            <td>@PersianDates.Format(item.DeliveryDate)</td>
+                                            <td>@ValueOrDash(item.ProjectName)</td>
+                                            <td>@ValueOrDash(item.Receiver)</td>
+                                            <td>@ValueOrDash(item.Status)</td>
+                                            <td>@item.Amount.ToString("N0")</td>
+                                            <td>
+                                                @if (CanOpen(item))
+                                                {
+                                                    <MudIconButton Href="@DocumentUrl(item)" Icon="@Icons.Material.Filled.OpenInNew" Size="Size.Small" Color="Color.Primary" title="مشاهده سند" aria-label="مشاهده سند" />
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </section>
+            }
+        }
+    </div>
+</MudRTLProvider>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private CrmPersonProfile? profile;
+    private string? error, actionError, newNote;
+    private bool loading = true, savingNote;
+    private int activeTab;
+    private int? loadedId;
+
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (loadedId != Id) await LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; error = actionError = null; loadedId = Id; activeTab = 0;
+        try { profile = await Api.GetCrmPersonAsync(Id) ?? throw new InvalidOperationException("پرونده مشتری یافت نشد."); }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+
+    private void SelectTab(int tab)
+    {
+        activeTab = tab;
+        actionError = null;
+    }
+
+    private async Task AddNoteAsync()
+    {
+        if (profile is null || string.IsNullOrWhiteSpace(newNote) || savingNote) return;
+        savingNote = true; actionError = null;
+        try { profile.Notes.Add(await Api.AddCrmPersonNoteAsync(Id, newNote)); newNote = null; }
+        catch (Exception ex) { actionError = ex.Message; }
+        finally { savingNote = false; }
+    }
+
+    private bool CanOpen(PersonOrderHistory item) => item.Kind == "orders"
+        ? Session.User?.Roles.Contains("Order_Detail") == true
+        : Session.User?.Roles.Contains("Sale_Detail") == true;
+    private static string DocumentUrl(PersonOrderHistory item) => item.Kind == "orders" ? $"/documents/orders/{item.Id}" : $"/documents/sales/{item.Id}";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";
+}

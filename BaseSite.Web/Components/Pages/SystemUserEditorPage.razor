@@ -1,0 +1,225 @@
+@page "/system/users/new"
+@page "/system/users/{PersonId:int}"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>@(PersonId == 0 ? "افزودن کاربر" : "تنظیم حساب و دسترسی") | پنتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.h5">@(PersonId == 0 ? "افزودن کاربر" : "تنظیم حساب و دسترسی")</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">
+                @(PersonId == 0 ? "یک شخص موجود را انتخاب و حساب ورود او را تنظیم کنید." : editor?.User.FullName ?? "مدیریت حساب کاربری و سطح دسترسی")
+            </MudText>
+        </div>
+        <MudButton Href="/system/users" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به کاربران و دسترسی‌ها</MudButton>
+    </div>
+
+    @if (loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else
+    {
+        <div class="account-editor-shell">
+            @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
+            @if (!string.IsNullOrWhiteSpace(success)) { <MudAlert Severity="Severity.Success">@success</MudAlert> }
+
+            @if (PersonId == 0)
+            {
+                <section class="account-card account-person-picker" aria-labelledby="person-picker-title">
+                    <header class="account-card-heading">
+                        <div class="account-heading-icon"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" /></div>
+                        <div>
+                            <div class="account-heading-title">
+                                <h2 id="person-picker-title">انتخاب شخص</h2>
+                                <span class="account-step">مرحله ۱</span>
+                            </div>
+                            <p>شخص موردنظر را از میان اشخاص حقیقی فاقد حساب کامل انتخاب کنید.</p>
+                        </div>
+                    </header>
+                    <div class="account-card-body">
+                        <MudAutocomplete T="NamedLookup" Label="جست‌وجوی نام شخص" Placeholder="نام شخص را وارد کنید"
+                                         Variant="Variant.Outlined" Margin="Margin.Dense" SearchFunc="FindEligiblePeople"
+                                         ToStringFunc="@(x => x?.Name ?? string.Empty)" Value="selectedPerson" ValueChanged="SelectPersonAsync"
+                                         Clearable="true" ResetValueOnEmptyText="true" Adornment="Adornment.Start"
+                                         AdornmentIcon="@Icons.Material.Filled.PersonSearch" />
+                        <div class="account-helper">
+                            <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" />
+                            <span>اگر شخص در فهرست نیست، ابتدا او را در بخش «اشخاص و سازمان‌ها» ثبت کنید.</span>
+                        </div>
+                    </div>
+                </section>
+            }
+
+            @if (editor is not null)
+            {
+                <EditForm Model="form" OnSubmit="SaveAsync" FormName="system-user">
+                    <fieldset disabled="@saving" class="account-form-fieldset">
+                        <section class="account-card" aria-labelledby="account-settings-title">
+                            <header class="account-card-heading">
+                                <div class="account-heading-icon account-heading-icon-access"><MudIcon Icon="@Icons.Material.Filled.ManageAccounts" /></div>
+                                <div>
+                                    <div class="account-heading-title">
+                                        <h2 id="account-settings-title">@(IsNewAccount ? "ایجاد حساب و دسترسی" : "تنظیم حساب و دسترسی")</h2>
+                                        @if (PersonId == 0) { <span class="account-step">مرحله ۲</span> }
+                                    </div>
+                                    <p>اطلاعات ورود، وضعیت حساب و مسئولیت کاربر را مشخص کنید.</p>
+                                </div>
+                            </header>
+
+                            <div class="account-card-body account-settings-body">
+                                <div class="selected-person">
+                                    <div class="selected-person-avatar"><MudIcon Icon="@Icons.Material.Filled.Person" /></div>
+                                    <div class="selected-person-info">
+                                        <span>حساب متصل به</span>
+                                        <strong>@editor.User.FullName</strong>
+                                        @if (!string.IsNullOrWhiteSpace(editor.User.UserName))
+                                        {
+                                            <small dir="ltr">@editor.User.UserName</small>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(editor.User.Status))
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                                 Color="@(editor.User.StatusId == 1 ? Color.Success : Color.Default)">@editor.User.Status</MudChip>
+                                    }
+                                </div>
+
+                                @if (IsNewAccount)
+                                {
+                                    <div class="account-notice">
+                                        <MudIcon Icon="@Icons.Material.Filled.Key" Size="Size.Small" />
+                                        <span>برای فعال‌شدن حساب، نام کاربری، رمز اولیه و مسئولیت را تکمیل کنید.</span>
+                                    </div>
+                                }
+
+                                <section class="account-form-section" aria-labelledby="login-info-title">
+                                    <div class="account-form-section-title">
+                                        <h3 id="login-info-title">اطلاعات ورود</h3>
+                                        <p>نام کاربری باید یکتا باشد. رمز فعلی در سیستم نمایش داده نمی‌شود.</p>
+                                    </div>
+                                    <div class="user-fields">
+                                        <label class="user-field">
+                                            <span>نام کاربری <b aria-hidden="true">*</b></span>
+                                            <input maxlength="255" required dir="ltr" autocomplete="off" placeholder="نام کاربری"
+                                                   @bind="form.UserName" @bind:event="oninput" />
+                                        </label>
+                                        <label class="user-field">
+                                            <span>@(IsNewAccount ? "رمز اولیه" : "رمز جدید (اختیاری)") @if (IsNewAccount) { <b aria-hidden="true">*</b> }</span>
+                                            <input type="password" minlength="4" required="@IsNewAccount" dir="ltr" autocomplete="new-password"
+                                                   placeholder="حداقل چهار کاراکتر" @bind="form.Password" @bind:event="oninput" />
+                                            @if (!IsNewAccount) { <small>برای حفظ رمز فعلی، این کادر را خالی بگذارید.</small> }
+                                        </label>
+                                    </div>
+                                </section>
+
+                                <section class="account-form-section" aria-labelledby="access-info-title">
+                                    <div class="account-form-section-title">
+                                        <h3 id="access-info-title">دسترسی و وضعیت</h3>
+                                        <p>مسئولیت انتخاب‌شده، سطح دسترسی کاربر به بخش‌های سیستم را تعیین می‌کند.</p>
+                                    </div>
+                                    <div class="user-fields">
+                                        <label class="user-field">
+                                            <span>وضعیت حساب</span>
+                                            <select @bind="form.StatusId">
+                                                @foreach (var item in editor.Statuses) { <option value="@item.Id">@item.Name</option> }
+                                            </select>
+                                        </label>
+                                        <label class="user-field">
+                                            <span>مسئولیت و سطح دسترسی <b aria-hidden="true">*</b></span>
+                                            <select required @bind="form.RoleId">
+                                                @foreach (var item in editor.Roles) { <option value="@item.Id">@item.Name</option> }
+                                            </select>
+                                        </label>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <footer class="account-form-actions">
+                                <MudButton Href="/system/users" Variant="Variant.Text" Disabled="saving">انصراف</MudButton>
+                                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.Save" Disabled="saving">
+                                    @(saving ? "در حال ثبت…" : "ثبت حساب و دسترسی")
+                                </MudButton>
+                            </footer>
+                        </section>
+                    </fieldset>
+                </EditForm>
+            }
+            else if (PersonId == 0 && selectedPerson is null)
+            {
+                <div class="account-empty-state">
+                    <MudIcon Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Large" />
+                    <strong>برای ادامه یک شخص را انتخاب کنید</strong>
+                    <span>پس از انتخاب، فرم اطلاعات ورود و سطح دسترسی نمایش داده می‌شود.</span>
+                </div>
+            }
+        </div>
+    }
+</MudRTLProvider>
+
+@code {
+    [Parameter] public int PersonId { get; set; }
+    private NamedLookup? selectedPerson;
+    private SystemUserEditor? editor;
+    private SystemUserSave form = new();
+    private string? error, success;
+    private bool loading = true, saving;
+    private int? loadedId;
+    private bool IsNewAccount => string.IsNullOrWhiteSpace(editor?.User.UserName) || editor?.User.HasPassword != true || editor?.User.RoleId is null;
+
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != PersonId) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return; await Session.InitializeAsync();
+        if (loadedId != PersonId) await LoadAsync(); StateHasChanged();
+    }
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; error = success = null; editor = null; selectedPerson = null; loadedId = PersonId;
+        try { if (PersonId > 0) await LoadEditorAsync(PersonId); }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+    private async Task<IEnumerable<NamedLookup>> FindEligiblePeople(string term, CancellationToken token)
+    {
+        try { return await Api.FindEligibleSystemUsersAsync(term ?? string.Empty, token) ?? []; }
+        catch (OperationCanceledException) { return []; }
+        catch (Exception ex) { error = ex.Message; return []; }
+    }
+    private async Task SelectPersonAsync(NamedLookup? value)
+    {
+        selectedPerson = value; error = success = null; editor = null;
+        if (value is null) return;
+        try { await LoadEditorAsync(value.Id); }
+        catch (Exception ex) { error = ex.Message; }
+    }
+    private async Task LoadEditorAsync(int id)
+    {
+        editor = await Api.GetSystemUserAsync(id) ?? throw new InvalidOperationException("شخص یافت نشد.");
+        form = new SystemUserSave
+        {
+            PersonId = id, UserName = editor.User.UserName, StatusId = editor.User.StatusId,
+            RoleId = editor.User.RoleId ?? editor.Roles.FirstOrDefault()?.Id ?? 0
+        };
+    }
+    private async Task SaveAsync()
+    {
+        if (editor is null || saving) return;
+        error = success = null;
+        if (string.IsNullOrWhiteSpace(form.UserName)) { error = "نام کاربری را وارد کنید."; return; }
+        if (form.RoleId <= 0) { error = "نقش کاربر را انتخاب کنید."; return; }
+        if (IsNewAccount && string.IsNullOrWhiteSpace(form.Password)) { error = "برای حساب جدید رمز اولیه را وارد کنید."; return; }
+        try
+        {
+            saving = true; editor = await Api.SaveSystemUserAsync(form.PersonId, form); form.Password = null;
+            success = "حساب کاربری و دسترسی‌ها ثبت شد.";
+            if (PersonId == 0) { Navigation.NavigateTo($"/system/users/{form.PersonId}"); return; }
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+}

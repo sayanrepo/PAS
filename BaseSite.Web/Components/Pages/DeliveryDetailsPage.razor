@@ -1,111 +1,209 @@
-@page "/documents/deliveries/{Id:int}"
 @page "/documents/deliveries/new"
+@page "/documents/deliveries/{Id:int}"
+@page "/documents/deliveries/{Id:int}/edit"
 @using System.ComponentModel.DataAnnotations
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
-<PageTitle>@Title | پنتا</PageTitle>
+
+<PageTitle>تحویل | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
- <div class="page-heading"><MudText Typo="Typo.h5">@Title</MudText><MudButton Href="/documents/deliveries" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به تحویل‌ها</MudButton></div>
- @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
- @if(loading) { <MudProgressLinear Indeterminate="true" /> }
- else if(Id==0 && canAdd) {
-  <MudPaper Class="filter-panel" Elevation="0">
-   <MudText Class="mb-4">نوع و شماره سند سفارش یا فروش کالا را انتخاب کنید تا اقلام قابل تحویل نمایش داده شوند.</MudText>
-   <MudGrid>
-    <MudItem xs="12" md="4"><MudSelect T="string" @bind-Value="kind" Label="نوع سند" Variant="Variant.Outlined"><MudSelectItem Value="@("orders")">سفارش</MudSelectItem><MudSelectItem Value="@("sales")">فروش کالا</MudSelectItem></MudSelect></MudItem>
-    <MudItem xs="12" md="4"><MudNumericField T="int?" @bind-Value="sourceNumber" Immediate="true" HideSpinButtons="true" Label="شماره سند مبدأ" Variant="Variant.Outlined" /></MudItem>
-    <MudItem xs="12" md="4"><MudButton OnClick="LoadSource" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary">دریافت اقلام</MudButton></MudItem>
-   </MudGrid>
-  </MudPaper>
-  @if(draft is not null) {
-   <EditForm Model="draft.Form" OnSubmit="Save" Context="formContext">
-    <MudPaper Class="filter-panel mt-4" Elevation="0">
-     <MudText Typo="Typo.h6" Class="mb-4">مشتری: @draft.Customer — سند @loadedNumber</MudText>
-     <MudGrid>
-      <MudItem xs="12" md="4"><MudSelect T="short" @bind-Value="draft.Form.PackTypeId" Label="نوع بسته‌بندی" Variant="Variant.Outlined">@foreach(var x in lookups.Packs) { <MudSelectItem T="short" Value="@((short)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
-      <MudItem xs="12" md="4"><MudSelect T="byte" @bind-Value="draft.Form.DeliveryLocationId" Label="محل تحویل" Variant="Variant.Outlined">@foreach(var x in lookups.Locations) { <MudSelectItem T="byte" Value="@((byte)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
-      <MudItem xs="12" md="4"><MudSelect T="byte" @bind-Value="draft.Form.VehicleTypeId" Label="وسیله حمل" Variant="Variant.Outlined">@foreach(var x in lookups.Vehicles) { <MudSelectItem T="byte" Value="@((byte)x.Id)">@x.Name</MudSelectItem> }</MudSelect></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.SendResponsible" Label="مسئول ارسال" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieveResponsible" Label="مسئول دریافت" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverName" Label="تحویل گیرنده" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverPhone" Label="تلفن" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.RecieverMobile" Label="موبایل" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.CarierAgencyName" Label="باربری" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.CarierAgencyBill" Label="شماره بارنامه" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.VehiclePlaque" Label="پلاک خودرو" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.DriverName" Label="راننده" MaxLength="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12" md="6"><MudTextField @bind-Value="draft.Form.DriverPhone" Label="تلفن راننده" MaxLength="50" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-      <MudItem xs="12"><MudTextField @bind-Value="draft.Form.DestinationAddress" Label="آدرس تحویل" Lines="2" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-     </MudGrid>
-     <MudTable T="DeliveryItem" Items="draft.Form.Items" Class="mt-4" Dense="true" Bordered="true">
-      <HeaderContent><MudTh>انتخاب</MudTh><MudTh>شرح کالا</MudTh><MudTh>تعداد</MudTh><MudTh>توضیحات تحویل</MudTh></HeaderContent>
-      <RowTemplate><MudTd><MudCheckBox @bind-Value="context.Selected" aria-label="@($"انتخاب {context.Name}")" /></MudTd><MudTd>@context.Name</MudTd><MudTd>@context.Count</MudTd><MudTd><MudTextField @bind-Value="context.Comment" Immediate="true" MaxLength="255" /></MudTd></RowTemplate>
-      <NoRecordsContent><MudText Class="pa-4">قلمی برای تحویل باقی نمانده است.</MudText></NoRecordsContent>
-     </MudTable>
-     <MudText Class="mt-4">تحویل با تاریخ امروز و وضعیت «صادر شده» ثبت می‌شود.</MudText>
-     <MudButton ButtonType="ButtonType.Submit" Disabled="@(busy || !draft.Form.Items.Any(x=>x.Selected))" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ثبت تحویل</MudButton>
-    </MudPaper>
-   </EditForm>
-  }
- } else if(detail is not null) {
-  <MudPaper Class="filter-panel" Elevation="0">
-   <dl class="order-specs">
-    <div><dt>شماره سند</dt><dd>@detail.Summary.DocumentNumber</dd></div><div><dt>تاریخ</dt><dd>@PersianDates.Format(detail.Summary.Date)</dd></div>
-    <div><dt>نوع</dt><dd>@detail.Summary.Kind</dd></div><div><dt>مشتری</dt><dd>@detail.Summary.Customer</dd></div>
-    <div><dt>نام پروژه</dt><dd>@detail.Summary.ProjectName</dd></div><div><dt>وضعیت</dt><dd>@detail.Summary.Status</dd></div>
-    <div><dt>شماره فاکتور</dt><dd>@detail.Summary.FactorNumber</dd></div>
-    @foreach(var field in detail.Fields) { <div><dt>@field.Key</dt><dd>@field.Value</dd></div> }
-   </dl>
-   <MudText Typo="Typo.h6" Class="mt-4 mb-2">اقلام تحویل</MudText>
-   <MudTable T="DeliveryItem" Items="detail.Items" Dense="true" Bordered="true">
-    <HeaderContent><MudTh>شرح کالا</MudTh><MudTh>تعداد</MudTh><MudTh>توضیحات</MudTh></HeaderContent>
-    <RowTemplate><MudTd>@context.Name</MudTd><MudTd>@context.Count</MudTd><MudTd>@context.Comment</MudTd></RowTemplate>
-    <NoRecordsContent><MudText Class="pa-4">قلمی ثبت نشده است.</MudText></NoRecordsContent>
-   </MudTable>
-  </MudPaper>
- }
+<div class="delivery-detail">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد تحویل" : $"تحویل {editor?.Detail.Summary.DocumentNumber}")</MudText>
+        <MudButton Href="/documents/deliveries" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به تحویل‌ها</MudButton>
+    </div>
+    @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (success is not null) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+
+    @if (!loading && Id == 0 && editor is null)
+    {
+        <section class="delivery-source">
+            <p>نوع و شماره سند سفارش یا فروش کالا را انتخاب کنید تا همان فرم ایجاد، ویرایش و مشاهده تحویل باز شود.</p>
+            <div class="delivery-source-fields">
+                <label class="delivery-field"><span>نوع سند</span><select @bind="kind"><option value="orders">سفارش</option><option value="sales">فروش کالا</option></select></label>
+                <label class="delivery-field"><span>شماره سند مبدأ</span><input type="number" min="1" @bind="sourceNumber" /></label>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="saving" OnClick="LoadSourceAsync">دریافت اقلام</MudButton>
+            </div>
+        </section>
+    }
+
+    @if (!loading && editor is not null)
+    {
+        @if (Id > 0)
+        {
+            <div class="delivery-toolbar">
+                <nav class="delivery-tabs" aria-label="بخش‌های تحویل">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" @onclick="() => SelectTab(0)">تحویل</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" @onclick="() => SelectTab(1)">یادداشت ها @if (activity?.Comments.Count > 0) { <span class="delivery-tab-count">@activity.Comments.Count</span> }</button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" @onclick="() => SelectTab(2)">تاریخچه فعالیتها</button>
+                </nav>
+                @if (CanPrint)
+                {
+                    <div class="delivery-print-actions">
+                        <MudTooltip Text="چاپ فرم تحویل کالا"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ فرم تحویل کالا" aria-label="چاپ فرم تحویل کالا" Href="@($"/print/deliveries/{Id}/delivery")" Target="_blank" rel="noopener" /></MudTooltip>
+                        <MudTooltip Text="چاپ فرم محموله"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ فرم محموله" aria-label="چاپ فرم محموله" Href="@($"/print/deliveries/{Id}/pack")" Target="_blank" rel="noopener" /></MudTooltip>
+                        <MudTooltip Text="چاپ لیبل پنل"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ لیبل پنل" aria-label="چاپ لیبل پنل" Href="@($"/print/deliveries/{Id}/panel")" Target="_blank" rel="noopener" /></MudTooltip>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="@(activeTab == 0 ? null : "delivery-tab-hidden")">
+            @if (Id > 0 && ReadOnly) { <MudAlert Severity="Severity.Info" Class="mb-4">این سند تحویل در مرحله فعلی فقط قابل مشاهده است.</MudAlert> }
+            <EditForm Model="editor.Form" OnSubmit="SaveAsync" FormName="delivery">
+                <fieldset disabled="@(ReadOnly || saving)" class="delivery-form">
+                    <section class="delivery-section">
+                        <h2 class="delivery-section-title">اطلاعات سند تحویل</h2>
+                        <div class="delivery-section-body">
+                            <div class="delivery-fields delivery-header-fields">
+                                <label class="delivery-field"><span>شماره حواله خروج</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                                <label class="delivery-field"><span>تاریخ</span><input readonly value="@(Id == 0 ? PersianDates.Format(DateTime.Today) : PersianDates.Format(editor.Detail.Summary.Date))" /></label>
+                                <label class="delivery-field"><span>وضعیت</span><input readonly value="@(Id == 0 ? "صادر شده" : editor.Detail.Summary.Status)" /></label>
+                                <label class="delivery-field"><span>نوع سند مبدأ</span><input readonly value="@(form.Kind == "orders" ? "سفارش" : "فروش کالا")" /></label>
+                                <label class="delivery-field"><span>شماره سند مبدأ</span><input readonly value="@SourceDocumentNumber" /></label>
+                                <label class="delivery-field"><span>شماره فاکتور</span><input readonly value="@editor.Detail.Summary.FactorNumber" /></label>
+                                <label class="delivery-field delivery-wide"><span>مشتری</span><input readonly value="@editor.Detail.Summary.Customer" /></label>
+                                <label class="delivery-field delivery-wide"><span>نام پروژه</span><input readonly value="@ValueOrDash(editor.Detail.Summary.ProjectName)" /></label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <fieldset disabled="@(!CanEditIssued)" class="delivery-inner-fieldset">
+                        <section class="delivery-section">
+                            <h2 class="delivery-section-title">مشخصات تحویل گیرنده و بسته‌بندی</h2>
+                            <div class="delivery-section-body delivery-fields delivery-recipient-fields">
+                                <label class="delivery-field"><span>نوع بسته‌بندی</span><select @bind="form.PackTypeId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Packs) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="delivery-field"><span>مسئول ارسال</span><input maxlength="50" @bind="form.SendResponsible" @bind:event="oninput" /></label>
+                                <label class="delivery-field"><span>مسئول دریافت</span><input maxlength="50" @bind="form.RecieveResponsible" @bind:event="oninput" /></label>
+                                <label class="delivery-field"><span>تحویل گیرنده</span><input maxlength="100" @bind="form.RecieverName" @bind:event="oninput" /></label>
+                                <label class="delivery-field"><span>تلفن</span><input maxlength="100" dir="ltr" @bind="form.RecieverPhone" @bind:event="oninput" /></label>
+                                <label class="delivery-field"><span>موبایل</span><input maxlength="100" dir="ltr" @bind="form.RecieverMobile" @bind:event="oninput" /></label>
+                                <div class="delivery-destination-kind"><span>محل تحویل کالا</span><label><input type="radio" name="destination" value="1" checked="@(form.DestinationType == 1)" @onchange="ChangeDestination" /> آدرس مشتری</label><label><input type="radio" name="destination" value="2" checked="@(form.DestinationType == 2)" @onchange="ChangeDestination" /> آدرس پروژه</label></div>
+                                <label class="delivery-field delivery-full"><span>آدرس دقیق محل تحویل</span><textarea maxlength="500" @bind="form.DestinationAddress" @bind:event="oninput"></textarea></label>
+                            </div>
+                        </section>
+
+                        <section class="delivery-section">
+                            <h2 class="delivery-section-title">اقلام تحویل</h2>
+                            <div class="delivery-section-body delivery-items"><table><thead><tr><th class="delivery-check">انتخاب</th><th>نوع</th><th>شرح کالا</th><th>مدل</th><th class="delivery-count">تعداد</th><th class="delivery-comment">توضیحات</th></tr></thead><tbody>
+                                @foreach (var item in form.Items) { <tr><td><input type="checkbox" @bind="item.Selected" aria-label="@($"انتخاب {item.Name}")" /></td><td>@item.TypeName</td><td>@item.Name</td><td>@item.Model</td><td>@item.Count</td><td><input maxlength="255" @bind="item.Comment" @bind:event="oninput" /></td></tr> }
+                            </tbody></table>@if (form.Items.Count == 0) { <div class="delivery-tab-empty">قلمی برای تحویل وجود ندارد.</div> }</div>
+                        </section>
+                    </fieldset>
+
+                    <section class="delivery-section">
+                        <h2 class="delivery-section-title">اطلاعات ارسال</h2>
+                        <div class="delivery-section-body delivery-fields delivery-shipping-fields">
+                            <label class="delivery-field"><span>ارسال به</span><select @bind="form.DeliveryLocationId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Locations) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="delivery-field"><span>حمل توسط</span><select @bind="form.VehicleTypeId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Vehicles) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            <label class="delivery-field"><span>پیک/آژانس</span><input maxlength="100" @bind="form.CarierAgencyName" @bind:event="oninput" /></label>
+                            <label class="delivery-field"><span>قبض آژانس</span><input maxlength="100" @bind="form.CarierAgencyBill" @bind:event="oninput" /></label>
+                            <label class="delivery-field"><span>شماره ماشین</span><input maxlength="50" @bind="form.VehiclePlaque" @bind:event="oninput" /></label>
+                            <label class="delivery-field"><span>راننده</span><input maxlength="100" @bind="form.DriverName" @bind:event="oninput" /></label>
+                            <label class="delivery-field"><span>تلفن راننده</span><input maxlength="50" dir="ltr" @bind="form.DriverPhone" @bind:event="oninput" /></label>
+                        </div>
+                    </section>
+                </fieldset>
+                <div class="delivery-action-bar">
+                    @if (Id == 0) { <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت تحویل")</MudButton> }
+                    else if (editor.CanSave) { <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="saving">ذخیره تغییرات</MudButton> }
+                    @if (editor.CanApprove) { <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="saving" OnClick="@(() => TransitionAsync("approve"))">تأیید تحویل</MudButton> }
+                    @if (editor.CanSend) { <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="saving" OnClick="@(() => TransitionAsync("send"))">ثبت ارسال</MudButton> }
+                    @if (Id > 0 && editor.CanEdit) { <MudButton Disabled="saving" OnClick="ReloadAsync">بازنشانی تغییرات</MudButton> }
+                </div>
+            </EditForm>
+        </div>
+
+        @if (Id > 0 && activeTab == 1)
+        {
+            <section class="delivery-tab-panel"><div class="delivery-comment-editor"><label for="delivery-comment">یادداشت جدید</label><textarea id="delivery-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> } else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> } else if (activity?.Comments.Count is null or 0) { <div class="delivery-tab-empty">یادداشتی برای این تحویل ثبت نشده است.</div> } else { <div class="delivery-comments">@foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt)) { <article class="delivery-comment"><header><strong>@comment.Owner</strong><time>@FormatDateTime(comment.CreatedAt)</time></header><p>@comment.Comment</p></article> }</div> }
+            </section>
+        }
+        @if (Id > 0 && activeTab == 2)
+        {
+            <section class="delivery-tab-panel">
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> } else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> } else if (activity?.History.Count is null or 0) { <div class="delivery-tab-empty">فعالیتی برای این تحویل ثبت نشده است.</div> } else {
+                    <div class="delivery-history-table"><table><thead><tr><th class="delivery-history-index">ردیف</th><th>زمان</th><th>کاربر</th><th>دسته</th><th>شماره سند</th><th>فعالیت</th><th class="delivery-history-description">توضیحات</th>@if (CanViewHistoryDetail) { <th class="delivery-history-actions">جزئیات</th> }</tr></thead><tbody>
+                    @for (var index = 0; index < activity.History.Count; index++) { var item = activity.History[index]; <tr><td class="delivery-history-index">@(index + 1)</td><td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td class="delivery-history-description">@item.Description</td>@if (CanViewHistoryDetail) { <td class="delivery-history-actions"><MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Color="Color.Primary" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistory = item)" /></td> }</tr> }
+                    </tbody></table></div>
+                    @if (selectedHistory is not null) { <div class="delivery-modal-backdrop" @onclick="() => selectedHistory = null"><section class="delivery-modal" role="dialog" aria-modal="true" @onclick:stopPropagation="true"><header><button type="button" @onclick="() => selectedHistory = null">×</button><h3>جزئیات فعالیت</h3></header><div class="delivery-modal-body"><dl class="delivery-history-details"><div><dt>زمان</dt><dd>@FormatDateTimeWithSeconds(selectedHistory.EventTime)</dd></div><div><dt>کاربر</dt><dd>@ValueOrDash(selectedHistory.User)</dd></div><div><dt>آدرس IP</dt><dd dir="ltr">@ValueOrDash(selectedHistory.IpAddress)</dd></div><div><dt>دسته</dt><dd>@ValueOrDash(selectedHistory.Category)</dd></div><div><dt>شماره سند</dt><dd>@selectedHistory.DocumentNumber</dd></div><div><dt>فعالیت</dt><dd>@ValueOrDash(selectedHistory.Activity)</dd></div><div><dt>مبلغ کل پس از فعالیت</dt><dd>@(selectedHistory.Amount?.ToString("N0") ?? "—")</dd></div><div class="delivery-history-detail-description"><dt>شرح</dt><dd>@ValueOrDash(selectedHistory.Description)</dd></div></dl></div></section></div> }
+                }
+            </section>
+        }
+    }
+</div>
 </MudRTLProvider>
+
 @code {
- [Parameter] public int Id {get;set;}
- private string Title=>Id==0 ? "افزودن تحویل" : "جزئیات تحویل";
- private DeliveryDetail? detail;
- private DeliveryDraft? draft;
- private DeliveryLookups lookups=new();
- private string kind="orders";
- private int? sourceNumber,loadedNumber,loadedId;
- private string? error;
- private bool loading=true,busy,canAdd;
- public override Task SetParametersAsync(ParameterView parameters) { if(!parameters.TryGetValue<int>(nameof(Id),out _)) Id=0; return base.SetParametersAsync(parameters); }
- protected override async Task OnParametersSetAsync() { if(Session.IsInitialized && loadedId!=Id) await Load(); }
- protected override async Task OnAfterRenderAsync(bool firstRender) { if(!firstRender) return; await Session.InitializeAsync(); if(loadedId!=Id) await Load(); StateHasChanged(); }
- private async Task Load() {
-  if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
-  loading=true;loadedId=Id;detail=null;draft=null;error=null;
-  canAdd=Session.User?.Roles.Contains("Delivery_Add")==true;
-  try {
-   if(Id==0) { if(!canAdd) throw new InvalidOperationException("شما دسترسی افزودن تحویل را ندارید."); lookups=await Api.GetDeliveryLookupsAsync()??new(); }
-   else detail=await Api.GetDeliveryAsync(Id);
-   if(!Session.IsAuthenticated) Navigation.NavigateTo("/login");
-  } catch(Exception ex) {error=ex.Message;} finally {loading=false;}
- }
- private async Task LoadSource() {
-  if(busy) return;busy=true;error=null;draft=null;
-  try {
-   if(sourceNumber is null or <=0) throw new InvalidOperationException("شماره سند مبدأ را وارد کنید.");
-   var result=await Api.GetDeliveryDraftAsync(kind,sourceNumber.Value);
-   if(!Session.IsAuthenticated) {Navigation.NavigateTo("/login");return;}
-   draft=result;loadedNumber=sourceNumber;
-  } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
- }
- private async Task Save() {
-  if(busy || draft is null || !canAdd) return;busy=true;error=null;
-  try {
-   if(kind!=draft.Form.Kind || sourceNumber!=loadedNumber) throw new InvalidOperationException("سند مبدأ تغییر کرده است؛ ابتدا دریافت اقلام را بزنید.");
-   var errors=new List<ValidationResult>();
-   if(!Validator.TryValidateObject(draft.Form,new ValidationContext(draft.Form),errors,true)) throw new InvalidOperationException(string.Join(" ",errors.Select(x=>x.ErrorMessage)));
-   var result=await Api.CreateDeliveryAsync(draft.Form);
-   Navigation.NavigateTo(Session.User?.Roles.Contains("Delivery_Detail")==true ? $"/documents/deliveries/{result.Id}" : "/documents/deliveries");
-  } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
- }
+    [Parameter] public int Id { get; set; }
+    private DeliveryEditor? editor; private DeliveryForm form => editor!.Form;
+    private DeliveryDraft? draft; private OrderActivity? activity; private OrderHistoryItem? selectedHistory;
+    private string kind = "orders"; private int? sourceNumber; private string? error, success, activityError, newComment;
+    private bool loading = true, saving, activityLoading, savingComment; private int activeTab; private int? loadedId;
+    private bool ReadOnly => Id > 0 && editor?.CanEdit != true;
+    private bool CanEditIssued => Id == 0 || form.StatusId == 1;
+    private bool CanPrint => Session.User?.Roles.Contains("Delivery_Print") == true;
+    private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
+    private int SourceDocumentNumber => Id == 0 ? sourceNumber ?? 0 : GetSourceNumber();
+    private int GetSourceNumber() => editor?.Detail.Fields.TryGetValue("شماره سند مبدأ", out var value) == true && int.TryParse(value, out var number) ? number : 0;
+
+    public override Task SetParametersAsync(ParameterView parameters) { if (!parameters.TryGetValue<int>(nameof(Id), out _)) Id = 0; return base.SetParametersAsync(parameters); }
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (!firstRender) return; await Session.InitializeAsync(); if (loadedId != Id) await LoadAsync(); StateHasChanged(); }
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; editor = null; draft = null; error = success = activityError = null; activity = null; selectedHistory = null; loadedId = Id; activeTab = 0;
+        try
+        {
+            if (Id == 0) { if (Session.User?.Roles.Contains("Delivery_Add") != true) throw new InvalidOperationException("شما دسترسی افزودن تحویل را ندارید."); }
+            else { editor = await Api.GetDeliveryEditorAsync(Id) ?? throw new InvalidOperationException("تحویل یافت نشد."); await LoadActivityAsync(); }
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+    private async Task ReloadAsync() { success = null; await LoadAsync(); }
+    private async Task LoadSourceAsync()
+    {
+        if (saving) return; saving = true; error = success = null; editor = null;
+        try
+        {
+            if (sourceNumber is null or <= 0) throw new InvalidOperationException("شماره سند مبدأ را وارد کنید.");
+            var lookups = await Api.GetDeliveryLookupsAsync() ?? new();
+            draft = await Api.GetDeliveryDraftAsync(kind, sourceNumber.Value) ?? throw new InvalidOperationException("سند مبدأ یافت نشد.");
+            editor = new DeliveryEditor { Form = draft.Form, Lookups = lookups, CustomerAddress = draft.CustomerAddress, ProjectAddress = draft.ProjectAddress, CanEdit = true, CanSave = true, Detail = new DeliveryDetail { Summary = new DeliverySummary { Customer = draft.Customer, ProjectName = draft.ProjectName, FactorNumber = draft.FactorNumber, Status = "صادر شده", Kind = kind == "orders" ? "سفارش" : "فروش کالا" } } };
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+    private async Task LoadActivityAsync() { activityLoading = true; try { activity = await Api.GetDeliveryActivityAsync(Id) ?? new(); } catch (Exception ex) { activityError = ex.Message; } finally { activityLoading = false; } }
+    private async Task AddCommentAsync() { if (Id <= 0 || savingComment || string.IsNullOrWhiteSpace(newComment)) return; savingComment = true; try { var saved = await Api.AddDeliveryCommentAsync(Id, newComment); activity ??= new(); activity.Comments.Add(saved); newComment = null; } catch (Exception ex) { activityError = ex.Message; } finally { savingComment = false; } }
+    private void SelectTab(int tab) { activeTab = tab; if (tab != 2) selectedHistory = null; }
+    private void ChangeDestination(ChangeEventArgs args) { if (!byte.TryParse(args.Value?.ToString(), out var type)) return; form.DestinationType = type; form.DestinationAddress = type == 1 ? editor?.CustomerAddress : editor?.ProjectAddress; }
+    private void ValidateForm()
+    {
+        if (!form.Items.Any(x => x.Selected)) throw new InvalidOperationException("حداقل یک قلم را برای تحویل انتخاب کنید.");
+        var validation = new List<ValidationResult>();
+        if (!Validator.TryValidateObject(form, new ValidationContext(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست.");
+    }
+    private async Task SaveAsync()
+    {
+        if (saving || editor is null || !editor.CanEdit) return; saving = true; error = success = null;
+        try { ValidateForm(); if (Id == 0) { var saved = await Api.CreateDeliveryAsync(form); Navigation.NavigateTo($"/documents/deliveries/{saved.Id}"); } else { await Api.SaveDeliveryAsync(Id, form); await LoadAsync(); success = "تغییرات تحویل ذخیره شد."; } }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+    private async Task TransitionAsync(string action)
+    {
+        if (Id <= 0 || saving || editor is null) return; saving = true; error = success = null;
+        try { ValidateForm(); await Api.TransitionDeliveryAsync(Id, new DeliveryTransitionRequest { Action = action, ExpectedStatusId = form.StatusId, Form = form }); await LoadAsync(); success = action == "approve" ? "سند تحویل تأیید شد." : "ارسال سند تحویل ثبت شد."; }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+    private static string FormatDateTime(DateTime? value) => value.HasValue ? $"{PersianDates.Format(value)} {value:HH:mm}" : "—";
+    private static string FormatDateTimeWithSeconds(DateTime? value) => value.HasValue ? $"{PersianDates.Format(value)} {value:HH:mm:ss}" : "—";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
 }

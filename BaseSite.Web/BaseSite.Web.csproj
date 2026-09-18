@@ -33,13 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\BaseSite\Contents\css\bootstrap.css" Link="wwwroot\Contents\css\bootstrap.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\css\bootstrap-rtl.css" Link="wwwroot\Contents\css\bootstrap-rtl.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\css\MyStyle\PrintPA4.css" Link="wwwroot\Contents\css\MyStyle\PrintPA4.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\css\MyStyle\PrintBill.css" Link="wwwroot\Contents\css\MyStyle\PrintBill.css" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\js\jquery-3.1.1.js" Link="wwwroot\Contents\js\jquery-3.1.1.js" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\js\printThis.js" Link="wwwroot\Contents\js\printThis.js" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="..\BaseSite\Contents\js\autoNumeric.js" Link="wwwroot\Contents\js\autoNumeric.js" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Compile Include="..\BaseSite\Models\NumberWord.cs" Link="Compatibility\NumberWord.cs" />
   </ItemGroup>
-
 </Project>

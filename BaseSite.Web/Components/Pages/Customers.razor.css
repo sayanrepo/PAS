@@ -1,0 +1,2 @@
+::deep .people-table table { min-width: 1180px; }
+::deep .people-table .mud-table-cell { vertical-align: middle; }

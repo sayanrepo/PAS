@@ -64,3 +64,30 @@ public sealed class ServiceDetail {
  public double ServiceCost { get; set; }
  public double Discount { get; set; }
 }
+
+public sealed class ServiceEditor
+{
+    public ServiceForm Form { get; set; } = new();
+    public ServiceDetail Detail { get; set; } = new();
+    public List<OrderLookup> OrderTypes { get; set; } = [];
+    public bool CanEdit { get; set; }
+}
+
+public sealed class ServiceForm
+{
+    [Range(1, int.MaxValue)] public int CustomerId { get; set; }
+    [MaxLength(50)] public string ClienteleName { get; set; } = "";
+    public byte OrderTypeId { get; set; }
+    [MaxLength(255)] public string DeliveryAddress { get; set; } = "";
+    [Required, MaxLength(255)] public string Comment { get; set; } = "";
+    public DateTime? OrderDate { get; set; }
+    public DateTime? FactorDate { get; set; }
+    [Range(0, 1e15)] public double ServiceCost { get; set; }
+    [Range(0, 1e15)] public double DeliveryCost { get; set; }
+    [Range(0, 100)] public double Tax { get; set; }
+    [Range(0, 1e15)] public double Discount { get; set; }
+    public byte StatusId { get; set; } = 1;
+    public static bool IsEditable(byte status) => status is 1 or 2;
+    public double TaxTotal => (ServiceCost + DeliveryCost) * Tax / 100;
+    public double Total => ServiceCost + DeliveryCost + TaxTotal - Discount;
+}

@@ -1,5 +1,7 @@
 #nullable enable
 using BaseSite.Models;
+using BaseSite.Api.Contracts;
+using BaseSite.Api.Queries;
 using BaseSite.Models.Log;
 using BaseSite.Models.Order;
 using Microsoft.AspNetCore.Mvc;
@@ -9,17 +11,19 @@ namespace BaseSite.Api.Controllers;
 
 [ApiController, Authorize(Roles = nameof(OPERATIONS.Order))]
 [Route("api/orders/{id:int}/print")]
-public sealed class OrderPrintController : Controller
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public sealed class OrderPrintController : ControllerBase
 {
     [HttpGet("{kind}")]
+    [ProducesResponseType<OrderPrintData>(StatusCodes.Status200OK)]
     public IActionResult Print(int id, string kind)
     {
+        if (id <= 0 || kind is not ("specification" or "bill" or "invoice")) return NotFound();
         var requiredRole = kind == "specification" ? nameof(OPERATIONS.Plan_Print) : nameof(OPERATIONS.Order_Print);
         if (!User.IsInRole(requiredRole)) return Forbid();
-        if (kind is not ("specification" or "bill" or "invoice")) return NotFound();
 
         var order = OrderManager.Order_Order_Get(id);
-        if (order is null || id <= 0) return NotFound();
+        if (order is null) return NotFound();
 
         if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
@@ -33,11 +37,6 @@ public sealed class OrderPrintController : Controller
                 HttpContext.Connection.RemoteIpAddress?.ToString(), (int)LogActivity.Print, description);
         }
 
-        return kind switch
-        {
-            "specification" => View("~/Views/Plan/PrintOrder.cshtml", order),
-            "bill" => View("~/Views/Order/PrintBill.cshtml", order),
-            _ => View("~/Views/Order/PrintOrder.cshtml", order)
-        };
+        return Ok(OrderPrintDataMapper.ForPrint(order, kind));
     }
 }

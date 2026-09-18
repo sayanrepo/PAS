@@ -28,7 +28,7 @@ internal static class Preview
         builder.Services.AddScoped(_ =>
         {
             // An isolated test identity; never connects to the real API or database.
-            var session = new ApiSession(new ProtectedLocalStorage(new EmptyStorage(), new EphemeralDataProtectionProvider()));
+            var session = new ApiSession(new ProtectedLocalStorage(new EmptyStorage(), new EphemeralDataProtectionProvider()), new EmptyStorage(), new PrintSessionCookie(new EphemeralDataProtectionProvider()));
             session.SignInAsync(new BaseSite.Web.Models.LoginResponse
             {
                 AccessToken = "preview-only", ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),

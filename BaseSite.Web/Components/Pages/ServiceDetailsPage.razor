@@ -1,71 +1,131 @@
+@page "/documents/services/new"
 @page "/documents/services/{Id:int}"
+@page "/documents/services/{Id:int}/edit"
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
 
-<PageTitle>جزئیات خدمات | پنتا</PageTitle>
+<PageTitle>خدمات | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
+<div class="service-detail">
     <div class="page-heading">
-        <MudText Typo="Typo.h5">جزئیات خدمات @sale?.Summary.DocumentNumber</MudText>
+        <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد خدمات" : $"خدمات {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/services" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به خدمات</MudButton>
     </div>
-    @if (loading) { <MudProgressLinear Indeterminate="true" /> }
-    else if (error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
-    else if (sale is not null)
+    @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (success is not null) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+    @if (!loading && editor is not null)
     {
-        <MudPaper Class="filter-panel" Elevation="0">
-            <dl class="order-specs">
-                <div><dt>شماره سند</dt><dd>@sale.Summary.DocumentNumber</dd></div>
-                <div><dt>شماره فاکتور</dt><dd>@sale.Summary.FactorNumber</dd></div>
-                <div><dt>مشتری</dt><dd>@sale.Summary.Customer</dd></div>
-                <div><dt>سفارش گیرنده</dt><dd>@sale.Summary.Receiver</dd></div>
-                <div><dt>سفارش دهنده</dt><dd>@sale.ClienteleName</dd></div>
-                <div><dt>تاریخ سفارش</dt><dd>@PersianDates.Format(sale.Summary.OrderDate)</dd></div>
-                <div><dt>تاریخ تحویل</dt><dd>@PersianDates.Format(sale.Summary.FactorDate)</dd></div>
-                <div><dt>وضعیت فاکتور</dt><dd>@sale.Summary.Status</dd></div>
-                <div><dt>نوع سفارش</dt><dd>@sale.Summary.OrderType</dd></div>
-                <div><dt>محل ارسال</dt><dd>@sale.DeliveryAddress</dd></div>
-                <div><dt>شرح خدمات</dt><dd>@sale.Comment</dd></div>
-            </dl>
-        </MudPaper>
-        <MudPaper Class="filter-panel mt-4" Elevation="0">
-            <dl class="order-specs">
-                <div><dt>مبلغ خدمات (ریال)</dt><dd>@sale.ServiceCost.ToString("N0")</dd></div>
-                <div><dt>کرایه حمل (ریال)</dt><dd>@sale.DeliveryCost.ToString("N0")</dd></div>
-                <div><dt>عوارض (درصد)</dt><dd>@sale.TaxPercent</dd></div>
-                <div><dt>تخفیف (ریال)</dt><dd>@sale.Discount.ToString("N0")</dd></div>
-                <div><dt>مبلغ کل فاکتور (ریال)</dt><dd>@sale.Summary.Amount.ToString("N0")</dd></div>
-            </dl>
-        </MudPaper>
+        @if (Id > 0)
+        {
+            <div class="service-toolbar">
+                <nav class="service-tabs" aria-label="بخش‌های خدمات">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" @onclick="() => SelectTab(0)">خدمات</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" @onclick="() => SelectTab(1)">یادداشت ها @if (activity?.Comments.Count > 0) { <span class="service-tab-count">@activity.Comments.Count</span> }</button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" @onclick="() => SelectTab(2)">تاریخچه فعالیتها</button>
+                </nav>
+                @if (CanPrint)
+                {
+                    <div class="service-print-actions"><MudTooltip Text="چاپ فاکتور"><MudIconButton Icon="@Icons.Material.Filled.RequestQuote" Color="Color.Primary" title="چاپ فاکتور" aria-label="چاپ فاکتور" Href="@($"/print/services/{Id}/invoice")" Target="_blank" rel="noopener" /></MudTooltip></div>
+                }
+            </div>
+        }
+        <div class="@(activeTab == 0 ? null : "service-tab-hidden")">
+            @if (ReadOnly) { <MudAlert Severity="Severity.Info" Class="mb-4">این سند خدمات فقط قابل مشاهده است.</MudAlert> }
+            <EditForm Model="editor.Form" OnSubmit="SaveAsync" FormName="service">
+                <fieldset disabled="@(ReadOnly || saving)" class="service-form">
+                    <section class="service-section service-main">
+                        <h2 class="service-section-title">خدمات</h2>
+                        <div class="service-section-body">
+                            <div class="service-fields service-top-fields">
+                                <label class="service-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                                <label class="service-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                <label class="service-field"><span>نوع سفارش</span><select @bind="form.OrderTypeId">@foreach (var option in editor.OrderTypes) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="service-field"><span>تاریخ سفارش</span><input dir="ltr" @bind="orderDate" @bind:event="oninput" /></label>
+                                <label class="service-field"><span>تاریخ تحویل</span><input dir="ltr" @bind="factorDate" @bind:event="oninput" /></label>
+                            </div>
+                            <div class="service-fields service-totals">
+                                <label class="service-field"><span>خدمات</span><input type="number" min="0" step="any" @bind="form.ServiceCost" /></label>
+                                <label class="service-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" /></label>
+                                <label class="service-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" /></label>
+                                <ServiceValue Label="مبلغ عوارض" Value="@form.TaxTotal.ToString("N0")" />
+                                <label class="service-field"><span>تخفیف</span><input type="number" min="0" step="any" @bind="form.Discount" /></label>
+                                <ServiceValue Label="جمع کل" Value="@form.Total.ToString("N0")" Class="service-grand-total" />
+                            </div>
+                            <div class="service-fields service-customer-fields">
+                                <div class="service-field service-customer"><span>مشتری</span><MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" /></div>
+                                <label class="service-field"><span>سفارش دهنده</span><input maxlength="50" @bind="form.ClienteleName" @bind:event="oninput" /></label>
+                                <label class="service-field service-address"><span>محل ارسال</span><input maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput" /></label>
+                                <label class="service-field service-full"><span>شرح خدمات</span><textarea maxlength="255" @bind="form.Comment" @bind:event="oninput"></textarea></label>
+                            </div>
+                        </div>
+                    </section>
+                </fieldset>
+                @if (!ReadOnly) { <div class="service-save-actions"><MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت")</MudButton><MudButton OnClick="ReloadAsync" Disabled="saving">بازنشانی تغییرات</MudButton></div> }
+            </EditForm>
+        </div>
+        @if (Id > 0 && activeTab == 1)
+        {
+            <section class="service-tab-panel">
+                <div class="service-comment-editor"><label for="service-comment">یادداشت جدید</label><textarea id="service-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.Comments.Count is null or 0) { <div class="service-tab-empty">یادداشتی برای این سند خدمات ثبت نشده است.</div> }
+                else { <div class="service-comments">@foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt)) { <article class="service-comment"><header><strong>@comment.Owner</strong><time>@FormatDateTime(comment.CreatedAt)</time></header><p>@comment.Comment</p></article> }</div> }
+            </section>
+        }
+        @if (Id > 0 && activeTab == 2)
+        {
+            <section class="service-tab-panel">
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.History.Count is null or 0) { <div class="service-tab-empty">فعالیتی برای این سند خدمات ثبت نشده است.</div> }
+                else
+                {
+                    <div class="service-history-table"><table><thead><tr><th class="service-history-index">ردیف</th><th>زمان</th><th>کاربر</th><th>دسته</th><th>شماره سند</th><th>فعالیت</th><th class="service-history-description">توضیحات</th>@if (CanViewHistoryDetail) { <th class="service-history-actions">جزئیات</th> }</tr></thead><tbody>
+                    @for (var index = 0; index < activity.History.Count; index++) { var item = activity.History[index]; <tr><td class="service-history-index">@(index + 1)</td><td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td class="service-history-description">@item.Description</td>@if (CanViewHistoryDetail) { <td class="service-history-actions"><MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Color="Color.Primary" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistory = item)" /></td> }</tr> }
+                    </tbody></table></div>
+                    @if (selectedHistory is not null) { <div class="service-history-modal-backdrop" @onclick="() => selectedHistory = null"><section class="service-history-modal" role="dialog" aria-modal="true" @onclick:stopPropagation="true"><header><button type="button" @onclick="() => selectedHistory = null">×</button><h3>جزئیات فعالیت</h3></header><div class="service-history-modal-body"><dl class="service-history-details"><div><dt>زمان</dt><dd>@FormatDateTimeWithSeconds(selectedHistory.EventTime)</dd></div><div><dt>کاربر</dt><dd>@ValueOrDash(selectedHistory.User)</dd></div><div><dt>آدرس IP</dt><dd dir="ltr">@ValueOrDash(selectedHistory.IpAddress)</dd></div><div><dt>دسته</dt><dd>@ValueOrDash(selectedHistory.Category)</dd></div><div><dt>شماره سند</dt><dd>@selectedHistory.DocumentNumber</dd></div><div><dt>فعالیت</dt><dd>@ValueOrDash(selectedHistory.Activity)</dd></div><div><dt>مبلغ کل پس از فعالیت</dt><dd>@(selectedHistory.Amount?.ToString("N0") ?? "—")</dd></div><div class="service-history-detail-description"><dt>شرح</dt><dd>@ValueOrDash(selectedHistory.Description)</dd></div></dl></div></section></div> }
+                }
+            </section>
+        }
     }
+</div>
 </MudRTLProvider>
 
 @code {
     [Parameter] public int Id { get; set; }
-    private ServiceDetail? sale;
-    private bool loading = true;
-    private string? error;
-    private int? loadedId;
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Session.IsInitialized && loadedId != Id) await LoadAsync();
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        await Session.InitializeAsync();
-        if (loadedId != Id) await LoadAsync();
-        StateHasChanged();
-    }
+    private ServiceEditor? editor; private ServiceForm form => editor!.Form;
+    private OrderLookup? customer; private OrderActivity? activity; private OrderHistoryItem? selectedHistory;
+    private string? orderDate, factorDate, customerText, error, success, activityError, newComment;
+    private bool loading = true, saving, activityLoading, savingComment; private int activeTab; private int? loadedId;
+    private bool ReadOnly => editor?.CanEdit != true || !ServiceForm.IsEditable(form.StatusId);
+    private bool CanPrint => Session.User?.Roles.Contains("Service_Print") == true;
+    private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (!firstRender) return; await Session.InitializeAsync(); if (loadedId != Id) await LoadAsync(); StateHasChanged(); }
+    private async Task ReloadAsync() { success = null; await LoadAsync(); }
     private async Task LoadAsync()
     {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
-        loading = true; sale = null; error = null; loadedId = Id;
-        try {
-            sale = await Api.GetServiceAsync(Id);
-            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
-        }
-        catch (Exception ex) { error = ex.Message; }
-        finally { loading = false; }
+        loading = true; editor = null; error = success = activityError = null; activity = null; selectedHistory = null; loadedId = Id; activeTab = 0;
+        try { editor = await Api.GetServiceEditorAsync(Id) ?? throw new InvalidOperationException("سند خدمات یافت نشد."); customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null; customerText = customer?.Name; orderDate = PersianDates.Format(form.OrderDate); factorDate = PersianDates.Format(form.FactorDate); if (Id > 0) await LoadActivityAsync(); }
+        catch (Exception ex) { error = ex.Message; } finally { loading = false; }
     }
+    private async Task LoadActivityAsync() { activityLoading = true; try { activity = await Api.GetServiceActivityAsync(Id) ?? new(); } catch (Exception ex) { activityError = ex.Message; } finally { activityLoading = false; } }
+    private async Task AddCommentAsync() { if (Id <= 0 || savingComment || string.IsNullOrWhiteSpace(newComment)) return; savingComment = true; try { var saved = await Api.AddServiceCommentAsync(Id, newComment); activity ??= new(); activity.Comments.Add(saved); newComment = null; } catch (Exception ex) { activityError = ex.Message; } finally { savingComment = false; } }
+    private void SelectTab(int tab) { activeTab = tab; if (tab != 2) selectedHistory = null; }
+    private void CustomerChanged(OrderLookup? value) { customer = value; form.CustomerId = value?.Id ?? 0; }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token) { try { return await Api.FindServiceEditorCustomersAsync(term ?? "", token) ?? []; } catch (OperationCanceledException) { return []; } catch (Exception ex) { error = ex.Message; return []; } }
+    private async Task SaveAsync()
+    {
+        if (ReadOnly || saving) return; error = success = null;
+        if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
+        try { form.OrderDate = PersianDates.Parse(orderDate, "تاریخ سفارش"); form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل"); var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>(); if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(form, new(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست."); if (form.Discount > form.ServiceCost + form.DeliveryCost + form.TaxTotal) throw new InvalidOperationException("تخفیف از مبلغ خدمات بیشتر است."); saving = true; var saved = await Api.SaveServiceAsync(Id, form); if (Id == 0) Navigation.NavigateTo($"/documents/services/{saved.Id}"); else await LoadAsync(); success = "خدمات ثبت شد."; }
+        catch (Exception ex) { error = ex.Message; } finally { saving = false; }
+    }
+    private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";
+    private static string FormatDateTimeWithSeconds(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm:ss}";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
 }

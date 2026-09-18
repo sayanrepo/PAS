@@ -18,9 +18,28 @@
 .order-comment p { margin: 10px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.9; }
 .order-tab-empty { padding: 50px 20px; text-align: center; color: #6a7688; }
 .order-history-table { overflow-x: auto; }
-.order-history-table table { min-width: 850px; }
-.order-history-detail td { background: #f2f7fc; color: #42536b; }
-.order-history-detail span { display: inline-block; margin: 3px 18px; }
+.order-history-table table { min-width: 980px; table-layout: fixed; }
+.order-history-table th:nth-child(2), .order-history-table td:nth-child(2) { width: 10%; }
+.order-history-table th:nth-child(3), .order-history-table td:nth-child(3) { width: 8%; }
+.order-history-table th:nth-child(4), .order-history-table td:nth-child(4),
+.order-history-table th:nth-child(5), .order-history-table td:nth-child(5),
+.order-history-table th:nth-child(6), .order-history-table td:nth-child(6) { width: 7%; }
+.order-history-table .order-history-index { width: 4%; white-space: nowrap; }
+.order-history-table .order-history-actions { width: 5%; white-space: nowrap; }
+.order-history-table .order-history-description { width: 52%; text-align: right; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.order-history-modal-backdrop { position: fixed; inset: 0; z-index: 1400; display: grid; place-items: center; padding: 20px; background: rgba(15, 25, 42, .48); }
+.order-history-modal { width: min(820px, 100%); max-height: calc(100vh - 40px); overflow: auto; border-radius: 6px; background: #fff; box-shadow: 0 24px 65px rgba(15, 25, 42, .28); }
+.order-history-modal > header { position: relative; padding: 12px 54px; color: #31708f; background: #d9edf7; text-align: center; }
+.order-history-modal h3 { margin: 0; font-size: 16px; }
+.order-history-modal-close { position: absolute; top: 5px; left: 10px; width: 36px; height: 36px; border: 0; color: #38566e; background: transparent; font-size: 26px; line-height: 1; cursor: pointer; }
+.order-history-modal-body { padding: 22px; }
+.order-history-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin: 0; }
+.order-history-details > div { display: flex; min-height: 42px; overflow: hidden; border: 1px solid #ccc; border-radius: 4px; }
+.order-history-details > .order-history-detail-spacer { visibility: hidden; border: 0; }
+.order-history-details dt { display: flex; min-width: 94px; align-items: center; padding: 8px 10px; color: #fff; background: #858585; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.order-history-details dd { display: flex; flex: 1; min-width: 0; align-items: center; justify-content: center; margin: 0; padding: 8px 10px; overflow-wrap: anywhere; text-align: center; }
+.order-history-details .order-history-detail-description { grid-column: 1 / -1; min-height: 92px; }
+.order-history-detail-description dd { align-items: flex-start; justify-content: flex-start; white-space: pre-wrap; text-align: right; line-height: 2; }
 .order-form { border: 0; padding: 0; margin: 0; min-width: 0; }
 .order-field { display: flex; min-width: 0; min-height: 34px; border: 1px solid #ccc; border-radius: 4px; overflow: hidden; font-size: 12px; }
 .order-field > span { display: flex; align-items: center; padding: 5px 9px; background: #858585; color: #fff; white-space: nowrap; }
@@ -78,6 +97,11 @@
     .order-toolbar { align-items: stretch; flex-direction: column-reverse; }
     .order-print-actions { justify-content: flex-end; }
     .order-comment-editor { grid-template-columns: 1fr; }
+    .order-history-modal-backdrop { padding: 10px; }
+    .order-history-modal-body { padding: 12px; }
+    .order-history-details { grid-template-columns: 1fr; }
+    .order-history-details > .order-history-detail-spacer { display: none; }
+    .order-history-details .order-history-detail-description { grid-column: auto; }
     .order-fields, .order-extras, .order-panel-title { grid-template-columns: minmax(0, 1fr); }
     .order-section-body { padding: 10px; }
     .order-panel-title span:first-child, .order-panel-title span:last-child { text-align: center; }

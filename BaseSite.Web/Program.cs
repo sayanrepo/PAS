@@ -14,15 +14,24 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, ".keys")))
     .SetApplicationName("BaseSite.Web");
 builder.Services.AddMudServices();
+builder.Services.AddRazorPages();
+builder.Services.AddAntiforgery(options => options.HeaderName = "X-CSRF-TOKEN");
+builder.Services.AddSingleton<PrintSessionCookie>();
 builder.Services.AddScoped<ApiSession>();
 builder.Services.AddSingleton<ProfileImageStore>();
-builder.Services.AddHttpClient<BaseSiteApiClient>(httpClient =>
+void ConfigureApiClient(HttpClient httpClient)
 {
     var discoveredAddress = builder.Configuration["services:basesite-api:http:0"];
     var configuredAddress = builder.Configuration["BaseSiteApi:BaseUrl"] ?? "http://localhost:5184";
     httpClient.BaseAddress = new Uri(discoveredAddress ?? configuredAddress);
     httpClient.Timeout = TimeSpan.FromSeconds(30);
-});
+}
+builder.Services.AddHttpClient<BaseSiteApiClient>(ConfigureApiClient);
+builder.Services.AddHttpClient<OrderPrintClient>(ConfigureApiClient);
+builder.Services.AddHttpClient<SalePrintClient>(ConfigureApiClient);
+builder.Services.AddHttpClient<ServicePrintClient>(ConfigureApiClient);
+builder.Services.AddHttpClient<PaymentPrintClient>(ConfigureApiClient);
+builder.Services.AddHttpClient<DeliveryPrintClient>(ConfigureApiClient);
 
 var app = builder.Build();
 
@@ -41,6 +50,7 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+app.MapRazorPages();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

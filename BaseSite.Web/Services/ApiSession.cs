@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 
 namespace BaseSite.Web.Services;
 
-public sealed class ApiSession(ProtectedLocalStorage storage)
+public sealed class ApiSession(ProtectedLocalStorage storage, IJSRuntime js, PrintSessionCookie printCookies)
 {
     private const string StorageKey = "basesite.session";
 
@@ -35,6 +35,7 @@ public sealed class ApiSession(ProtectedLocalStorage storage)
             return;
         }
 
+        await SyncPrintSessionAsync();
         IsInitialized = true;
         Changed?.Invoke();
     }
@@ -44,14 +45,19 @@ public sealed class ApiSession(ProtectedLocalStorage storage)
         Login = login;
         IsInitialized = true;
         await storage.SetAsync(StorageKey, login);
+        await SyncPrintSessionAsync();
         Changed?.Invoke();
     }
+
+    private ValueTask SyncPrintSessionAsync() => js.InvokeVoidAsync("orderPrint.syncSession",
+        IsAuthenticated ? printCookies.Create(Login!) : null);
 
     public async Task SignOutAsync()
     {
         Login = null;
         IsInitialized = true;
         await storage.DeleteAsync(StorageKey);
+        await SyncPrintSessionAsync();
         Changed?.Invoke();
     }
 }

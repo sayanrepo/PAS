@@ -18,6 +18,7 @@
     </MudNavGroup>
     <MudNavLink Href="/customers" Icon="@Icons.Material.Filled.People">اشخاص و سازمان‌ها</MudNavLink>
     <MudNavGroup Title="ارتباط با مشتریان" Icon="@Icons.Material.Filled.Groups" @bind-Expanded="crmExpanded">
+        <MudNavLink Href="/crm/people" Icon="@Icons.Material.Filled.ContactPage">پرونده مشتریان</MudNavLink>
         <MudNavLink Href="/documents/activities" Icon="@Icons.Material.Filled.CalendarMonth">فعالیت‌های CRM</MudNavLink>
     </MudNavGroup>
     <MudNavLink Href="/reports" Icon="@Icons.Material.Filled.Assessment">گزارشات</MudNavLink>
@@ -34,8 +35,8 @@
         <MudNavLink Href="/basic/door-tops">پنل سردرب</MudNavLink>
         <MudNavLink Href="/basic/compatibility">جداول سازگاری</MudNavLink>
     </MudNavGroup>
-    <MudNavGroup Title="مدیریت سیستم" Icon="@Icons.Material.Filled.AdminPanelSettings">
-        <MudNavLink Disabled="true" Icon="@Icons.Material.Filled.ManageAccounts">کاربران و دسترسی‌ها</MudNavLink>
+    <MudNavGroup Title="مدیریت سیستم" Icon="@Icons.Material.Filled.AdminPanelSettings" @bind-Expanded="systemExpanded">
+        <MudNavLink Href="/system/users" Icon="@Icons.Material.Filled.ManageAccounts">کاربران و دسترسی‌ها</MudNavLink>
     </MudNavGroup>
 </MudNavMenu>
 
@@ -44,7 +45,7 @@
 @code {
     [Parameter] public EventCallback OnClose { get; set; }
     private static readonly string AppVersion = typeof(NavMenu).Assembly.GetName().Version!.ToString(3);
-    private bool salesExpanded, financeExpanded, logisticsExpanded, crmExpanded, basicExpanded;
+    private bool salesExpanded, financeExpanded, logisticsExpanded, crmExpanded, basicExpanded, systemExpanded;
 
     protected override void OnInitialized()
     {
@@ -58,8 +59,9 @@
         salesExpanded = path.Length == 0 || InSection(path, "/documents/orders", "/documents/sales", "/documents/services");
         financeExpanded = InSection(path, "/documents/payments");
         logisticsExpanded = InSection(path, "/documents/deliveries");
-        crmExpanded = InSection(path, "/documents/activities");
+        crmExpanded = InSection(path, "/crm", "/documents/activities");
         basicExpanded = InSection(path, "/basic");
+        systemExpanded = InSection(path, "/system");
     }
 
     private static bool InSection(string path, params string[] routes) =>

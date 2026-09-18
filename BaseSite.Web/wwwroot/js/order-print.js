@@ -1,29 +1,15 @@
-window.orderPrint = (() => {
-    const windows = new Map();
-
-    return {
-        reserve: () => {
-            const id = crypto.randomUUID();
-            const popup = window.open("about:blank", "_blank");
-            if (!popup) return null;
-            popup.document.write('<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>در حال آماده‌سازی</title></head><body style="font-family:Tahoma;padding:2rem">در حال آماده‌سازی نسخه چاپی…</body></html>');
-            popup.document.close();
-            windows.set(id, popup);
-            return id;
-        },
-        show: (id, html) => {
-            const popup = windows.get(id);
-            if (!popup || popup.closed) return false;
-            popup.document.open();
-            popup.document.write(html);
-            popup.document.close();
-            windows.delete(id);
-            return true;
-        },
-        close: id => {
-            const popup = windows.get(id);
-            if (popup && !popup.closed) popup.close();
-            windows.delete(id);
-        }
-    };
-})();
+window.orderPrint = {
+    syncSession: async ticket => {
+        const url = new URL("print/session", document.baseURI);
+        const tokenResponse = await fetch(url, { credentials: "same-origin", cache: "no-store" });
+        if (!tokenResponse.ok) throw new Error("آماده‌سازی نشست چاپ ناموفق بود.");
+        const { requestToken } = await tokenResponse.json();
+        const response = await fetch(url, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "X-CSRF-TOKEN": requestToken },
+            body: new URLSearchParams({ ticket: ticket ?? "" })
+        });
+        if (!response.ok) throw new Error("آماده‌سازی نشست چاپ ناموفق بود.");
+    }
+};

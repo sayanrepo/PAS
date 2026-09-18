@@ -1,0 +1,226 @@
+@page "/customers/new"
+@page "/customers/{Id:int}"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>@(Id == 0 ? "افزودن شخص جدید" : "ویرایش اطلاعات شخص") | پنتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <MudText Typo="Typo.h5">@(Id == 0 ? "افزودن شخص جدید" : "ویرایش اطلاعات شخص")</MudText>
+        <MudButton Href="/customers" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به اشخاص و سازمان‌ها</MudButton>
+    </div>
+
+    @if (loading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (!string.IsNullOrWhiteSpace(error) && person is null)
+    {
+        <MudAlert Severity="Severity.Error">@error</MudAlert>
+    }
+    else if (person is not null && lookups is not null)
+    {
+        @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+        @if (!string.IsNullOrWhiteSpace(success)) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+        @if (!CanSave) { <MudAlert Severity="Severity.Info" Class="mb-4">این پرونده فقط قابل مشاهده است.</MudAlert> }
+
+        <EditForm Model="person" OnSubmit="SaveAsync" FormName="person-organization">
+            <fieldset disabled="@(!CanSave || saving)" class="legacy-person-form">
+                <section class="legacy-panel legacy-panel-main">
+                    <h2>فرم اطلاعات شخص</h2>
+                    <div class="legacy-panel-body">
+                        <div class="legacy-main-columns">
+                            <div class="legacy-column">
+                                <label class="legacy-field"><span>نوع شخص</span><select @bind="person.PersonTypeId">@foreach (var item in lookups.PersonTypes) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                <label class="legacy-field"><span>نام</span><input maxlength="255" required lang="fa-IR" @bind="person.Name" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>نام خانوادگی</span><input maxlength="255" lang="fa-IR" @bind="person.LastName" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>شماره ملی/ثبت</span><input maxlength="15" dir="ltr" @bind="person.NationalNumber" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>شماره شناسنامه/اقتصادی</span><input maxlength="15" dir="ltr" @bind="person.EconomicalNumber" @bind:event="oninput" /></label>
+                                <label class="legacy-field legacy-field-textarea"><span>توضیحات</span><textarea rows="4" @bind="person.Comment" @bind:event="oninput"></textarea></label>
+                            </div>
+
+                            <div class="legacy-column">
+                                <label class="legacy-field"><span>تلفن ۱</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Phone1" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>تلفن ۲</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Phone2" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>موبایل ۱</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Mobile1" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>موبایل ۲</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Mobile2" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>فکس</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Fax" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>نحوه آشنایی</span><input required list="findout-ways" placeholder="انتخاب کن یا بنویس" @bind="person.FindoutWay" @bind:event="oninput" /></label>
+                                <datalist id="findout-ways">@foreach (var item in lookups.FindoutWays) { <option value="@item.Name"></option> }</datalist>
+                            </div>
+
+                            <div class="legacy-column legacy-account-free-column">
+                                <label class="legacy-field"><span>نوع همکاری</span><select @bind="person.PartnerTypeId">@foreach (var item in lookups.PartnerTypes) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                <label class="legacy-field"><span>بخش</span><select @bind="person.DepartmentId">@foreach (var item in DepartmentOptions) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                <label class="legacy-field"><span>ایمیل</span><input maxlength="255" type="email" dir="ltr" placeholder="لطفا ایمیل را وارد فرمائید" @bind="person.Email" @bind:event="oninput" /></label>
+                                <label class="legacy-field"><span>سایت</span><input maxlength="255" dir="ltr" placeholder="لطفا آدرس سایت را وارد فرمائید" @bind="person.Website" @bind:event="oninput" /></label>
+                            </div>
+                        </div>
+
+                        <section class="legacy-panel legacy-subpanel">
+                            <h3>افراد مرتبط</h3>
+                            <div class="legacy-panel-body legacy-related-grid">
+                                <div class="legacy-column">
+                                    <label class="legacy-field"><span>نام مدیر عامل</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible1" @bind:event="oninput" /></label>
+                                    <label class="legacy-field"><span>شماره تماس مدیرعامل</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone1" @bind:event="oninput" /></label>
+                                </div>
+                                <div class="legacy-column">
+                                    <label class="legacy-field"><span>نام مسئول سفارشات</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible2" @bind:event="oninput" /></label>
+                                    <label class="legacy-field"><span>شماره تماس سفارشات</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone2" @bind:event="oninput" /></label>
+                                </div>
+                                <div class="legacy-column">
+                                    <label class="legacy-field"><span>نام مسئول فنی</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible3" @bind:event="oninput" /></label>
+                                    <label class="legacy-field"><span>شماره تماس مسئول فنی</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone3" @bind:event="oninput" /></label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="legacy-address-grid">
+                            <section class="legacy-panel legacy-subpanel">
+                                <h3>آدرس منزل / دفتر مرکزی</h3>
+                                <div class="legacy-panel-body">
+                                    <div class="legacy-location-grid">
+                                        <label class="legacy-field"><span>کشور</span><select value="@homeCountryId" @onchange="HomeCountryChanged"><option value="">-انتخاب کشور-</option>@foreach (var item in lookups.Countries) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <label class="legacy-field"><span>استان</span><select value="@homeProvinceId" @onchange="HomeProvinceChanged" disabled="@(!homeCountryId.HasValue)"><option value="">-انتخاب استان-</option>@foreach (var item in HomeProvinces) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <label class="legacy-field"><span>شهر</span><select @bind="person.CityId1" disabled="@(!homeProvinceId.HasValue)"><option value="">-انتخاب شهر-</option>@foreach (var item in HomeCities) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                    </div>
+                                    <label class="legacy-field legacy-field-textarea"><span>آدرس</span><textarea rows="5" lang="fa-IR" @bind="person.Address1" @bind:event="oninput"></textarea></label>
+                                    <label class="legacy-field"><span>کدپستی</span><input maxlength="15" dir="ltr" @bind="person.PostalCode1" @bind:event="oninput" /></label>
+                                </div>
+                            </section>
+
+                            <section class="legacy-panel legacy-subpanel">
+                                <h3>آدرس محل کار / کارخانه</h3>
+                                <div class="legacy-panel-body">
+                                    <div class="legacy-location-grid">
+                                        <label class="legacy-field"><span>کشور</span><select value="@workCountryId" @onchange="WorkCountryChanged"><option value="">-انتخاب کشور-</option>@foreach (var item in lookups.Countries) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <label class="legacy-field"><span>استان</span><select value="@workProvinceId" @onchange="WorkProvinceChanged" disabled="@(!workCountryId.HasValue)"><option value="">-انتخاب استان-</option>@foreach (var item in WorkProvinces) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <label class="legacy-field"><span>شهر</span><select @bind="person.CityId2" disabled="@(!workProvinceId.HasValue)"><option value="">-انتخاب شهر-</option>@foreach (var item in WorkCities) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                    </div>
+                                    <label class="legacy-field legacy-field-textarea"><span>آدرس</span><textarea rows="5" lang="fa-IR" @bind="person.Address2" @bind:event="oninput"></textarea></label>
+                                    <label class="legacy-field"><span>کدپستی</span><input maxlength="15" dir="ltr" @bind="person.PostalCode2" @bind:event="oninput" /></label>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+            </fieldset>
+
+            @if (CanSave)
+            {
+                <div class="legacy-person-actions">
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Warning" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت اطلاعات")</MudButton>
+                </div>
+            }
+        </EditForm>
+    }
+</MudRTLProvider>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private PersonOrganizationDetails? person;
+    private PersonOrganizationLookups? lookups;
+    private bool loading = true, saving;
+    private string? error, success;
+    private int? loadedId, homeCountryId, homeProvinceId, workCountryId, workProvinceId;
+
+    private bool CanSave => Id == 0
+        ? Session.User?.Roles.Contains("Setting_Persons_Add") == true
+        : Session.User?.Roles.Contains("Setting_Persons_Edit") == true;
+    private IEnumerable<NamedLookup> HomeProvinces => homeCountryId.HasValue ? lookups!.Provinces.Where(x => x.ParentId == homeCountryId) : [];
+    private IEnumerable<NamedLookup> HomeCities => homeProvinceId.HasValue ? lookups!.Cities.Where(x => x.ParentId == homeProvinceId) : [];
+    private IEnumerable<NamedLookup> WorkProvinces => workCountryId.HasValue ? lookups!.Provinces.Where(x => x.ParentId == workCountryId) : [];
+    private IEnumerable<NamedLookup> WorkCities => workProvinceId.HasValue ? lookups!.Cities.Where(x => x.ParentId == workProvinceId) : [];
+    private IEnumerable<NamedLookup> DepartmentOptions
+    {
+        get
+        {
+            var result = new List<NamedLookup>();
+            if (Session.User?.Roles.Contains("Setting_Persons_Customer") == true) result.Add(new() { Id = 0, Name = "نامعلوم" });
+            if (Session.User?.Roles.Contains("Setting_Persons_Foroosh") == true) result.Add(new() { Id = 1, Name = "فروش" });
+            if (Session.User?.Roles.Contains("Setting_Persons_Tolid") == true) result.Add(new() { Id = 2, Name = "تولید" });
+            var current = person?.DepartmentId;
+            if (current.HasValue && result.All(x => x.Id != current.Value))
+                result.Add(new() { Id = current.Value, Name = DepartmentName(current.Value) });
+            if (result.Count == 0) result.Add(new() { Id = current ?? 0, Name = DepartmentName(current ?? 0) });
+            return result;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (loadedId != Id) await LoadAsync();
+        StateHasChanged();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        loading = true; error = success = null; loadedId = Id;
+        try
+        {
+            lookups = await Api.GetPersonOrganizationLookupsAsync() ?? throw new InvalidOperationException("اطلاعات پایه دریافت نشد.");
+            person = Id == 0 ? new PersonOrganizationDetails
+            {
+                PersonTypeId = (byte)(lookups.PersonTypes.FirstOrDefault()?.Id ?? 1),
+                PartnerTypeId = (byte)(lookups.PartnerTypes.FirstOrDefault()?.Id ?? 2),
+                DepartmentId = 0
+            } : await Api.GetPersonOrganizationAsync(Id) ?? throw new InvalidOperationException("شخص یا سازمان یافت نشد.");
+            InitializeAddressSelections();
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { loading = false; }
+    }
+
+    private void InitializeAddressSelections()
+    {
+        (homeCountryId, homeProvinceId) = ResolveLocation(person?.CityId1);
+        (workCountryId, workProvinceId) = ResolveLocation(person?.CityId2);
+    }
+
+    private (int? CountryId, int? ProvinceId) ResolveLocation(int? cityId)
+    {
+        if (!cityId.HasValue || lookups is null) return (null, null);
+        var provinceId = lookups.Cities.FirstOrDefault(x => x.Id == cityId.Value)?.ParentId;
+        var countryId = provinceId.HasValue ? lookups.Provinces.FirstOrDefault(x => x.Id == provinceId.Value)?.ParentId : null;
+        return (countryId, provinceId);
+    }
+
+    private void HomeCountryChanged(ChangeEventArgs args)
+    {
+        homeCountryId = ParseNullableInt(args.Value);
+        homeProvinceId = null;
+        if (person is not null) person.CityId1 = null;
+    }
+    private void HomeProvinceChanged(ChangeEventArgs args) { homeProvinceId = ParseNullableInt(args.Value); if (person is not null) person.CityId1 = null; }
+    private void WorkCountryChanged(ChangeEventArgs args)
+    {
+        workCountryId = ParseNullableInt(args.Value);
+        workProvinceId = null;
+        if (person is not null) person.CityId2 = null;
+    }
+    private void WorkProvinceChanged(ChangeEventArgs args) { workProvinceId = ParseNullableInt(args.Value); if (person is not null) person.CityId2 = null; }
+    private static int? ParseNullableInt(object? value) => int.TryParse(value?.ToString(), out var parsed) ? parsed : null;
+    private static string DepartmentName(int id) => id switch { 1 => "فروش", 2 => "تولید", _ => "نامعلوم" };
+
+    private async Task SaveAsync()
+    {
+        if (person is null || saving || !CanSave) return;
+        error = success = null;
+        if (string.IsNullOrWhiteSpace(person.Name)) { error = "نام را وارد کنید."; return; }
+        if (string.IsNullOrWhiteSpace(person.FindoutWay)) { error = "نحوه آشنایی را وارد کنید."; return; }
+        try
+        {
+            saving = true;
+            var saved = await Api.SavePersonOrganizationAsync(Id, person.ToSaveRequest());
+            if (Id == 0) { Navigation.NavigateTo($"/customers/{saved.Id}"); return; }
+            person = saved; InitializeAddressSelections(); success = "اطلاعات ثبت شد.";
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+}

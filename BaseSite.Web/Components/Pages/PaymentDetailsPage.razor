@@ -1,127 +1,195 @@
-@page "/documents/payments/{Id:int}"
 @page "/documents/payments/new"
+@page "/documents/payments/{Id:int}"
+@page "/documents/payments/{Id:int}/edit"
 @using System.ComponentModel.DataAnnotations
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
 
-<PageTitle>@Title | پنتا</PageTitle>
+<PageTitle>سند دریافتی | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
+<div class="payment-detail">
     <div class="page-heading">
-        <MudText Typo="Typo.h5">@Title @payment?.Summary.DocumentNumber</MudText>
+        <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد سند دریافتی" : $"سند دریافتی {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/payments" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به اسناد دریافتی</MudButton>
     </div>
+    @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
     @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
-    @if (loading) { <MudProgressLinear Indeterminate="true" /> }
-    else if (Id == 0 && canAdd)
+    @if (success is not null) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+    @if (!loading && editor is not null)
     {
-        <EditForm Model="model" OnSubmit="Save">
-            <MudPaper Class="filter-panel" Elevation="0">
-                <MudGrid>
-                    <MudItem xs="12" md="6"><MudAutocomplete T="OrderLookup" Label="مشتری" @bind-Value="customer" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? "")" Clearable="true" Variant="Variant.Outlined" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ProjectName" Label="نام پروژه" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
-                    <MudItem xs="12" md="6"><MudSelect T="byte?" @bind-Value="model.PaymentTypeId" Label="نحوه وصول" Variant="Variant.Outlined">
-                        @foreach (var item in lookups.Types) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
-                    </MudSelect></MudItem>
-                    <MudItem xs="12" md="6"><MudSelect T="byte?" @bind-Value="model.BabatId" Label="بابت" Variant="Variant.Outlined">
-                        @foreach (var item in lookups.Babats) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
-                    </MudSelect></MudItem>
-                    <MudItem xs="12" md="6"><PersianDateFilter @bind-Value="documentDate" Label="تاریخ سند" /></MudItem>
-                    <MudItem xs="12" md="6"><PersianDateFilter @bind-Value="dueDate" Label="تاریخ سررسید" /></MudItem>
-                    <MudItem xs="12" md="6"><MudSelect T="short?" @bind-Value="model.BankId" Label="نام بانک" Clearable="true" Variant="Variant.Outlined">
-                        @foreach (var item in lookups.Banks) { <MudSelectItem T="short?" Value="@((short?)item.Id)">@item.Name</MudSelectItem> }
-                    </MudSelect></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.BankBranchCode" Label="کد شعبه" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ReferenceNumber" Label="شماره چک / حواله" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.AccountNumber" Label="شماره حساب" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
-                    <MudItem xs="12" md="6"><MudNumericField @bind-Value="model.Amount" Label="مبلغ (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-                    <MudItem xs="12" md="6"><MudCheckBox @bind-Value="model.Returned" Label="برگشتی" /></MudItem>
-                    <MudItem xs="12"><MudTextField @bind-Value="model.Comment" Label="توضیحات" Lines="3" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
-                </MudGrid>
-                <MudText Class="mt-4" Typo="Typo.body2">سند جدید با وضعیت «تأیید نشده» ثبت می‌شود.</MudText>
-                <MudButton ButtonType="ButtonType.Submit" Disabled="saving" Variant="Variant.Filled" Color="Color.Primary" Class="mt-4" StartIcon="@Icons.Material.Filled.Save">ثبت سند دریافتی</MudButton>
-            </MudPaper>
-        </EditForm>
+        @if (Id > 0)
+        {
+            <div class="payment-toolbar">
+                <nav class="payment-tabs" aria-label="بخش‌های سند دریافتی">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" @onclick="() => SelectTab(0)">سند دریافتی</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" @onclick="() => SelectTab(1)">یادداشت ها @if (activity?.Comments.Count > 0) { <span class="payment-tab-count">@activity.Comments.Count</span> }</button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" @onclick="() => SelectTab(2)">تاریخچه فعالیتها</button>
+                </nav>
+                @if (CanPrint)
+                {
+                    <div class="payment-print-actions">
+                        <MudTooltip Text="چاپ نسخه حسابداری"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ نسخه حسابداری" aria-label="چاپ نسخه حسابداری" Href="@($"/print/payments/{Id}/accounting")" Target="_blank" rel="noopener" /></MudTooltip>
+                        <MudTooltip Text="چاپ نسخه مشتری"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ نسخه مشتری" aria-label="چاپ نسخه مشتری" Href="@($"/print/payments/{Id}/customer")" Target="_blank" rel="noopener" /></MudTooltip>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="@(activeTab == 0 ? null : "payment-tab-hidden")">
+            @if (Id > 0 && ReadOnly) { <MudAlert Severity="Severity.Info" Class="mb-4">این سند دریافتی در مرحله فعلی فقط قابل مشاهده است.</MudAlert> }
+            <EditForm Model="editor.Form" OnSubmit="SaveNewAsync" FormName="payment">
+                <fieldset disabled="@(ReadOnly || saving)" class="payment-form">
+                    <section class="payment-section">
+                        <h2 class="payment-section-title">سند دریافتی</h2>
+                        <div class="payment-section-body">
+                            <div class="payment-fields payment-top-fields">
+                                <label class="payment-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                                <div class="payment-field payment-customer"><span>مشتری</span><MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" /></div>
+                                <label class="payment-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                            </div>
+                            <div class="payment-columns">
+                                <div class="payment-fields">
+                                    <label class="payment-field"><span>نحوه وصول</span><select @bind="form.PaymentTypeId"><option value="">انتخاب کنید</option>@foreach (var option in editor.Lookups.Types) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                    <label class="payment-field"><span>بابت</span><select @bind="form.BabatId"><option value="">انتخاب کنید</option>@foreach (var option in editor.Lookups.Babats) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                    <label class="payment-field"><span>تاریخ سند</span><input dir="ltr" @bind="documentDate" @bind:event="oninput" /></label>
+                                    <label class="payment-field"><span>سررسید</span><input dir="ltr" @bind="dueDate" @bind:event="oninput" /></label>
+                                    <label class="payment-field"><span>مبلغ</span><input dir="ltr" type="number" min="1" step="any" @bind="form.Amount" /></label>
+                                </div>
+                                <div class="payment-fields">
+                                    <label class="payment-field"><span>بانک</span><select @bind="form.BankId"><option value="">بدون بانک</option>@foreach (var option in editor.Lookups.Banks) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                    <label class="payment-field"><span>کد شعبه</span><input dir="ltr" maxlength="50" @bind="form.BankBranchCode" @bind:event="oninput" /></label>
+                                    <label class="payment-field"><span>شماره حساب</span><input dir="ltr" maxlength="50" @bind="form.AccountNumber" @bind:event="oninput" /></label>
+                                    <label class="payment-field"><span>شماره چک/حواله</span><input dir="ltr" maxlength="50" @bind="form.ReferenceNumber" @bind:event="oninput" /></label>
+                                    <label class="payment-field"><span>شناسه صیاد</span><input dir="ltr" maxlength="50" @bind="form.ProjectName" @bind:event="oninput" /></label>
+                                </div>
+                                <div class="payment-fields payment-description-fields">
+                                    <label class="payment-field payment-description"><span>توضیحات</span><textarea maxlength="255" @bind="form.Comment" @bind:event="oninput"></textarea></label>
+                                    <label class="payment-returned"><input type="checkbox" @bind="form.Returned" /><span>برگشتی</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </fieldset>
+                @if (Id == 0)
+                {
+                    <div class="payment-action-bar"><MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت")</MudButton></div>
+                }
+            </EditForm>
+            @if (Id > 0 && HasStageActions)
+            {
+                <div class="payment-action-bar">
+                    @if (editor.CanSalesConfirm) { <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="saving" OnClick="@(() => RunActionAsync("sales-confirm"))">تأیید واحد فروش</MudButton> }
+                    @if (editor.CanFinancialConfirm) { <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="saving" OnClick="@(() => RunActionAsync("finance-confirm"))">تأیید واحد مالی</MudButton> }
+                    @if (editor.CanFinancialReject) { <MudButton Variant="Variant.Filled" Color="Color.Warning" Disabled="saving" OnClick="@(() => RunActionAsync("finance-reject"))">برگشت به واحد فروش</MudButton> }
+                    @if (editor.CanDelete) { <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="saving" OnClick="@(() => showDelete = true)">حذف سند</MudButton> }
+                    @if (editor.CanEdit) { <MudButton Disabled="saving" OnClick="ReloadAsync">بازنشانی تغییرات</MudButton> }
+                </div>
+            }
+        </div>
+
+        @if (Id > 0 && activeTab == 1)
+        {
+            <section class="payment-tab-panel">
+                <div class="payment-comment-editor"><label for="payment-comment">یادداشت جدید</label><textarea id="payment-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.Comments.Count is null or 0) { <div class="payment-tab-empty">یادداشتی برای این سند دریافتی ثبت نشده است.</div> }
+                else { <div class="payment-comments">@foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt)) { <article class="payment-comment"><header><strong>@comment.Owner</strong><time>@FormatDateTime(comment.CreatedAt)</time></header><p>@comment.Comment</p></article> }</div> }
+            </section>
+        }
+        @if (Id > 0 && activeTab == 2)
+        {
+            <section class="payment-tab-panel">
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.History.Count is null or 0) { <div class="payment-tab-empty">فعالیتی برای این سند دریافتی ثبت نشده است.</div> }
+                else
+                {
+                    <div class="payment-history-table"><table><thead><tr><th class="payment-history-index">ردیف</th><th>زمان</th><th>کاربر</th><th>دسته</th><th>شماره سند</th><th>فعالیت</th><th class="payment-history-description">توضیحات</th>@if (CanViewHistoryDetail) { <th class="payment-history-actions">جزئیات</th> }</tr></thead><tbody>
+                    @for (var index = 0; index < activity.History.Count; index++) { var item = activity.History[index]; <tr><td class="payment-history-index">@(index + 1)</td><td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td class="payment-history-description">@item.Description</td>@if (CanViewHistoryDetail) { <td class="payment-history-actions"><MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Color="Color.Primary" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistory = item)" /></td> }</tr> }
+                    </tbody></table></div>
+                    @if (selectedHistory is not null) { <div class="payment-modal-backdrop" @onclick="() => selectedHistory = null"><section class="payment-modal" role="dialog" aria-modal="true" @onclick:stopPropagation="true"><header><button type="button" @onclick="() => selectedHistory = null">×</button><h3>جزئیات فعالیت</h3></header><div class="payment-modal-body"><dl class="payment-history-details"><div><dt>زمان</dt><dd>@FormatDateTimeWithSeconds(selectedHistory.EventTime)</dd></div><div><dt>کاربر</dt><dd>@ValueOrDash(selectedHistory.User)</dd></div><div><dt>آدرس IP</dt><dd dir="ltr">@ValueOrDash(selectedHistory.IpAddress)</dd></div><div><dt>دسته</dt><dd>@ValueOrDash(selectedHistory.Category)</dd></div><div><dt>شماره سند</dt><dd>@selectedHistory.DocumentNumber</dd></div><div><dt>فعالیت</dt><dd>@ValueOrDash(selectedHistory.Activity)</dd></div><div><dt>مبلغ کل پس از فعالیت</dt><dd>@(selectedHistory.Amount?.ToString("N0") ?? "—")</dd></div><div class="payment-history-detail-description"><dt>شرح</dt><dd>@ValueOrDash(selectedHistory.Description)</dd></div></dl></div></section></div> }
+                }
+            </section>
+        }
     }
-    else if (payment is not null)
+
+    @if (showDelete)
     {
-        <MudPaper Class="filter-panel" Elevation="0">
-            <dl class="order-specs">
-                <div><dt>شماره سند</dt><dd>@payment.Summary.DocumentNumber</dd></div>
-                <div><dt>ثبت کننده</dt><dd>@payment.Summary.Receiver</dd></div>
-                <div><dt>مشتری</dt><dd>@payment.Summary.Customer</dd></div>
-                <div><dt>نام پروژه</dt><dd>@payment.ProjectName</dd></div>
-                <div><dt>نحوه وصول</dt><dd>@payment.Summary.PaymentType</dd></div>
-                <div><dt>بابت</dt><dd>@payment.Summary.Babat</dd></div>
-                <div><dt>تاریخ سند</dt><dd>@PersianDates.Format(payment.Summary.DocumentDate)</dd></div>
-                <div><dt>تاریخ سررسید</dt><dd>@PersianDates.Format(payment.Summary.DueDate)</dd></div>
-                <div><dt>نام بانک</dt><dd>@payment.Summary.Bank</dd></div>
-                <div><dt>کد شعبه</dt><dd>@payment.BankBranchCode</dd></div>
-                <div><dt>شماره چک / حواله</dt><dd>@payment.ReferenceNumber</dd></div>
-                <div><dt>شماره حساب</dt><dd>@payment.AccountNumber</dd></div>
-                <div><dt>مبلغ (ریال)</dt><dd>@payment.Summary.Amount.ToString("N0")</dd></div>
-                <div><dt>وضعیت</dt><dd>@payment.Summary.Status</dd></div>
-                <div><dt>برگشتی</dt><dd>@(payment.Returned ? "بله" : "خیر")</dd></div>
-                <div><dt>توضیحات</dt><dd>@payment.Comment</dd></div>
-            </dl>
-        </MudPaper>
+        <div class="payment-modal-backdrop" @onclick="() => showDelete = false"><section class="payment-modal payment-delete-modal" role="dialog" aria-modal="true" @onclick:stopPropagation="true"><header><button type="button" @onclick="() => showDelete = false">×</button><h3>حذف سند دریافتی</h3></header><div class="payment-modal-body"><p>آیا از حذف سند دریافتی مطمئن هستید؟</p><div class="payment-action-bar"><MudButton OnClick="@(() => showDelete = false)" Disabled="saving">بستن</MudButton><MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => RunActionAsync("delete"))" Disabled="saving">حذف</MudButton></div></div></section></div>
     }
+</div>
 </MudRTLProvider>
+
 @code {
     [Parameter] public int Id { get; set; }
-    private string Title => Id == 0 ? "افزودن سند دریافتی" : "جزئیات سند دریافتی";
-    private NewPaymentRequest model = new();
-    private PaymentDetail? payment;
-    private PaymentLookups lookups = new();
-    private OrderLookup? customer;
-    private string? documentDate, dueDate, error;
-    private bool loading = true, saving, canAdd;
-    private int? loadedId;
-    public override Task SetParametersAsync(ParameterView parameters) {
-        if (!parameters.TryGetValue<int>(nameof(Id), out _)) Id = 0;
-        return base.SetParametersAsync(parameters);
-    }
-    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await Load(); }
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (!firstRender) return;
-        await Session.InitializeAsync();
-        if (loadedId != Id) await Load();
-        StateHasChanged();
-    }
-    private async Task Load() {
+    private PaymentEditor? editor; private PaymentForm form => editor!.Form;
+    private OrderLookup? customer; private OrderActivity? activity; private OrderHistoryItem? selectedHistory;
+    private string? documentDate, dueDate, customerText, error, success, activityError, newComment;
+    private bool loading = true, saving, activityLoading, savingComment, showDelete; private int activeTab; private int? loadedId;
+    private bool ReadOnly => editor?.CanEdit != true;
+    private bool HasStageActions => editor is not null && (editor.CanSalesConfirm || editor.CanFinancialConfirm || editor.CanFinancialReject || editor.CanDelete);
+    private bool CanPrint => Session.User?.Roles.Contains("Payment_Print") == true;
+    private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
+
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (!firstRender) return; await Session.InitializeAsync(); if (loadedId != Id) await LoadAsync(); StateHasChanged(); }
+    private async Task ReloadAsync() { success = null; await LoadAsync(); }
+    private async Task LoadAsync()
+    {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
-        loading = true; loadedId = Id; payment = null; error = null;
-        canAdd = Session.User?.Roles.Contains("Payment_Add") == true;
-        try {
-            if (Id == 0) {
-                if (!canAdd) throw new InvalidOperationException("شما دسترسی افزودن سند دریافتی را ندارید.");
-                model = new(); customer = null;
-                documentDate = dueDate = PersianDates.Format(DateTime.Today);
-                lookups = await Api.GetPaymentLookupsAsync() ?? new();
-                if (lookups.Babats.Any(x => x.Id == 14)) model.BabatId = 14;
-            } else payment = await Api.GetPaymentAsync(Id);
-            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
-        } catch (Exception ex) { error = ex.Message; }
+        loading = true; editor = null; error = success = activityError = null; activity = null; selectedHistory = null; showDelete = false; loadedId = Id; activeTab = 0;
+        try
+        {
+            editor = await Api.GetPaymentEditorAsync(Id) ?? throw new InvalidOperationException("سند دریافتی یافت نشد.");
+            customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
+            customerText = customer?.Name;
+            documentDate = PersianDates.Format(form.DocumentDate);
+            dueDate = PersianDates.Format(form.DueDate);
+            if (Id > 0) await LoadActivityAsync();
+        }
+        catch (Exception ex) { error = ex.Message; }
         finally { loading = false; }
     }
-    private async Task<IEnumerable<OrderLookup>> FindCustomers(string text, CancellationToken token) {
-        try { return await Api.FindPaymentCustomersAsync(text ?? "", token) ?? []; }
-        catch (OperationCanceledException) { return []; }
-        catch (Exception ex) { error = ex.Message; return []; }
+    private async Task LoadActivityAsync() { activityLoading = true; try { activity = await Api.GetPaymentActivityAsync(Id) ?? new(); } catch (Exception ex) { activityError = ex.Message; } finally { activityLoading = false; } }
+    private async Task AddCommentAsync() { if (Id <= 0 || savingComment || string.IsNullOrWhiteSpace(newComment)) return; savingComment = true; try { var saved = await Api.AddPaymentCommentAsync(Id, newComment); activity ??= new(); activity.Comments.Add(saved); newComment = null; } catch (Exception ex) { activityError = ex.Message; } finally { savingComment = false; } }
+    private void SelectTab(int tab) { activeTab = tab; if (tab != 2) selectedHistory = null; }
+    private void CustomerChanged(OrderLookup? value) { customer = value; form.CustomerId = value?.Id ?? 0; }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token) { try { return await Api.FindPaymentEditorCustomersAsync(term ?? "", token) ?? []; } catch (OperationCanceledException) { return []; } catch (Exception ex) { error = ex.Message; return []; } }
+
+    private void PrepareForm()
+    {
+        if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) throw new InvalidOperationException("مشتری معتبر انتخاب کنید.");
+        form.DocumentDate = PersianDates.Parse(documentDate, "تاریخ سند");
+        form.DueDate = PersianDates.Parse(dueDate, "تاریخ سررسید");
+        var validation = new List<ValidationResult>();
+        if (!Validator.TryValidateObject(form, new ValidationContext(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست.");
     }
-    private async Task Save() {
-        if (saving || !canAdd) return;
-        saving = true; error = null;
-        try {
-            model.CustomerId = customer?.Id ?? 0;
-            model.DocumentDate = PersianDates.Parse(documentDate, "تاریخ سند");
-            model.DueDate = PersianDates.Parse(dueDate, "تاریخ سررسید");
-            var errors = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(model, new ValidationContext(model), errors, true)) throw new InvalidOperationException(string.Join(" ", errors.Select(x => x.ErrorMessage)));
-            var result = await Api.CreatePaymentAsync(model);
-            if (Session.User?.Roles.Contains("Payment_Detail") == true) Navigation.NavigateTo($"/documents/payments/{result.Id}");
-            else Navigation.NavigateTo("/documents/payments");
-        } catch (Exception ex) { error = ex.Message; }
+    private async Task SaveNewAsync()
+    {
+        if (Id != 0 || saving || editor?.CanEdit != true) return;
+        saving = true; error = success = null;
+        try { PrepareForm(); var saved = await Api.SavePaymentAsync(form); Navigation.NavigateTo($"/documents/payments/{saved.Id}"); }
+        catch (Exception ex) { error = ex.Message; }
         finally { saving = false; }
     }
+    private async Task RunActionAsync(string action)
+    {
+        if (Id <= 0 || saving || editor is null) return;
+        saving = true; error = success = null;
+        try
+        {
+            if (action != "delete") PrepareForm();
+            await Api.TransitionPaymentAsync(Id, new PaymentTransitionRequest { Action = action, ExpectedStatusId = form.StatusId, Form = action == "delete" ? null : form });
+            if (action == "delete") { Navigation.NavigateTo("/documents/payments"); return; }
+            var message = action switch { "sales-confirm" => "سند توسط واحد فروش تأیید شد.", "finance-confirm" => "سند توسط واحد مالی تأیید شد.", _ => "سند به واحد فروش برگشت داده شد." };
+            await LoadAsync(); success = message;
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; showDelete = false; }
+    }
+    private static string FormatDateTime(DateTime? value) => value.HasValue ? $"{PersianDates.Format(value)} {value:HH:mm}" : "—";
+    private static string FormatDateTimeWithSeconds(DateTime? value) => value.HasValue ? $"{PersianDates.Format(value)} {value:HH:mm:ss}" : "—";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
 }

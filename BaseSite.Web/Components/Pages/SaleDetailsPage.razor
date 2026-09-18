@@ -1,86 +1,199 @@
+@page "/documents/sales/new"
 @page "/documents/sales/{Id:int}"
+@page "/documents/sales/{Id:int}/edit"
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
 
-<PageTitle>جزئیات فروش کالا | پنتا</PageTitle>
+<PageTitle>فروش کالا | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
+<div class="sale-detail">
     <div class="page-heading">
-        <MudText Typo="Typo.h5">جزئیات فروش کالا @sale?.Summary.DocumentNumber</MudText>
+        <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد فروش کالا" : $"فروش کالا {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/sales" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به فروش کالا</MudButton>
     </div>
-    @if (loading) { <MudProgressLinear Indeterminate="true" /> }
-    else if (error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
-    else if (sale is not null)
+    @if (loading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
+    @if (error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
+    @if (success is not null) { <MudAlert Severity="Severity.Success" Class="mb-4">@success</MudAlert> }
+    @if (!loading && editor is not null)
     {
-        <MudPaper Class="filter-panel" Elevation="0">
-            <dl class="order-specs">
-                <div><dt>شماره سند</dt><dd>@sale.Summary.DocumentNumber</dd></div>
-                <div><dt>شماره فاکتور</dt><dd>@sale.Summary.FactorNumber</dd></div>
-                <div><dt>مشتری</dt><dd>@sale.Summary.Customer</dd></div>
-                <div><dt>سفارش گیرنده</dt><dd>@sale.Summary.Receiver</dd></div>
-                <div><dt>سفارش دهنده</dt><dd>@sale.ClienteleName</dd></div>
-                <div><dt>تاریخ سفارش</dt><dd>@PersianDates.Format(sale.Summary.OrderDate)</dd></div>
-                <div><dt>تاریخ تحویل</dt><dd>@PersianDates.Format(sale.Summary.FactorDate)</dd></div>
-                <div><dt>وضعیت فاکتور</dt><dd>@sale.Summary.Status</dd></div>
-                <div><dt>نوع معامله</dt><dd>@sale.Summary.TradeType</dd></div>
-                <div><dt>مرجوعی</dt><dd>@(sale.Summary.GiveBack ? "بله" : "خیر")</dd></div>
-                <div><dt>محل ارسال</dt><dd>@sale.DeliveryAddress</dd></div>
-                <div><dt>توضیحات</dt><dd>@sale.Comment</dd></div>
-            </dl>
-        </MudPaper>
-        <MudPaper Class="table-panel mt-4" Elevation="0">
-            <MudText Typo="Typo.h6" Class="pa-4">اقلام فروش کالا</MudText>
-            <MudSimpleTable Dense="true" Bordered="true" Striped="true">
-                <thead><tr><th>ردیف</th><th>شرح کالا</th><th>تعداد</th><th>قیمت واحد (ریال)</th><th>مبلغ (ریال)</th><th>توضیحات</th><th>توضیحات تحویل</th></tr></thead>
-                <tbody>
-                    @for (var i = 0; i < sale.Items.Count; i++)
+        @if (Id > 0)
+        {
+            <div class="sale-toolbar">
+                <nav class="sale-tabs" aria-label="بخش‌های فروش کالا">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" @onclick="() => SelectTab(0)">فروش کالا</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" @onclick="() => SelectTab(1)">یادداشت ها @if (activity?.Comments.Count > 0) { <span class="sale-tab-count">@activity.Comments.Count</span> }</button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" @onclick="() => SelectTab(2)">تاریخچه فعالیتها</button>
+                </nav>
+                @if (CanPrint)
+                {
+                    <div class="sale-print-actions" aria-label="چاپ فروش کالا">
+                        <MudTooltip Text="چاپ صورتحساب فروش"><MudIconButton Icon="@Icons.Material.Filled.ReceiptLong" Color="Color.Primary" title="چاپ صورتحساب فروش" aria-label="چاپ صورتحساب فروش" Href="@($"/print/sales/{Id}/bill")" Target="_blank" rel="noopener" /></MudTooltip>
+                        <MudTooltip Text="چاپ فاکتور"><MudIconButton Icon="@Icons.Material.Filled.RequestQuote" Color="Color.Primary" title="چاپ فاکتور" aria-label="چاپ فاکتور" Href="@($"/print/sales/{Id}/invoice")" Target="_blank" rel="noopener" /></MudTooltip>
+                    </div>
+                }
+            </div>
+        }
+        <div class="@(activeTab == 0 ? null : "sale-tab-hidden")">
+            @if (ReadOnly) { <MudAlert Severity="Severity.Info" Class="mb-4">این فروش کالا فقط قابل مشاهده است.</MudAlert> }
+            <EditForm Model="editor.Form" OnSubmit="SaveAsync" FormName="sale">
+                <fieldset disabled="@(ReadOnly || saving)" class="sale-form" aria-label="فرم فروش کالا">
+                    <section class="sale-section sale-main">
+                        <h2 class="sale-section-title">فروش کالا</h2>
+                        <div class="sale-section-body">
+                            <div class="sale-fields sale-top-fields">
+                                <label class="sale-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                                <label class="sale-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                <label class="sale-field"><span>نوع معامله</span><select @bind="form.TradeTypeId">@foreach (var option in editor.TradeTypes) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <label class="sale-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
+                                <label class="sale-field"><span>تاریخ تحویل</span><input dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
+                                <label class="sale-field sale-return"><span>مرجوعی</span><input type="checkbox" @bind="form.GiveBack" /></label>
+                            </div>
+                            <div class="sale-fields sale-totals">
+                                <SaleValue Label="کالاها" Value="@form.Subtotal.ToString("N0")" />
+                                <label class="sale-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" /></label>
+                                <label class="sale-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" /></label>
+                                <SaleValue Label="مبلغ عوارض" Value="@form.TaxTotal.ToString("N0")" />
+                                <label class="sale-field"><span>تخفیف</span><input type="number" min="0" step="any" @bind="form.Discount" /></label>
+                                <SaleValue Label="جمع کل" Value="@form.Total.ToString("N0")" Class="sale-grand-total" />
+                            </div>
+                            <div class="sale-fields sale-customer-fields">
+                                <div class="sale-field sale-customer"><span>مشتری</span>
+                                    <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText"
+                                        SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)"
+                                        Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" />
+                                </div>
+                                <label class="sale-field"><span>سفارش دهنده</span><input maxlength="50" @bind="form.ClienteleName" @bind:event="oninput" /></label>
+                                <label class="sale-field sale-address"><span>محل ارسال</span><input maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput" /></label>
+                                <label class="sale-field sale-full"><span>توضیحات</span><input maxlength="255" @bind="form.Comment" @bind:event="oninput" /></label>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="sale-section">
+                        <header class="sale-section-title sale-items-title">
+                            @if (!ReadOnly) { <button type="button" title="افزودن کالا" aria-label="افزودن کالا" @onclick="AddItem">＋</button> }
+                            <h2>کالاها</h2><span></span>
+                        </header>
+                        <div class="sale-items-table">
+                            <table>
+                                <thead><tr><th>نوع کالا</th><th class="sale-name-column">شرح کالا</th><th>تعداد</th><th>فی</th><th>جمع</th><th class="sale-comment-column">توضیحات</th>@if (!ReadOnly) { <th>حذف</th> }</tr></thead>
+                                <tbody>
+                                    @foreach (var item in form.Items)
+                                    {
+                                        <tr @key="item">
+                                            <td><select @bind="item.TypeId">@foreach (var option in editor.GoodsTypes) { <option value="@option.Id">@option.Name</option> }</select></td>
+                                            <td><input maxlength="100" @bind="item.Name" @bind:event="oninput" /></td>
+                                            <td><input type="number" min="1" @bind="item.Count" /></td>
+                                            <td><input type="number" min="0" step="any" @bind="item.UnitPrice" /></td>
+                                            <td class="sale-amount">@item.Amount.ToString("N0")</td>
+                                            <td><input maxlength="255" @bind="item.Comment" @bind:event="oninput" /></td>
+                                            @if (!ReadOnly) { <td><button class="sale-remove" type="button" title="حذف کالا" @onclick="() => RemoveItem(item)">×</button></td> }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </fieldset>
+                @if (!ReadOnly)
+                {
+                    <div class="sale-save-actions">
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت")</MudButton>
+                        <MudButton OnClick="ReloadAsync" Disabled="saving">بازنشانی تغییرات</MudButton>
+                    </div>
+                }
+            </EditForm>
+        </div>
+        @if (Id > 0 && activeTab == 1)
+        {
+            <section class="sale-tab-panel">
+                <div class="sale-comment-editor"><label for="sale-comment">یادداشت جدید</label><textarea id="sale-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.Comments.Count is null or 0) { <div class="sale-tab-empty">یادداشتی برای این فروش کالا ثبت نشده است.</div> }
+                else { <div class="sale-comments">@foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt)) { <article class="sale-comment"><header><strong>@comment.Owner</strong><time>@FormatDateTime(comment.CreatedAt)</time></header><p>@comment.Comment</p></article> }</div> }
+            </section>
+        }
+        @if (Id > 0 && activeTab == 2)
+        {
+            <section class="sale-tab-panel">
+                @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
+                else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
+                else if (activity?.History.Count is null or 0) { <div class="sale-tab-empty">فعالیتی برای این فروش کالا ثبت نشده است.</div> }
+                else
+                {
+                    <div class="sale-history-table"><table><thead><tr><th class="sale-history-index">ردیف</th><th>زمان</th><th>کاربر</th><th>دسته</th><th>شماره سند</th><th>فعالیت</th><th class="sale-history-description">توضیحات</th>@if (CanViewHistoryDetail) { <th class="sale-history-actions">جزئیات</th> }</tr></thead><tbody>
+                    @for (var index = 0; index < activity.History.Count; index++) { var item = activity.History[index]; <tr><td class="sale-history-index">@(index + 1)</td><td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td class="sale-history-description">@item.Description</td>@if (CanViewHistoryDetail) { <td class="sale-history-actions"><MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Color="Color.Primary" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistory = item)" /></td> }</tr> }
+                    </tbody></table></div>
+                    @if (selectedHistory is not null)
                     {
-                        var item = sale.Items[i];
-                        <tr><td>@(i + 1)</td><td>@item.Name</td><td>@item.Count</td><td>@item.UnitPrice.ToString("N0")</td><td>@item.Amount.ToString("N0")</td><td>@item.Comment</td><td>@item.DeliveryComment</td></tr>
+                        <div class="sale-history-modal-backdrop" @onclick="() => selectedHistory = null"><section class="sale-history-modal" role="dialog" aria-modal="true" @onclick:stopPropagation="true"><header><button type="button" @onclick="() => selectedHistory = null">×</button><h3>جزئیات فعالیت</h3></header><div class="sale-history-modal-body"><dl class="sale-history-details"><div><dt>زمان</dt><dd>@FormatDateTimeWithSeconds(selectedHistory.EventTime)</dd></div><div><dt>کاربر</dt><dd>@ValueOrDash(selectedHistory.User)</dd></div><div><dt>آدرس IP</dt><dd dir="ltr">@ValueOrDash(selectedHistory.IpAddress)</dd></div><div><dt>دسته</dt><dd>@ValueOrDash(selectedHistory.Category)</dd></div><div><dt>شماره سند</dt><dd>@selectedHistory.DocumentNumber</dd></div><div><dt>فعالیت</dt><dd>@ValueOrDash(selectedHistory.Activity)</dd></div><div><dt>مبلغ کل پس از فعالیت</dt><dd>@(selectedHistory.Amount?.ToString("N0") ?? "—")</dd></div><div class="sale-history-detail-description"><dt>شرح</dt><dd>@ValueOrDash(selectedHistory.Description)</dd></div></dl></div></section></div>
                     }
-                    @if (sale.Items.Count == 0) { <tr><td colspan="7">کالایی ثبت نشده است.</td></tr> }
-                </tbody>
-            </MudSimpleTable>
-        </MudPaper>
-        <MudPaper Class="filter-panel mt-4" Elevation="0">
-            <dl class="order-specs">
-                <div><dt>جمع اقلام (ریال)</dt><dd>@sale.Items.Sum(x => x.Amount).ToString("N0")</dd></div>
-                <div><dt>کرایه حمل (ریال)</dt><dd>@sale.DeliveryCost.ToString("N0")</dd></div>
-                <div><dt>عوارض (درصد)</dt><dd>@sale.TaxPercent</dd></div>
-                <div><dt>تخفیف (ریال)</dt><dd>@sale.Discount.ToString("N0")</dd></div>
-                <div><dt>مبلغ کل فاکتور (ریال)</dt><dd>@sale.Summary.Amount.ToString("N0")</dd></div>
-            </dl>
-        </MudPaper>
+                }
+            </section>
+        }
     }
+</div>
 </MudRTLProvider>
 
 @code {
     [Parameter] public int Id { get; set; }
-    private SaleDetail? sale;
-    private bool loading = true;
-    private string? error;
+    private SaleEditor? editor;
+    private SaleForm form => editor!.Form;
+    private OrderLookup? customer;
+    private OrderActivity? activity;
+    private OrderHistoryItem? selectedHistory;
+    private string? factorDate, customerText, error, success, activityError, newComment;
+    private bool loading = true, saving, activityLoading, savingComment;
+    private int activeTab;
     private int? loadedId;
-    protected override async Task OnParametersSetAsync()
-    {
-        if (Session.IsInitialized && loadedId != Id) await LoadAsync();
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        await Session.InitializeAsync();
-        if (loadedId != Id) await LoadAsync();
-        StateHasChanged();
-    }
+    private bool ReadOnly => editor?.CanEdit != true || !SaleForm.IsEditable(form.StatusId);
+    private bool CanPrint => Session.User?.Roles.Contains("Sale_Print") == true;
+    private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
+
+    protected override async Task OnParametersSetAsync() { if (Session.IsInitialized && loadedId != Id) await LoadAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (!firstRender) return; await Session.InitializeAsync(); if (loadedId != Id) await LoadAsync(); StateHasChanged(); }
+    private async Task ReloadAsync() { success = null; await LoadAsync(); }
     private async Task LoadAsync()
     {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
-        loading = true; sale = null; error = null; loadedId = Id;
-        try {
-            sale = await Api.GetSaleAsync(Id);
-            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+        loading = true; editor = null; error = success = activityError = null; activity = null; selectedHistory = null; loadedId = Id; activeTab = 0;
+        try
+        {
+            editor = await Api.GetSaleEditorAsync(Id) ?? throw new InvalidOperationException("فروش کالا یافت نشد.");
+            customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
+            customerText = customer?.Name; factorDate = PersianDates.Format(form.FactorDate);
+            if (Id > 0) await LoadActivityAsync();
         }
         catch (Exception ex) { error = ex.Message; }
         finally { loading = false; }
     }
+    private async Task LoadActivityAsync() { activityLoading = true; try { activity = await Api.GetSaleActivityAsync(Id) ?? new(); } catch (Exception ex) { activityError = ex.Message; } finally { activityLoading = false; } }
+    private async Task AddCommentAsync() { if (Id <= 0 || savingComment || string.IsNullOrWhiteSpace(newComment)) return; savingComment = true; try { var saved = await Api.AddSaleCommentAsync(Id, newComment); activity ??= new(); activity.Comments.Add(saved); newComment = null; } catch (Exception ex) { activityError = ex.Message; } finally { savingComment = false; } }
+    private void SelectTab(int tab) { activeTab = tab; if (tab != 2) selectedHistory = null; }
+    private void CustomerChanged(OrderLookup? value) { customer = value; form.CustomerId = value?.Id ?? 0; }
+    private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token) { try { return await Api.FindSaleEditorCustomersAsync(term ?? "", token) ?? []; } catch (OperationCanceledException) { return []; } catch (Exception ex) { error = ex.Message; return []; } }
+    private void AddItem() { if (!ReadOnly) form.Items.Add(new() { TypeId = 1, Count = 1 }); }
+    private void RemoveItem(SaleItemForm item) { if (!ReadOnly && form.Items.Count > 1) form.Items.Remove(item); }
+    private async Task SaveAsync()
+    {
+        if (ReadOnly || saving) return; error = success = null;
+        if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
+        try
+        {
+            form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل");
+            var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+            if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(form, new(form), validation, true) || form.Items.Any(x => !System.ComponentModel.DataAnnotations.Validator.TryValidateObject(x, new(x), validation, true)))
+                throw new InvalidOperationException("مقادیر فرم معتبر نیست. شرح، تعداد و مبلغ کالاها را بررسی کنید.");
+            if (form.Discount > form.Subtotal) throw new InvalidOperationException("تخفیف از مبلغ اقلام بیشتر است.");
+            saving = true; var saved = await Api.SaveSaleAsync(Id, form);
+            if (Id == 0) Navigation.NavigateTo($"/documents/sales/{saved.Id}"); else await LoadAsync();
+            success = "فروش کالا ثبت شد.";
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { saving = false; }
+    }
+    private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";
+    private static string FormatDateTimeWithSeconds(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm:ss}";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
 }

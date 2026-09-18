@@ -4,7 +4,6 @@
 @inject ApiSession Session
 @inject BaseSiteApiClient Api
 @inject NavigationManager Navigation
-@inject IJSRuntime JS
 <PageTitle>سفارش | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
 <div class="order-detail">
@@ -21,22 +20,22 @@
         {
             <div class="order-toolbar">
                 <nav class="order-tabs" aria-label="بخش‌های سفارش">
-                    <button type="button" class="@(activeTab == 0 ? "active" : null)" aria-current="@(activeTab == 0 ? "page" : null)" @onclick="() => activeTab = 0">سفارش</button>
-                    <button type="button" class="@(activeTab == 1 ? "active" : null)" aria-current="@(activeTab == 1 ? "page" : null)" @onclick="() => activeTab = 1">
+                    <button type="button" class="@(activeTab == 0 ? "active" : null)" aria-current="@(activeTab == 0 ? "page" : null)" @onclick="() => SelectTab(0)">سفارش</button>
+                    <button type="button" class="@(activeTab == 1 ? "active" : null)" aria-current="@(activeTab == 1 ? "page" : null)" @onclick="() => SelectTab(1)">
                         یادداشت ها
                         @if (activity?.Comments.Count > 0) { <span class="order-tab-count">@activity.Comments.Count</span> }
                     </button>
-                    <button type="button" class="@(activeTab == 2 ? "active" : null)" aria-current="@(activeTab == 2 ? "page" : null)" @onclick="() => activeTab = 2">تاریخچه فعالیتها</button>
+                    <button type="button" class="@(activeTab == 2 ? "active" : null)" aria-current="@(activeTab == 2 ? "page" : null)" @onclick="() => SelectTab(2)">تاریخچه فعالیتها</button>
                 </nav>
                 <div class="order-print-actions" aria-label="چاپ سفارش">
                     @if (CanPrintSpecification)
                     {
-                        <MudTooltip Text="چاپ کارت مشخصات سفارش"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ کارت مشخصات سفارش" aria-label="چاپ کارت مشخصات سفارش" OnClick='@(() => PrintAsync("specification"))' Disabled="printing" /></MudTooltip>
+                        <MudTooltip Text="چاپ کارت مشخصات سفارش"><MudIconButton Icon="@Icons.Material.Filled.Print" Color="Color.Primary" title="چاپ کارت مشخصات سفارش" aria-label="چاپ کارت مشخصات سفارش" Href="@($"/print/orders/{Id}/specification")" Target="_blank" rel="noopener" /></MudTooltip>
                     }
                     @if (CanPrintOrder)
                     {
-                        <MudTooltip Text="چاپ صورتحساب فروش"><MudIconButton Icon="@Icons.Material.Filled.ReceiptLong" Color="Color.Primary" title="چاپ صورتحساب فروش" aria-label="چاپ صورتحساب فروش" OnClick='@(() => PrintAsync("bill"))' Disabled="printing" /></MudTooltip>
-                        <MudTooltip Text="چاپ فاکتور"><MudIconButton Icon="@Icons.Material.Filled.RequestQuote" Color="Color.Primary" title="چاپ فاکتور" aria-label="چاپ فاکتور" OnClick='@(() => PrintAsync("invoice"))' Disabled="printing" /></MudTooltip>
+                        <MudTooltip Text="چاپ صورتحساب فروش"><MudIconButton Icon="@Icons.Material.Filled.ReceiptLong" Color="Color.Primary" title="چاپ صورتحساب فروش" aria-label="چاپ صورتحساب فروش" Href="@($"/print/orders/{Id}/bill")" Target="_blank" rel="noopener" /></MudTooltip>
+                        <MudTooltip Text="چاپ فاکتور"><MudIconButton Icon="@Icons.Material.Filled.RequestQuote" Color="Color.Primary" title="چاپ فاکتور" aria-label="چاپ فاکتور" Href="@($"/print/orders/{Id}/invoice")" Target="_blank" rel="noopener" /></MudTooltip>
                     }
                 </div>
             </div>
@@ -194,22 +193,43 @@
                 {
                     <div class="order-history-table">
                         <table>
-                            <thead><tr><th>زمان</th><th>کاربر</th><th>دسته‌بندی</th><th>شماره سند</th><th>فعالیت</th><th>توضیحات</th>@if (CanViewHistoryDetail) { <th>جزئیات</th> }</tr></thead>
+                            <thead><tr><th class="order-history-index">ردیف</th><th>زمان</th><th>کاربر</th><th>دسته‌بندی</th><th>شماره سند</th><th>فعالیت</th><th class="order-history-description">توضیحات</th>@if (CanViewHistoryDetail) { <th class="order-history-actions">جزئیات</th> }</tr></thead>
                             <tbody>
-                                @foreach (var item in activity.History)
+                                @for (var index = 0; index < activity.History.Count; index++)
                                 {
+                                    var item = activity.History[index];
                                     <tr @key="item.Id">
-                                        <td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td>@item.Description</td>
-                                        @if (CanViewHistoryDetail) { <td><MudIconButton Icon="@Icons.Material.Filled.Info" Size="Size.Small" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => selectedHistoryId = selectedHistoryId == item.Id ? null : item.Id)" /></td> }
+                                        <td class="order-history-index">@(index + 1)</td><td>@FormatDateTime(item.EventTime)</td><td>@item.User</td><td>@item.Category</td><td>@item.DocumentNumber</td><td>@item.Activity</td><td class="order-history-description">@item.Description</td>
+                                        @if (CanViewHistoryDetail) { <td class="order-history-actions"><MudIconButton Icon="@Icons.Material.Filled.List" Size="Size.Small" Color="Color.Primary" title="جزئیات فعالیت" aria-label="جزئیات فعالیت" OnClick="@(() => OpenHistoryDetails(item))" /></td> }
                                     </tr>
-                                    @if (CanViewHistoryDetail && selectedHistoryId == item.Id)
-                                    {
-                                        <tr class="order-history-detail"><td colspan="7"><span>آدرس IP: @(string.IsNullOrWhiteSpace(item.IpAddress) ? "—" : item.IpAddress)</span><span>مبلغ: @(item.Amount?.ToString("N0") ?? "—")</span></td></tr>
-                                    }
                                 }
                             </tbody>
                         </table>
                     </div>
+                    @if (selectedHistory is not null)
+                    {
+                        <div class="order-history-modal-backdrop" role="presentation" @onclick="CloseHistoryDetails">
+                            <section class="order-history-modal" role="dialog" aria-modal="true" aria-labelledby="order-history-modal-title" @onclick:stopPropagation="true">
+                                <header>
+                                    <button type="button" class="order-history-modal-close" title="بستن" aria-label="بستن" @onclick="CloseHistoryDetails">×</button>
+                                    <h3 id="order-history-modal-title">جزئیات فعالیت</h3>
+                                </header>
+                                <div class="order-history-modal-body">
+                                    <dl class="order-history-details">
+                                        <div><dt>زمان</dt><dd dir="ltr">@FormatDateTimeWithSeconds(selectedHistory.EventTime)</dd></div>
+                                        <div class="order-history-detail-spacer" aria-hidden="true"></div>
+                                        <div><dt>کاربر</dt><dd>@ValueOrDash(selectedHistory.User)</dd></div>
+                                        <div><dt>آدرس IP</dt><dd dir="ltr">@ValueOrDash(selectedHistory.IpAddress)</dd></div>
+                                        <div><dt>دسته</dt><dd>@ValueOrDash(selectedHistory.Category)</dd></div>
+                                        <div><dt>شماره سند</dt><dd>@selectedHistory.DocumentNumber</dd></div>
+                                        <div><dt>فعالیت</dt><dd>@ValueOrDash(selectedHistory.Activity)</dd></div>
+                                        <div><dt>مبلغ کل پس از فعالیت</dt><dd>@(selectedHistory.Amount?.ToString("N0") ?? "—")</dd></div>
+                                        <div class="order-history-detail-description"><dt>شرح</dt><dd>@ValueOrDash(selectedHistory.Description)</dd></div>
+                                    </dl>
+                                </div>
+                            </section>
+                        </div>
+                    }
                 }
             </section>
         }
@@ -223,9 +243,9 @@
     private OrderLookup? customer;
     private OrderActivity? activity;
     private string? factorDate, customerText, error, success, activityError, newComment;
-    private bool loading = true, saving, activityLoading, savingComment, printing;
+    private bool loading = true, saving, activityLoading, savingComment;
     private int activeTab;
-    private long? selectedHistoryId;
+    private OrderHistoryItem? selectedHistory;
     private int? loadedId;
     private bool ReadOnly => editor?.CanEdit != true || !OrderForm.IsEditable(form.StatusId);
     private bool CanPrintSpecification => Session.User?.Roles.Contains("Plan_Print") == true;
@@ -246,7 +266,7 @@
     private async Task LoadAsync()
     {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
-        loading = true; editor = null; error = null; activity = null; activityError = null; loadedId = Id; activeTab = 0;
+        loading = true; editor = null; error = null; activity = null; activityError = null; selectedHistory = null; loadedId = Id; activeTab = 0;
         try
         {
             editor = await Api.GetOrderEditorAsync(Id) ?? throw new InvalidOperationException("سفارش یافت نشد.");
@@ -283,22 +303,12 @@
         catch (Exception ex) { activityError = ex.Message; }
         finally { savingComment = false; }
     }
-    private async Task PrintAsync(string kind)
-    {
-        if (Id <= 0 || printing) return;
-        error = null;
-        var popupId = await JS.InvokeAsync<string?>("orderPrint.reserve");
-        if (string.IsNullOrWhiteSpace(popupId)) { error = "مرورگر پنجره چاپ را مسدود کرد. اجازه باز شدن پنجره جدید را فعال کنید."; return; }
-        printing = true;
-        try
-        {
-            var html = await Api.GetOrderPrintAsync(Id, kind);
-            if (!await JS.InvokeAsync<bool>("orderPrint.show", popupId, html)) error = "پنجره چاپ بسته شده است.";
-        }
-        catch (Exception ex) { await JS.InvokeVoidAsync("orderPrint.close", popupId); error = ex.Message; }
-        finally { printing = false; }
-    }
     private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";
+    private static string FormatDateTimeWithSeconds(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm:ss}";
+    private static string ValueOrDash(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    private void SelectTab(int tab) { activeTab = tab; if (tab != 2) selectedHistory = null; }
+    private void OpenHistoryDetails(OrderHistoryItem item) => selectedHistory = item;
+    private void CloseHistoryDetails() => selectedHistory = null;
     private void CustomerChanged(OrderLookup? value) { customer = value; form.CustomerId = value?.Id ?? 0; }
     private async Task<IEnumerable<OrderLookup>> FindCustomers(string term, CancellationToken token)
     {

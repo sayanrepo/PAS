@@ -1,0 +1,149 @@
+@page "/system/users"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>کاربران و دسترسی‌ها | پنتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.h5">کاربران و دسترسی‌ها</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">اشخاص دارای حساب ورود و نقش دسترسی</MudText>
+        </div>
+        @if (ready && CanManage)
+        {
+            <MudButton Href="/system/users/new" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd">افزودن کاربر</MudButton>
+        }
+    </div>
+
+    @if (ready)
+    {
+        <MudPaper Class="filter-panel system-user-filters" Elevation="0">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="3">
+                    <MudTextField Immediate="true" @bind-Value="term" Label="نام فرد/شرکت" Clearable="true"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudSelect T="int?" @bind-Value="roleId" Label="مسئولیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Roles) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Statuses) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="3">
+                    <MudSelect T="byte?" @bind-Value="departmentId" Label="بخش" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Departments) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            <div class="d-flex justify-center gap-3 mt-4">
+                <MudButton OnClick="SearchAsync" Disabled="loading" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">جستجو</MudButton>
+                <MudButton OnClick="ResetAsync" Disabled="loading" Variant="Variant.Text">پاک کردن فیلترها</MudButton>
+            </div>
+        </MudPaper>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert> }
+
+    @if (ready)
+    {
+        <MudPaper Class="table-panel orders-table system-users-table mt-4" Elevation="0">
+            <MudTable T="SystemUserSummary" @ref="table" ServerData="LoadUsersAsync" Dense="true" Hover="true" Bordered="true" Striped="true" RowsPerPage="20" Breakpoint="Breakpoint.None">
+                <HeaderContent>
+                    <MudTh>ردیف</MudTh>
+                    <MudTh>نام</MudTh>
+                    <MudTh>نوع شخص</MudTh>
+                    <MudTh>نوع همکاری</MudTh>
+                    <MudTh>وضعیت</MudTh>
+                    <MudTh>جزئیات</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="ردیف">@context.RowNumber</MudTd>
+                    <MudTd DataLabel="نام">@context.FullName</MudTd>
+                    <MudTd DataLabel="نوع شخص">@context.PersonType</MudTd>
+                    <MudTd DataLabel="نوع همکاری">@context.PartnerType</MudTd>
+                    <MudTd DataLabel="وضعیت">@context.Status</MudTd>
+                    <MudTd DataLabel="جزئیات">
+                        <MudIconButton Href="@($"/system/users/{context.PersonId}")" Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Primary" Size="Size.Small"
+                                       Disabled="@(!CanManage)" aria-label="@($"تنظیم حساب و دسترسی {context.FullName}")" title="تنظیم حساب و دسترسی" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent><MudText Class="pa-5">کاربری یافت نشد.</MudText></NoRecordsContent>
+                <LoadingContent><MudText Class="pa-5">در حال دریافت کاربران…</MudText></LoadingContent>
+                <PagerContent><MudTablePager PageSizeOptions="@(new[] { 20, 50, 100 })" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+            </MudTable>
+        </MudPaper>
+    }
+    else
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+</MudRTLProvider>
+
+@code {
+    private MudTable<SystemUserSummary>? table;
+    private SystemUserLookups lookups = new();
+    private SystemUserSearch applied = new();
+    private string? term, error;
+    private int? roleId;
+    private byte? statusId, departmentId;
+    private bool ready, loading;
+    private bool CanManage => Session.User?.Roles.Contains("Setting_Persons_AssignAccess") == true
+        && Session.User.Roles.Contains("Setting_Persons_AssignUserName");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        try { lookups = await Api.GetSystemUserLookupsAsync() ?? new(); }
+        catch (Exception ex) { error = ex.Message; }
+        ready = true;
+        StateHasChanged();
+    }
+
+    private async Task SearchAsync()
+    {
+        error = null;
+        applied = new SystemUserSearch
+        {
+            Term = term,
+            RoleId = roleId,
+            StatusId = statusId,
+            DepartmentId = departmentId
+        };
+        if (table is not null)
+        {
+            if (table.CurrentPage != 0) table.NavigateTo(0);
+            else await table.ReloadServerData();
+        }
+    }
+
+    private async Task ResetAsync()
+    {
+        term = null;
+        roleId = null;
+        statusId = departmentId = null;
+        await SearchAsync();
+    }
+
+    private async Task<TableData<SystemUserSummary>> LoadUsersAsync(TableState state, CancellationToken token)
+    {
+        loading = true;
+        try
+        {
+            applied.Page = state.Page;
+            applied.PageSize = state.PageSize;
+            var result = await Api.GetSystemUsersAsync(applied, token);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+            return new() { Items = result?.Items ?? [], TotalItems = result?.TotalCount ?? 0 };
+        }
+        catch (OperationCanceledException) { return new() { Items = [], TotalItems = 0 }; }
+        catch (Exception ex) { error = ex.Message; return new() { Items = [], TotalItems = 0 }; }
+        finally { loading = false; }
+    }
+}

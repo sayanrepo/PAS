@@ -1,0 +1,27 @@
+@{
+    var kind = ViewData["PrintKind"] as string;
+    var title = ViewData["Title"] as string;
+    if (string.IsNullOrWhiteSpace(title)) title = "فاکتور سفارش";
+    var style = kind == "bill" ? "PrintBill.css" : "PrintPA4.css";
+}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title</title>
+    <link href="~/Contents/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/Contents/css/bootstrap-rtl.css" rel="stylesheet" />
+    <link href="~/Contents/css/MyStyle/@style" rel="stylesheet" />
+    <link href="~/css/order-print.css" rel="stylesheet" />
+</head>
+<body data-print-kind="@kind">
+    <nav class="print-toolbar" aria-label="چاپ سند">
+        <button type="button" onclick="window.print()">چاپ / ذخیره PDF</button>
+    </nav>
+    @RenderBody()
+    <script src="~/Contents/js/jquery-3.1.1.js"></script>
+    <script src="~/Contents/js/autoNumeric.js"></script>
+    <script src="~/js/print-document.js"></script>
+</body>
+</html>

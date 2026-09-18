@@ -88,3 +88,46 @@ public sealed class NewPaymentRequest {
  [StringLength(255)] public string? Comment { get; set; }
  public bool Returned { get; set; }
 }
+
+public sealed class PaymentEditor
+{
+    public PaymentForm Form { get; set; } = new();
+    public PaymentDetail Detail { get; set; } = new();
+    public PaymentLookups Lookups { get; set; } = new();
+    public bool CanEdit { get; set; }
+    public bool CanSalesConfirm { get; set; }
+    public bool CanFinancialConfirm { get; set; }
+    public bool CanFinancialReject { get; set; }
+    public bool CanDelete { get; set; }
+}
+
+public sealed class PaymentForm
+{
+    [Range(1, int.MaxValue, ErrorMessage = "مشتری را انتخاب کنید.")]
+    public int CustomerId { get; set; }
+    [Required(ErrorMessage = "نحوه وصول را انتخاب کنید.")]
+    public byte? PaymentTypeId { get; set; }
+    [Required(ErrorMessage = "بابت را انتخاب کنید.")]
+    public byte? BabatId { get; set; }
+    public short? BankId { get; set; }
+    [Required(ErrorMessage = "تاریخ سند را وارد کنید.")]
+    public DateTime? DocumentDate { get; set; }
+    [Required(ErrorMessage = "تاریخ سررسید را وارد کنید.")]
+    public DateTime? DueDate { get; set; }
+    [Range(1, 100000000000000d, ErrorMessage = "مبلغ باید بزرگ‌تر از صفر باشد.")]
+    public double Amount { get; set; }
+    [StringLength(50)] public string? ProjectName { get; set; }
+    [StringLength(50)] public string? BankBranchCode { get; set; }
+    [StringLength(50)] public string? ReferenceNumber { get; set; }
+    [StringLength(50)] public string? AccountNumber { get; set; }
+    [StringLength(255)] public string? Comment { get; set; }
+    public bool Returned { get; set; }
+    public byte StatusId { get; set; } = 1;
+}
+
+public sealed class PaymentTransitionRequest
+{
+    [Required, MaxLength(32)] public string Action { get; set; } = "";
+    public byte ExpectedStatusId { get; set; }
+    public PaymentForm? Form { get; set; }
+}

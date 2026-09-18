@@ -42,7 +42,7 @@ var profileImage = Path.GetFullPath("BaseSite.Web/wwwroot/Images/System/profile.
 Check(ProfileImageStore.GetExtension(await File.ReadAllBytesAsync(profileImage)) == "png", "Existing profile image is supported");
 
 var js = new StorageJs();
-var session = new ApiSession(new ProtectedLocalStorage(js, new EphemeralDataProtectionProvider()));
+var session = new ApiSession(new ProtectedLocalStorage(js, new EphemeralDataProtectionProvider()), js, new PrintSessionCookie(new EphemeralDataProtectionProvider()));
 await session.SignInAsync(new LoginResponse { AccessToken = "test-token", ExpiresAt = DateTimeOffset.UtcNow.AddHours(1), User = new CurrentUser { Id = 17 } });
 var handler = new ResponseHandler();
 var api = new BaseSiteApiClient(new HttpClient(handler) { BaseAddress = new Uri("http://account-test.invalid/") }, session);
@@ -61,9 +61,9 @@ await session.SignInAsync(response);
 Check(session.User!.UserName == "renamed" && session.User.ImagePath == "17_test.png", "Updated identity and avatar replace the active session");
 // SignIn persists encrypted storage; the same storage/provider also survives a new session instance.
 var provider = new EphemeralDataProtectionProvider();
-var persistedSession = new ApiSession(new ProtectedLocalStorage(js, provider));
+var persistedSession = new ApiSession(new ProtectedLocalStorage(js, provider), js, new PrintSessionCookie(provider));
 await persistedSession.SignInAsync(response);
-var restored = new ApiSession(new ProtectedLocalStorage(js, provider));
+var restored = new ApiSession(new ProtectedLocalStorage(js, provider), js, new PrintSessionCookie(provider));
 await restored.InitializeAsync();
 Check(restored.User?.ImagePath == "17_test.png" && restored.User.UserName == "renamed", "Avatar and username survive session restoration");
 handler.Status = HttpStatusCode.Unauthorized;

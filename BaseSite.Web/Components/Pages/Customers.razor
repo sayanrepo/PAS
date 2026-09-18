@@ -4,73 +4,186 @@
 @inject NavigationManager Navigation
 
 <PageTitle>اشخاص و سازمان‌ها | پنتا</PageTitle>
-
-<div class="page-heading">
-    <div>
-        <MudText Typo="Typo.h4">اشخاص و سازمان‌ها</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">دفتر اطلاعات تماس و وضعیت اشخاص و سازمان‌ها</MudText>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.h5">اشخاص و سازمان‌ها</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">دفتر اطلاعات هویتی و تماس اشخاص و سازمان‌ها</MudText>
+        </div>
+        @if (ready && CanAdd)
+        {
+            <MudButton Href="/customers/new" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">افزودن</MudButton>
+        }
     </div>
-</div>
 
-<MudPaper Class="filter-panel" Elevation="0">
-    <div class="customer-search">
-        <MudTextField T="string" @bind-Value="term" Label="نام، نام خانوادگی یا موبایل" Variant="Variant.Outlined"
-                      Clearable="true" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="LoadAsync">جست‌وجو</MudButton>
-    </div>
-</MudPaper>
+    @if (ready && CanSearch)
+    {
+        <MudPaper Class="filter-panel people-filters" Elevation="0">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="4">
+                    <MudTextField Immediate="true" @bind-Value="term" Label="نام فرد/شرکت، مدیرعامل و ..." Clearable="true"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="byte?" @bind-Value="partnerTypeId" Label="نوع همکاری" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.PartnerTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" Value="countryId" ValueChanged="CountryChanged" Label="کشور" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Countries) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" Value="provinceId" ValueChanged="ProvinceChanged" Label="استان" Clearable="true" Disabled="@(!countryId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in AvailableProvinces) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" @bind-Value="cityId" Label="شهر" Clearable="true" Disabled="@(!provinceId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in AvailableCities) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            <div class="d-flex justify-center gap-3 mt-4">
+                <MudButton OnClick="SearchAsync" Disabled="loading" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">جستجو</MudButton>
+                <MudButton OnClick="ResetAsync" Disabled="loading" Variant="Variant.Text">پاک کردن فیلترها</MudButton>
+            </div>
+        </MudPaper>
+    }
 
-@if (!string.IsNullOrWhiteSpace(error))
-{
-    <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert>
-}
+    @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert> }
 
-<MudPaper Class="table-panel mt-4" Elevation="0">
-    <MudTable T="CustomerSummary" Items="items" Loading="loading" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm">
-        <HeaderContent>
-            <MudTh>نام</MudTh><MudTh>موبایل</MudTh><MudTh>تلفن</MudTh><MudTh>شهر</MudTh><MudTh>وضعیت</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="نام"><b>@context.FullName</b></MudTd>
-            <MudTd DataLabel="موبایل">@context.Mobile</MudTd>
-            <MudTd DataLabel="تلفن">@context.Phone</MudTd>
-            <MudTd DataLabel="شهر">@context.City</MudTd>
-            <MudTd DataLabel="وضعیت"><MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">@context.Status</MudChip></MudTd>
-        </RowTemplate>
-        <NoRecordsContent><div class="empty-state"><MudIcon Icon="@Icons.Material.Filled.PersonSearch" Size="Size.Large" /><span>موردی یافت نشد.</span></div></NoRecordsContent>
-        <PagerContent><MudTablePager RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
-    </MudTable>
-</MudPaper>
+    @if (ready && CanRead)
+    {
+        <MudPaper Class="table-panel orders-table people-table mt-4" Elevation="0">
+            <MudTable T="PersonOrganizationSummary" @ref="table" ServerData="LoadPeopleAsync" Dense="true" Hover="true" Bordered="true" Striped="true" RowsPerPage="20" Breakpoint="Breakpoint.None">
+                <HeaderContent>
+                    <MudTh>ردیف</MudTh>
+                    <MudTh>نام</MudTh>
+                    <MudTh>نوع شخص</MudTh>
+                    <MudTh>مدیر عامل</MudTh>
+                    <MudTh>نوع همکاری</MudTh>
+                    <MudTh>تلفن</MudTh>
+                    <MudTh>شهر</MudTh>
+                    <MudTh>ایجادکننده</MudTh>
+                    <MudTh>زمان ایجاد</MudTh>
+                    <MudTh>وضعیت</MudTh>
+                    <MudTh>جزئیات</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="ردیف">@context.RowNumber</MudTd>
+                    <MudTd DataLabel="نام">@context.FullName</MudTd>
+                    <MudTd DataLabel="نوع شخص">@context.PersonType</MudTd>
+                    <MudTd DataLabel="مدیر عامل">@context.Responsible</MudTd>
+                    <MudTd DataLabel="نوع همکاری">@context.PartnerType</MudTd>
+                    <MudTd DataLabel="تلفن"><span dir="ltr">@context.Phone</span></MudTd>
+                    <MudTd DataLabel="شهر">@context.City</MudTd>
+                    <MudTd DataLabel="ایجادکننده">@context.Registrar</MudTd>
+                    <MudTd DataLabel="زمان ایجاد"><span dir="ltr">@PersianDates.Format(context.RegistrationDate)</span></MudTd>
+                    <MudTd DataLabel="وضعیت">@context.Status</MudTd>
+                    <MudTd DataLabel="جزئیات">
+                        <MudIconButton Icon="@Icons.Material.Filled.FormatListBulleted" Color="Color.Primary" Size="Size.Small" Disabled="@(!CanDetail)"
+                                       Href="@($"/customers/{context.Id}")" aria-label="@($"جزئیات {context.FullName}")" title="جزئیات" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent><MudText Class="pa-5">شخص یا سازمانی یافت نشد.</MudText></NoRecordsContent>
+                <LoadingContent><MudText Class="pa-5">در حال دریافت اشخاص و سازمان‌ها…</MudText></LoadingContent>
+                <PagerContent><MudTablePager PageSizeOptions="@(new[] { 20, 50, 100 })" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+            </MudTable>
+        </MudPaper>
+    }
+    else if (!ready)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+</MudRTLProvider>
 
 @code {
-    private List<CustomerSummary> items = [];
-    private string? term;
-    private bool loading = true;
-    private string? error;
+    private MudTable<PersonOrganizationSummary>? table;
+    private PersonOrganizationLookups lookups = new();
+    private PersonOrganizationSearch applied = new();
+    private string? term, error;
+    private byte? partnerTypeId;
+    private int? countryId, provinceId, cityId;
+    private bool ready, loading;
+
+    private bool CanRead => Session.User?.Roles.Contains("Setting_Persons") == true;
+    private bool CanSearch => Session.User?.Roles.Contains("Setting_Persons_Search") == true;
+    private bool CanDetail => Session.User?.Roles.Contains("Setting_Persons_Detail") == true;
+    private bool CanAdd => Session.User?.Roles.Contains("Setting_Persons_Add") == true;
+    private IEnumerable<NamedLookup> AvailableProvinces => countryId.HasValue
+        ? lookups.Provinces.Where(x => x.ParentId == countryId.Value) : [];
+    private IEnumerable<NamedLookup> AvailableCities => provinceId.HasValue
+        ? lookups.Cities.Where(x => x.ParentId == provinceId.Value) : [];
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
         await Session.InitializeAsync();
-        if (!Session.IsAuthenticated)
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        try
         {
-            Navigation.NavigateTo("/login");
-            return;
+            if (!CanRead) error = "شما دسترسی مشاهده اشخاص و سازمان‌ها را ندارید.";
+            else if (CanSearch) lookups = await Api.GetPersonOrganizationLookupsAsync() ?? new();
         }
-        await LoadAsync();
+        catch (Exception ex) { error = ex.Message; }
+        ready = true;
         StateHasChanged();
     }
 
-    private async Task LoadAsync()
+    private void CountryChanged(int? value)
+    {
+        countryId = value;
+        provinceId = null;
+        cityId = null;
+    }
+
+    private void ProvinceChanged(int? value)
+    {
+        provinceId = value;
+        cityId = null;
+    }
+
+    private async Task SearchAsync()
+    {
+        error = null;
+        applied = new PersonOrganizationSearch
+        {
+            Term = term,
+            PartnerTypeId = partnerTypeId,
+            CountryId = countryId,
+            ProvinceId = provinceId,
+            CityId = cityId
+        };
+        if (table is not null)
+        {
+            if (table.CurrentPage != 0) table.NavigateTo(0);
+            else await table.ReloadServerData();
+        }
+    }
+
+    private async Task ResetAsync()
+    {
+        term = null;
+        partnerTypeId = null;
+        countryId = provinceId = cityId = null;
+        await SearchAsync();
+    }
+
+    private async Task<TableData<PersonOrganizationSummary>> LoadPeopleAsync(TableState state, CancellationToken token)
     {
         loading = true;
-        error = null;
         try
         {
-            items = await Api.GetCustomersAsync(term) ?? [];
+            applied.Page = state.Page;
+            applied.PageSize = state.PageSize;
+            var result = await Api.GetCustomersAsync(applied, token);
             if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+            return new() { Items = result?.Items ?? [], TotalItems = result?.TotalCount ?? 0 };
         }
-        catch (Exception ex) { error = ex.Message; }
+        catch (OperationCanceledException) { return new() { Items = [], TotalItems = 0 }; }
+        catch (Exception ex) { error = ex.Message; return new() { Items = [], TotalItems = 0 }; }
         finally { loading = false; }
     }
 }

@@ -1,0 +1,6 @@
+.print-toolbar { padding: 12px; text-align: center; font-family: Tahoma, sans-serif; }
+.print-toolbar button { padding: 8px 20px; cursor: pointer; }
+@media print {
+    .print-toolbar { display: none !important; }
+    body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

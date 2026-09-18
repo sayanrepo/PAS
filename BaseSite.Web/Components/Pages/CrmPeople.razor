@@ -1,0 +1,179 @@
+@page "/crm/people"
+@inject ApiSession Session
+@inject BaseSiteApiClient Api
+@inject NavigationManager Navigation
+
+<PageTitle>پرونده مشتریان | پنتا</PageTitle>
+<MudRTLProvider RightToLeft="true">
+    <div class="page-heading">
+        <div>
+            <MudText Typo="Typo.h5">پرونده مشتریان</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">یادداشت‌ها و تاریخچه سفارش‌های اشخاص و سازمان‌ها</MudText>
+        </div>
+    </div>
+
+    @if (ready)
+    {
+        <MudPaper Class="filter-panel crm-people-filters" Elevation="0">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" md="4">
+                    <MudTextField Immediate="true" @bind-Value="term" Label="نام فرد/شرکت، مدیرعامل و ..." Clearable="true"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="byte?" @bind-Value="partnerTypeId" Label="نوع همکاری" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.PartnerTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" Value="countryId" ValueChanged="CountryChanged" Label="کشور" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in lookups.Countries) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" Value="provinceId" ValueChanged="ProvinceChanged" Label="استان" Clearable="true" Disabled="@(!countryId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in AvailableProvinces) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" md="4">
+                    <MudSelect T="int?" @bind-Value="cityId" Label="شهر" Clearable="true" Disabled="@(!provinceId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var item in AvailableCities) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            <div class="d-flex justify-center gap-3 mt-4">
+                <MudButton OnClick="SearchAsync" Disabled="loading" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">جستجو</MudButton>
+                <MudButton OnClick="ResetAsync" Disabled="loading" Variant="Variant.Text">پاک کردن فیلترها</MudButton>
+            </div>
+        </MudPaper>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(error)) { <MudAlert Severity="Severity.Error" Class="my-4">@error</MudAlert> }
+
+    @if (ready)
+    {
+        <MudPaper Class="table-panel orders-table crm-people-table mt-4" Elevation="0">
+            <MudTable T="CrmPersonSummary" @ref="table" ServerData="LoadPeopleAsync" Dense="true" Hover="true" Bordered="true" Striped="true" RowsPerPage="20" Breakpoint="Breakpoint.None">
+                <HeaderContent>
+                    <MudTh>ردیف</MudTh>
+                    <MudTh>نام</MudTh>
+                    <MudTh>نوع شخص</MudTh>
+                    <MudTh>مدیر عامل</MudTh>
+                    <MudTh>نوع همکاری</MudTh>
+                    <MudTh>تلفن</MudTh>
+                    <MudTh>شهر</MudTh>
+                    <MudTh>ایجادکننده</MudTh>
+                    <MudTh>زمان ایجاد</MudTh>
+                    <MudTh>یادداشت‌ها</MudTh>
+                    <MudTh>سفارش‌ها</MudTh>
+                    <MudTh>جزئیات</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="ردیف">@context.RowNumber</MudTd>
+                    <MudTd DataLabel="نام">@context.FullName</MudTd>
+                    <MudTd DataLabel="نوع شخص">@context.PersonType</MudTd>
+                    <MudTd DataLabel="مدیر عامل">@context.Responsible</MudTd>
+                    <MudTd DataLabel="نوع همکاری">@context.PartnerType</MudTd>
+                    <MudTd DataLabel="تلفن"><span dir="ltr">@context.Phone</span></MudTd>
+                    <MudTd DataLabel="شهر">@context.City</MudTd>
+                    <MudTd DataLabel="ایجادکننده">@context.Registrar</MudTd>
+                    <MudTd DataLabel="زمان ایجاد"><span dir="ltr">@PersianDates.Format(context.RegistrationDate)</span></MudTd>
+                    <MudTd DataLabel="یادداشت‌ها"><span class="crm-count">@context.NotesCount</span></MudTd>
+                    <MudTd DataLabel="سفارش‌ها"><span class="crm-count">@context.OrdersCount</span></MudTd>
+                    <MudTd DataLabel="جزئیات">
+                        <MudIconButton Href="@($"/crm/people/{context.Id}")" Icon="@Icons.Material.Filled.ContactPage" Color="Color.Primary" Size="Size.Small"
+                                       aria-label="@($"پرونده CRM {context.FullName}")" title="پرونده CRM" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent><MudText Class="pa-5">پرونده مشتری یافت نشد.</MudText></NoRecordsContent>
+                <LoadingContent><MudText Class="pa-5">در حال دریافت پرونده مشتریان…</MudText></LoadingContent>
+                <PagerContent><MudTablePager PageSizeOptions="@(new[] { 20, 50, 100 })" RowsPerPageString="تعداد در صفحه" InfoFormat="{first_item}-{last_item} از {all_items}" /></PagerContent>
+            </MudTable>
+        </MudPaper>
+    }
+    else
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+</MudRTLProvider>
+
+@code {
+    private MudTable<CrmPersonSummary>? table;
+    private CrmPersonLookups lookups = new();
+    private CrmPersonSearch applied = new();
+    private string? term, error;
+    private byte? partnerTypeId;
+    private int? countryId, provinceId, cityId;
+    private bool ready, loading;
+
+    private IEnumerable<NamedLookup> AvailableProvinces => countryId.HasValue
+        ? lookups.Provinces.Where(x => x.ParentId == countryId.Value) : [];
+    private IEnumerable<NamedLookup> AvailableCities => provinceId.HasValue
+        ? lookups.Cities.Where(x => x.ParentId == provinceId.Value) : [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        await Session.InitializeAsync();
+        if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
+        try { lookups = await Api.GetCrmPersonLookupsAsync() ?? new(); }
+        catch (Exception ex) { error = ex.Message; }
+        ready = true;
+        StateHasChanged();
+    }
+
+    private void CountryChanged(int? value)
+    {
+        countryId = value;
+        provinceId = null;
+        cityId = null;
+    }
+
+    private void ProvinceChanged(int? value)
+    {
+        provinceId = value;
+        cityId = null;
+    }
+
+    private async Task SearchAsync()
+    {
+        error = null;
+        applied = new CrmPersonSearch
+        {
+            Term = term,
+            PartnerTypeId = partnerTypeId,
+            CountryId = countryId,
+            ProvinceId = provinceId,
+            CityId = cityId
+        };
+        if (table is not null)
+        {
+            if (table.CurrentPage != 0) table.NavigateTo(0);
+            else await table.ReloadServerData();
+        }
+    }
+
+    private async Task ResetAsync()
+    {
+        term = null;
+        partnerTypeId = null;
+        countryId = provinceId = cityId = null;
+        await SearchAsync();
+    }
+
+    private async Task<TableData<CrmPersonSummary>> LoadPeopleAsync(TableState state, CancellationToken token)
+    {
+        loading = true;
+        try
+        {
+            applied.Page = state.Page;
+            applied.PageSize = state.PageSize;
+            var result = await Api.GetCrmPeopleAsync(applied, token);
+            if (!Session.IsAuthenticated) Navigation.NavigateTo("/login");
+            return new() { Items = result?.Items ?? [], TotalItems = result?.TotalCount ?? 0 };
+        }
+        catch (OperationCanceledException) { return new() { Items = [], TotalItems = 0 }; }
+        catch (Exception ex) { error = ex.Message; return new() { Items = [], TotalItems = 0 }; }
+        finally { loading = false; }
+    }
+}

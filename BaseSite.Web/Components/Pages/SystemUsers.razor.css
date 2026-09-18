@@ -1,0 +1,2 @@
+::deep .system-users-table table { min-width: 760px; }
+::deep .system-users-table .mud-table-cell { vertical-align: middle; }

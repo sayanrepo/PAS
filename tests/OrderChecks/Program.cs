@@ -4,6 +4,12 @@ using BaseSite.Models.DBModel;
 using BaseSite.Web.Services;
 using System.ComponentModel.DataAnnotations;
 
+if (args.Contains("--print-preview"))
+{
+    await OrderPrintChecks.RunAsync((ok, message) => { if (!ok) throw new Exception(message); }, preview: true);
+    return;
+}
+
 if (args.Contains("--preview"))
 {
     await Preview.RunAsync(args);
@@ -164,6 +170,7 @@ var documentRoutes = typeof(BaseSite.Web.Components.Pages.Documents)
 Check(documentRoutes.SequenceEqual(new[] { "/documents/activities" }),
     "The remaining shared document page serves CRM activities without a store catch-all route");
 OrderEditorChecks.Run(Check);
+await OrderPrintChecks.RunAsync(Check);
 Console.WriteLine($"{passed} document checks passed; no database was accessed.");
 
 internal static class SampleOrders

@@ -74,3 +74,44 @@ public sealed class SaleItem {
  public string Comment { get; set; } = "";
  public string DeliveryComment { get; set; } = "";
 }
+
+public sealed class SaleEditor
+{
+    public SaleForm Form { get; set; } = new();
+    public SaleDetail Detail { get; set; } = new();
+    public List<OrderLookup> TradeTypes { get; set; } = [];
+    public List<OrderLookup> GoodsTypes { get; set; } = [];
+    public bool CanEdit { get; set; }
+}
+
+public sealed class SaleForm
+{
+    [Range(1, int.MaxValue)] public int CustomerId { get; set; }
+    [MaxLength(50)] public string ClienteleName { get; set; } = "";
+    public byte TradeTypeId { get; set; }
+    public bool GiveBack { get; set; }
+    [MaxLength(255)] public string DeliveryAddress { get; set; } = "";
+    [MaxLength(255)] public string Comment { get; set; } = "";
+    public DateTime? FactorDate { get; set; }
+    [Range(0, 1e15)] public double DeliveryCost { get; set; }
+    [Range(0, 100)] public double Tax { get; set; }
+    [Range(0, 1e15)] public double Discount { get; set; }
+    public byte StatusId { get; set; } = 1;
+    [Required, MinLength(1), MaxLength(100)] public List<SaleItemForm> Items { get; set; } = [];
+    public static bool IsEditable(byte status) => status is 1 or 2;
+    public double Subtotal => Items.Sum(x => x.Amount);
+    public double TaxTotal => (Subtotal - Discount) * Tax / 100;
+    public double Total => Subtotal - Discount + TaxTotal + DeliveryCost;
+}
+
+public sealed class SaleItemForm
+{
+    public int Id { get; set; }
+    public byte TypeId { get; set; } = 1;
+    public int ProductId { get; set; }
+    [Required, MaxLength(100)] public string Name { get; set; } = "";
+    [Range(1, int.MaxValue)] public int Count { get; set; } = 1;
+    [Range(0, 1e15)] public double UnitPrice { get; set; }
+    [MaxLength(255)] public string Comment { get; set; } = "";
+    public double Amount => Count * UnitPrice;
+}

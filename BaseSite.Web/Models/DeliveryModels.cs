@@ -25,12 +25,14 @@ public sealed class DeliverySummary {
 public sealed class DeliveryPage { public List<DeliverySummary> Items {get;set;} = []; public int TotalCount {get;set;} }
 public sealed class DeliveryItem {
  public byte Type {get;set;} public int Id {get;set;} public string Name {get;set;} = "";
+ public string Model {get;set;} = ""; public string TypeName {get;set;} = "";
  public int Count {get;set;} public bool Selected {get;set;}
  [StringLength(255)] public string? Comment {get;set;}
 }
 public sealed class DeliveryForm {
  public string Kind {get;set;} = "orders";
  [Range(1,int.MaxValue)] public int SourceId {get;set;}
+ public byte StatusId {get;set;} = 1;
  public short PackTypeId {get;set;} public byte DeliveryLocationId {get;set;} = 1; public byte VehicleTypeId {get;set;} = 1;
  [StringLength(50)] public string? SendResponsible {get;set;}
  [StringLength(50)] public string? RecieveResponsible {get;set;}
@@ -42,6 +44,7 @@ public sealed class DeliveryForm {
  [StringLength(50)] public string? VehiclePlaque {get;set;}
  [StringLength(100)] public string? DriverName {get;set;}
  [StringLength(50)] public string? DriverPhone {get;set;}
+ public byte DestinationType {get;set;} = 2;
  public string? DestinationAddress {get;set;}
  public List<DeliveryItem> Items {get;set;} = [];
 }
@@ -58,5 +61,27 @@ public sealed class DeliveryLookups {
 }
 public sealed class DeliveryDraft {
  public string Customer {get;set;} = "";
+ public string CustomerAddress {get;set;} = "";
+ public string ProjectAddress {get;set;} = "";
+ public string ProjectName {get;set;} = "";
+ public int FactorNumber {get;set;}
+ public DeliveryForm Form {get;set;} = new();
+}
+
+public sealed class DeliveryEditor {
+ public DeliveryForm Form {get;set;} = new();
+ public DeliveryDetail Detail {get;set;} = new();
+ public DeliveryLookups Lookups {get;set;} = new();
+ public string CustomerAddress {get;set;} = "";
+ public string ProjectAddress {get;set;} = "";
+ public bool CanEdit {get;set;}
+ public bool CanSave {get;set;}
+ public bool CanApprove {get;set;}
+ public bool CanSend {get;set;}
+}
+
+public sealed class DeliveryTransitionRequest {
+ [Required, MaxLength(24)] public string Action {get;set;} = "";
+ public byte ExpectedStatusId {get;set;}
  public DeliveryForm Form {get;set;} = new();
 }
