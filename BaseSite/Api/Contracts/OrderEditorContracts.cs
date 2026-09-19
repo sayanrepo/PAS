@@ -35,6 +35,8 @@ public sealed class OrderForm
     [Required, MaxLength(100)] public List<OrderPanelForm> Panels { get; set; } = [];
     [Required, MaxLength(100)] public List<OrderExtraForm> Deductions { get; set; } = [];
     public static bool IsEditable(byte status) => status is 1 or 2;
+    public static bool CanChangeStatus(byte currentStatus, byte requestedStatus) =>
+        requestedStatus == currentStatus || currentStatus is 1 or 2 && requestedStatus == currentStatus + 1;
     public double Subtotal => Panels.Sum(x => x.Amount) - Deductions.Sum(x => x.Cost);
     public double DiscountTotal => Subtotal * DiscountRate / 100;
     public double TaxTotal => (Subtotal - DiscountTotal) * Tax / 100;
@@ -109,4 +111,3 @@ public sealed class OrderExtraForm
     public int OriginalLookupId { get; set; } = -1;
     public double UnitPrice { get; set; }
 }
-

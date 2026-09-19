@@ -150,6 +150,10 @@ public sealed class SalesController : ControllerBase
         if (!SaleForm.IsEditable(persistedStatus))
             return Conflict(new ProblemDetails { Title = "این فروش کالا فقط قابل مشاهده است. وضعیت سند تغییر کرده است؛ صفحه را دوباره باز کنید." });
         if (!CanEdit(persistedStatus)) return Forbid();
+        if (id == 0 && form.StatusId != (byte)OrderStatus.PishFactor)
+            return BadRequest(new ProblemDetails { Title = "وضعیت فروش کالای جدید معتبر نیست." });
+        if (id > 0 && form.StatusId != persistedStatus && !User.IsInRole(nameof(OPERATIONS.Sale_Edit)))
+            return Forbid();
         var customer = db.Account_Users.SingleOrDefault(x => x.Id == form.CustomerId && x.Id > 0);
         if (customer is null) return BadRequest(new ProblemDetails { Title = "مشتری معتبر انتخاب کنید." });
         var template = id == 0 ? db.Sale_Sale.AsNoTracking().SingleOrDefault(x => x.Id == 0) : null;
@@ -169,8 +173,10 @@ public sealed class SalesController : ControllerBase
             DeliveryCityId = customer.CityId1 ?? template.DeliveryCityId
         };
         if (id == 0) db.Sale_Sale.Add(sale);
-        form.StatusId = persistedStatus;
         SaleEditorData.Apply(db, sale, form, customer);
+        if (form.StatusId == (byte)OrderStatus.MojavezKhorooj && persistedStatus != form.StatusId)
+            SaleEditorData.ApplyExitPermitDates(sale, DateTime.Now);
+        sale.StatusId = form.StatusId;
         db.SaveChanges();
         transaction.Commit();
         LogManager.Log_Logs_Add((int)DB_Table.Sale_Sale, sale.DocNumber, userId,
@@ -190,6 +196,9 @@ public sealed class SalesController : ControllerBase
     private static SaleEditor Editor(SaleForm form, SaleDetail detail, PantaEntities db, bool canEdit) => new()
     {
         Form = form, Detail = detail, CanEdit = canEdit,
+        Statuses = db.Order_Status.AsNoTracking().Where(x => x.Id == (byte)OrderStatus.PishFactor
+                || x.Id == (byte)OrderStatus.DarDasteEghdam || x.Id == (byte)OrderStatus.MojavezKhorooj)
+            .OrderBy(x => x.Id).Select(x => new OrderLookup { Id = x.Id, Name = x.Name }).ToList(),
         TradeTypes = db.Tb_TradeTypes.AsNoTracking().OrderBy(x => x.Id)
             .Select(x => new OrderLookup { Id = x.Id, Name = x.Name }).ToList(),
         GoodsTypes =

@@ -43,7 +43,14 @@
                         <div class="sale-section-body">
                             <div class="sale-fields sale-top-fields">
                                 <label class="sale-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
-                                <label class="sale-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                @if (CanChangeStatus)
+                                {
+                                    <label class="sale-field"><span>وضعیت</span><select @bind="form.StatusId">@foreach (var option in StatusOptions) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                }
+                                else
+                                {
+                                    <label class="sale-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                }
                                 <label class="sale-field"><span>نوع معامله</span><select @bind="form.TradeTypeId">@foreach (var option in editor.TradeTypes) { <option value="@option.Id">@option.Name</option> }</select></label>
                                 <label class="sale-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
                                 <label class="sale-field"><span>تاریخ تحویل</span><input dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
@@ -147,7 +154,12 @@
     private bool loading = true, saving, activityLoading, savingComment;
     private int activeTab;
     private int? loadedId;
-    private bool ReadOnly => editor?.CanEdit != true || !SaleForm.IsEditable(form.StatusId);
+    private byte persistedStatusId;
+    private bool ReadOnly => editor?.CanEdit != true || !SaleForm.IsEditable(persistedStatusId);
+    private bool CanChangeStatus => Id > 0 && !ReadOnly && persistedStatusId is 1 or 2
+        && Session.User?.Roles.Contains("Sale_Edit") == true;
+    private List<OrderLookup> StatusOptions => editor?.Statuses
+        .Where(x => x.Id <= byte.MaxValue && SaleForm.CanChangeStatus(persistedStatusId, (byte)x.Id)).ToList() ?? [];
     private bool CanPrint => Session.User?.Roles.Contains("Sale_Print") == true;
     private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
 
@@ -161,8 +173,9 @@
         try
         {
             editor = await Api.GetSaleEditorAsync(Id) ?? throw new InvalidOperationException("فروش کالا یافت نشد.");
+            persistedStatusId = form.StatusId;
             customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
-            customerText = customer?.Name; factorDate = PersianDates.Format(form.FactorDate);
+            customerText = customer?.Name; factorDate = form.FactorDate.HasValue ? PersianDates.Format(form.FactorDate) : "";
             if (Id > 0) await LoadActivityAsync();
         }
         catch (Exception ex) { error = ex.Message; }

@@ -9,6 +9,7 @@ public static class OrderEditorData
 {
     public static Dictionary<string, List<OrderChoice>> Options(PantaEntities db) => new()
     {
+        ["OrderStatuses"] = db.Order_Status.AsNoTracking().OrderBy(x => x.Id).Select(x => new OrderChoice { Id = x.Id, Name = x.Name }).ToList(),
         ["TradeTypes"] = db.Tb_TradeTypes.AsNoTracking().OrderBy(x => x.Id).Select(x => new OrderChoice { Id = x.Id, Name = x.Name }).ToList(),
         ["ElevatorBoards"] = db.Tb_ElevatorBoards.AsNoTracking().OrderBy(x => x.Id).Select(x => new OrderChoice { Id = x.Id, Name = x.Name }).ToList(),
         ["PackTypes"] = db.Tb_PackTypes.AsNoTracking().OrderBy(x => x.Id).Select(x => new OrderChoice { Id = x.Id, Name = x.Name }).ToList(),
@@ -80,7 +81,7 @@ public static class OrderEditorData
     public static string? Validate(OrderForm form, Order_Order original, Dictionary<string, List<OrderChoice>> options)
     {
         bool Has(string key, int id) => options[key].Any(x => x.Id == id);
-        if (!OrderForm.IsEditable(original.StatusId) || form.StatusId != original.StatusId) return "وضعیت سفارش تغییر کرده است؛ صفحه را دوباره باز کنید.";
+        if (!OrderForm.IsEditable(original.StatusId) || !OrderForm.CanChangeStatus(original.StatusId, form.StatusId)) return "وضعیت سفارش تغییر کرده است؛ صفحه را دوباره باز کنید.";
         if (!Has("TradeTypes", form.TradeTypeId) || !Has("ElevatorBoards", form.ElevatorBoardId) || !Has("PackTypes", form.PackTypeId)) return "مشخصات سفارش معتبر نیست.";
         var old = Map(original);
         bool ValidRows(List<OrderExtraForm> rows, List<OrderExtraForm> previous) =>
@@ -105,6 +106,12 @@ public static class OrderEditorData
         if (form.Deductions.Any(x => !Has("Deductions", x.LookupId))) return "کسورات معتبر نیست.";
         if (!ValidRows(form.Deductions, old.Deductions)) return "ردیف‌های کسورات معتبر نیست.";
         return null;
+    }
+
+    public static void ApplyProductionRequestDates(Order_Order order, DateTime requestedAt)
+    {
+        order.DateDelivery = requestedAt;
+        order.DateFactor ??= requestedAt.AddDays(10);
     }
 
     public static void Apply(PantaEntities db, Order_Order order, OrderForm form, Dictionary<string, List<OrderChoice>> options)

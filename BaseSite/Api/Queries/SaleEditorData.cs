@@ -44,7 +44,7 @@ public static class SaleEditorData
     {
         if (original is not null && !SaleForm.IsEditable(original.StatusId))
             return "این فروش کالا فقط قابل مشاهده است.";
-        if (original is not null && form.StatusId != original.StatusId)
+        if (original is not null && !SaleForm.CanChangeStatus(original.StatusId, form.StatusId))
             return "وضعیت فروش کالا تغییر کرده است؛ صفحه را دوباره باز کنید.";
         if (!db.Tb_TradeTypes.Any(x => x.Id == form.TradeTypeId)) return "نوع معامله معتبر نیست.";
         if (form.Items.Count is < 1 or > 100) return "حداقل یک کالا و حداکثر ۱۰۰ کالا مجاز است.";
@@ -58,6 +58,12 @@ public static class SaleEditorData
             if (form.Items.Where(x => x.Id > 0).GroupBy(x => x.Id).Any(x => x.Count() > 1)) return "یک قلم تکراری ارسال شده است.";
         }
         return null;
+    }
+
+    public static void ApplyExitPermitDates(Sale_Sale sale, DateTime issuedAt)
+    {
+        sale.DateDelivery = issuedAt;
+        sale.DateFactor ??= issuedAt.AddDays(5);
     }
 
     public static void Apply(PantaEntities db, Sale_Sale sale, SaleForm form, Account_Users customer)

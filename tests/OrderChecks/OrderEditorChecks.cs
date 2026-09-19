@@ -16,6 +16,21 @@ internal static class OrderEditorChecks
             check(OrderForm.IsEditable(status) == (status is 1 or 2), $"Server edit policy for status {status}");
             check(BaseSite.Web.Models.OrderForm.IsEditable(status) == (status is 1 or 2), $"Web edit policy for status {status}");
         }
+        check(OrderForm.CanChangeStatus(1, 1) && OrderForm.CanChangeStatus(1, 2)
+            && OrderForm.CanChangeStatus(2, 3) && !OrderForm.CanChangeStatus(1, 3),
+            "Order status changes advance one editable stage at a time");
+        var productionRequestedAt = new DateTime(2026, 9, 19, 10, 30, 0);
+        var orderWithoutDeliveryDate = new Order_Order();
+        OrderEditorData.ApplyProductionRequestDates(orderWithoutDeliveryDate, productionRequestedAt);
+        check(orderWithoutDeliveryDate.DateDelivery == productionRequestedAt
+            && orderWithoutDeliveryDate.DateFactor == productionRequestedAt.AddDays(10),
+            "Production request defaults an empty delivery date to ten days after the request");
+        var selectedDeliveryDate = new DateTime(2026, 10, 15);
+        var orderWithDeliveryDate = new Order_Order { DateFactor = selectedDeliveryDate };
+        OrderEditorData.ApplyProductionRequestDates(orderWithDeliveryDate, productionRequestedAt);
+        check(orderWithDeliveryDate.DateDelivery == productionRequestedAt
+            && orderWithDeliveryDate.DateFactor == selectedDeliveryDate,
+            "Production request preserves the delivery date selected by the user");
         var routes = typeof(BaseSite.Web.Components.Pages.OrderDetailsPage).GetCustomAttributes(typeof(RouteAttribute), false)
             .Cast<RouteAttribute>().Select(x => x.Template).ToArray();
         check(routes.Contains("/documents/orders/new") && routes.Contains("/documents/orders/{Id:int}")
@@ -26,6 +41,22 @@ internal static class OrderEditorChecks
             check(SaleForm.IsEditable(status) == (status is 1 or 2), $"Server goods-sale edit policy for status {status}");
             check(BaseSite.Web.Models.SaleForm.IsEditable(status) == (status is 1 or 2), $"Web goods-sale edit policy for status {status}");
         }
+        check(SaleForm.CanChangeStatus(1, 1) && SaleForm.CanChangeStatus(1, 2)
+            && SaleForm.CanChangeStatus(1, 7) && SaleForm.CanChangeStatus(2, 7)
+            && !SaleForm.CanChangeStatus(2, 3),
+            "Goods-sale status can advance from either editable stage to exit permit issued");
+        var exitPermitIssuedAt = new DateTime(2026, 9, 19, 11, 45, 0);
+        var saleWithoutDeliveryDate = new Sale_Sale();
+        SaleEditorData.ApplyExitPermitDates(saleWithoutDeliveryDate, exitPermitIssuedAt);
+        check(saleWithoutDeliveryDate.DateDelivery == exitPermitIssuedAt
+            && saleWithoutDeliveryDate.DateFactor == exitPermitIssuedAt.AddDays(5),
+            "Exit permit defaults an empty goods-sale delivery date to five days after issuance");
+        var selectedSaleDeliveryDate = new DateTime(2026, 10, 10);
+        var saleWithDeliveryDate = new Sale_Sale { DateFactor = selectedSaleDeliveryDate };
+        SaleEditorData.ApplyExitPermitDates(saleWithDeliveryDate, exitPermitIssuedAt);
+        check(saleWithDeliveryDate.DateDelivery == exitPermitIssuedAt
+            && saleWithDeliveryDate.DateFactor == selectedSaleDeliveryDate,
+            "Exit permit preserves the goods-sale delivery date selected by the user");
         var saleRoutes = typeof(BaseSite.Web.Components.Pages.SaleDetailsPage).GetCustomAttributes(typeof(RouteAttribute), false)
             .Cast<RouteAttribute>().Select(x => x.Template).ToArray();
         check(saleRoutes.Contains("/documents/sales/new") && saleRoutes.Contains("/documents/sales/{Id:int}")

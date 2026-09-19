@@ -79,6 +79,7 @@ public sealed class SaleEditor
 {
     public SaleForm Form { get; set; } = new();
     public SaleDetail Detail { get; set; } = new();
+    public List<OrderLookup> Statuses { get; set; } = [];
     public List<OrderLookup> TradeTypes { get; set; } = [];
     public List<OrderLookup> GoodsTypes { get; set; } = [];
     public bool CanEdit { get; set; }
@@ -99,6 +100,10 @@ public sealed class SaleForm
     public byte StatusId { get; set; } = 1;
     [Required, MinLength(1), MaxLength(100)] public List<SaleItemForm> Items { get; set; } = [];
     public static bool IsEditable(byte status) => status is 1 or 2;
+    public static bool CanChangeStatus(byte currentStatus, byte requestedStatus) =>
+        requestedStatus == currentStatus
+        || currentStatus == 1 && requestedStatus == 2
+        || currentStatus is 1 or 2 && requestedStatus == 7;
     public double Subtotal => Items.Sum(x => x.Amount);
     public double TaxTotal => (Subtotal - Discount) * Tax / 100;
     public double Total => Subtotal - Discount + TaxTotal + DeliveryCost;

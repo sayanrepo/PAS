@@ -93,6 +93,10 @@ public sealed class OrderEditorController : ControllerBase
         if (id > 0 && !OrderForm.IsEditable(original.StatusId))
             return Conflict(new ProblemDetails { Title = "این سفارش فقط قابل مشاهده است. وضعیت سفارش تغییر کرده است؛ صفحه را دوباره باز کنید." });
         if (!CanEdit(id == 0 ? (byte)1 : original.StatusId)) return Forbid();
+        if (id == 0 && form.StatusId != (byte)OrderStatus.PishFactor)
+            return BadRequest(new ProblemDetails { Title = "وضعیت سفارش جدید معتبر نیست." });
+        if (id > 0 && form.StatusId != original.StatusId && !User.IsInRole(nameof(OPERATIONS.Order_Edit_Factor)))
+            return Forbid();
         var customer = db.Account_Users.SingleOrDefault(x => x.Id == form.CustomerId && x.Id > 0);
         if (customer is null) return BadRequest(new ProblemDetails { Title = "مشتری معتبر انتخاب کنید." });
         var order = original;
@@ -109,6 +113,9 @@ public sealed class OrderEditorController : ControllerBase
         if (order.CustomerId != form.CustomerId) order.DeliveryCityId = customer.CityId1 ?? order.DeliveryCityId;
         try { OrderEditorData.Apply(db, order, form, options); }
         catch (ArgumentException ex) { return BadRequest(new ProblemDetails { Title = ex.Message }); }
+        if (form.StatusId == (byte)OrderStatus.DarkhasteTolid && order.StatusId != form.StatusId)
+            OrderEditorData.ApplyProductionRequestDates(order, DateTime.Now);
+        order.StatusId = form.StatusId;
         db.SaveChanges();
         transaction.Commit();
         LogManager.Log_Logs_Add((int)DB_Table.Order_Order, order.DocNumber, userId,

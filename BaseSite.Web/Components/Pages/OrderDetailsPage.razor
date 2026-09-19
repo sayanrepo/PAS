@@ -49,7 +49,14 @@
                     <div class="order-section-body">
                         <div class="order-fields order-top-fields">
                             <label class="order-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
-                            <label class="order-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                            @if (CanAdvanceStatus)
+                            {
+                                <label class="order-field"><span>وضعیت</span><select @bind="form.StatusId">@foreach (var option in StatusOptions) { <option value="@option.Id">@option.Name</option> }</select></label>
+                            }
+                            else
+                            {
+                                <label class="order-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                            }
                             <label class="order-field"><span>نوع معامله</span><select @bind="form.TradeTypeId" @bind:after="Recalculate">@foreach (var option in Options("TradeTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
                             <label class="order-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
                             <label class="order-field"><span>تاریخ تحویل</span><input aria-label="تاریخ تحویل" dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
@@ -247,7 +254,12 @@
     private int activeTab;
     private OrderHistoryItem? selectedHistory;
     private int? loadedId;
-    private bool ReadOnly => editor?.CanEdit != true || !OrderForm.IsEditable(form.StatusId);
+    private byte persistedStatusId;
+    private bool ReadOnly => editor?.CanEdit != true || !OrderForm.IsEditable(persistedStatusId);
+    private bool CanAdvanceStatus => Id > 0 && !ReadOnly && persistedStatusId is 1 or 2
+        && Session.User?.Roles.Contains("Order_Edit_Factor") == true;
+    private List<OrderChoice> StatusOptions => Options("OrderStatuses")
+        .Where(x => x.Id <= byte.MaxValue && OrderForm.CanChangeStatus(persistedStatusId, (byte)x.Id)).ToList();
     private bool CanPrintSpecification => Session.User?.Roles.Contains("Plan_Print") == true;
     private bool CanPrintOrder => Session.User?.Roles.Contains("Order_Print") == true;
     private bool CanViewHistoryDetail => Session.User?.Roles.Contains("Logs_Detail") == true;
@@ -270,9 +282,10 @@
         try
         {
             editor = await Api.GetOrderEditorAsync(Id) ?? throw new InvalidOperationException("سفارش یافت نشد.");
+            persistedStatusId = form.StatusId;
             customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
             customerText = customer?.Name;
-            factorDate = PersianDates.Format(form.FactorDate);
+            factorDate = form.FactorDate.HasValue ? PersianDates.Format(form.FactorDate) : "";
             if (Id == 0)
             {
                 foreach (var kind in new[] { "Cabin", "Hall", "DoorTop" })
@@ -319,7 +332,7 @@
     private void Recalculate()
     {
         if (editor is null || ReadOnly) return;
-        foreach (var panel in form.Panels) panel.Calculate(editor.Options, form.StatusId);
+        foreach (var panel in form.Panels) panel.Calculate(editor.Options, persistedStatusId);
     }
     private void AddPanel(string kind)
     {
