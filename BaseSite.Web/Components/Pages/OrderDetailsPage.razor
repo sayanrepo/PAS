@@ -48,42 +48,47 @@
                     <h2 class="order-section-title">سفارش</h2>
                     <div class="order-section-body">
                         <div class="order-fields order-top-fields">
-                            <label class="order-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                            <MudTextField T="string" Value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" Label="شماره سند" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-readonly" />
                             @if (CanAdvanceStatus)
                             {
-                                <label class="order-field"><span>وضعیت</span><select @bind="form.StatusId">@foreach (var option in StatusOptions) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                <MudSelect T="byte" @bind-Value="form.StatusId" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">
+                                    @foreach (var option in StatusOptions) { <MudSelectItem T="byte" Value="@((byte)option.Id)">@option.Name</MudSelectItem> }
+                                </MudSelect>
                             }
                             else
                             {
-                                <label class="order-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                <MudTextField T="string" Value="@editor.Detail.Summary.Status" Label="وضعیت" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-readonly" />
                             }
-                            <label class="order-field"><span>نوع معامله</span><select @bind="form.TradeTypeId" @bind:after="Recalculate">@foreach (var option in Options("TradeTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="order-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
-                            <label class="order-field"><span>تاریخ تحویل</span><input aria-label="تاریخ تحویل" dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
+                            <MudSelect T="byte" @bind-Value="form.TradeTypeId" @bind-Value:after="Recalculate" Label="نوع معامله" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">
+                                @foreach (var option in Options("TradeTypes")) { <MudSelectItem T="byte" Value="@((byte)option.Id)">@option.Name</MudSelectItem> }
+                            </MudSelect>
+                            <MudTextField T="string" Value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" Label="تاریخ سفارش" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-readonly ltr-input" />
+                            <PersianDatePicker @bind-Date="form.FactorDate" Label="تاریخ تحویل" Disabled="@(ReadOnly || saving)" Margin="Margin.Normal" Class="order-field ltr-input" />
                         </div>
                         <div class="order-fields order-customer-fields">
-                            <div class="order-field order-customer"><span>مشتری</span>
-                                <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" SearchFunc="FindCustomers" @bind-Text="customerText"
-                                    ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Label="مشتری"
-                                    Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" />
-                            </div>
-                            <label class="order-field"><span>نام پروژه</span><input type="text" maxlength="50" @bind="form.ProjectName" @bind:event="oninput"  /></label>
-                            <label class="order-field"><span>سفارش دهنده</span><input type="text" maxlength="50" @bind="form.ClienteleName" @bind:event="oninput"  /></label>
-                            <label class="order-field"><span>نوع تابلو</span><select @bind="form.ElevatorBoardId" @bind:after="Recalculate">@foreach (var option in Options("ElevatorBoards")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="order-field order-wide"><span>محل ارسال</span><input type="text" maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput"  /></label>
-                            <label class="order-field"><span>نوع بسته بندی</span><select @bind="form.PackTypeId" @bind:after="Recalculate">@foreach (var option in Options("PackTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="order-field order-full"><span>توضیحات</span><input type="text" maxlength="255" @bind="form.Comment" @bind:event="oninput"  /></label>
+                            <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" SearchFunc="FindCustomers" @bind-Text="customerText"
+                                ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Label="مشتری"
+                                Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-customer" />
+                            <MudTextField T="string" @bind-Value="form.ProjectName" Label="نام پروژه" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                            <MudTextField T="string" @bind-Value="form.ClienteleName" Label="سفارش دهنده" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                            <MudSelect T="int" @bind-Value="form.ElevatorBoardId" @bind-Value:after="Recalculate" Label="نوع تابلو" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">
+                                @foreach (var option in Options("ElevatorBoards")) { <MudSelectItem T="int" Value="@option.Id">@option.Name</MudSelectItem> }
+                            </MudSelect>
+                            <MudTextField T="string" @bind-Value="form.DeliveryAddress" Label="محل ارسال" Immediate="true" MaxLength="255" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-wide" />
+                            <MudSelect T="short" @bind-Value="form.PackTypeId" @bind-Value:after="Recalculate" Label="نوع بسته بندی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">
+                                @foreach (var option in Options("PackTypes")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }
+                            </MudSelect>
                         </div>
                         <div class="order-fields order-totals">
                             <OrderValue Label="پنل کابین" Value='@PanelTotal("Cabin")' />
                             <OrderValue Label="پنل طبقات" Value='@PanelTotal("Hall")' />
                             <OrderValue Label="پنل سردرب" Value='@PanelTotal("DoorTop")' />
-                            <label class="order-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" @bind:after="Recalculate" /></label>
-                            <label class="order-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" @bind:after="Recalculate" /></label>
+                            <MudNumericField T="double" @bind-Value="form.DeliveryCost" @bind-Value:after="Recalculate" Label="کرایه حمل" Min="0" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                            <MudNumericField T="double" @bind-Value="form.Tax" @bind-Value:after="Recalculate" Label="عوارض (درصد)" Min="0" Max="100" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
                             <OrderValue Label="ملحقات" Value='@form.Panels.Where(x => x.ModelId > 0).Sum(x => x.Attachments.Sum(a => a.Cost)).ToString("N0")' />
                             <OrderValue Label="اضافات" Value='@form.Panels.Where(x => x.ModelId > 0).Sum(x => x.Additions.Sum(a => a.Cost)).ToString("N0")' />
                             <OrderValue Label="کسورات" Value='@form.Deductions.Sum(x => x.Cost).ToString("N0")' />
-                            <label class="order-field"><span>تخفیف (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.DiscountRate" @bind:after="Recalculate" /></label>
+                            <MudNumericField T="double" @bind-Value="form.DiscountRate" @bind-Value:after="Recalculate" Label="تخفیف (درصد)" Min="0" Max="100" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
                             <OrderValue Label="جمع کل (ریال)" Value='@form.Total.ToString("N0")' Class="order-grand-total" />
                         </div>
                         <div class="order-calculation">مبلغ عوارض: @form.TaxTotal.ToString("N0") ریال · مبلغ تخفیف: @form.DiscountTotal.ToString("N0") ریال</div>
@@ -99,33 +104,52 @@
                         </header>
                         <div class="order-section-body">
                             <div class="order-fields order-panel-fields">
-                                <label class="order-field"><span>مدل پنل</span><select @bind="panel.ModelId" @bind:after="Recalculate">@foreach (var option in Options(panel.Kind + "Panels")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="order-field"><span>نمایشگر</span><select @bind="panel.MonitorId" @bind:after="Recalculate">@foreach (var option in Options("Monitors")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>فلز رویه</span><select @bind="panel.SurfaceMetalId" @bind:after="Recalculate">@foreach (var option in Options(panel.Kind == "DoorTop" ? "SurfaceMetals" : panel.Kind + "SurfaceMetals")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>تعداد</span><input type="number" min="1" max="10000" @bind="panel.Count" @bind:after="Recalculate" /></label>
-                                @if (panel.Kind == "Cabin") { <label class="order-field"><span>پوش باتون</span><select @bind="panel.PushButtonId" @bind:after="Recalculate">@foreach (var option in Options("PushButtons")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>تعداد طبقات</span><input type="number" min="0" max="200" @bind="panel.FloorCount" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>تعداد طبقات زیرین</span><input type="number" min="0" max="200" @bind="panel.UGFloorCount" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>نام گذاری و ترتیب طبقات</span><input type="text" maxlength="50" @bind="panel.FloorNames" @bind:event="oninput"  /></label>
-                                <label class="order-field"><span>نام گذاری و ترتیب طبقات زیرین</span><input type="text" maxlength="50" @bind="panel.UGFloorNames" @bind:event="oninput"  /></label>
-                                <label class="order-field"><span>کلید آیفون</span><input type="checkbox"  @bind="panel.PhoneCallButton" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>DO</span><input type="checkbox"  @bind="panel.DO" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>DC</span><input type="checkbox"  @bind="panel.DC" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>نحوه نصب</span><select @bind="panel.InstallationTypeId" @bind:after="Recalculate">@foreach (var option in Options("InstallationTypes")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>فلز رویه دوم</span><select @bind="panel.SurfaceMetalId2" @bind:after="Recalculate"><option value="">—</option>@foreach (var option in Options("CabinSurfaceMetals")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>کد بلندگو</span><select @bind="panel.SpeakerId" @bind:after="Recalculate">@foreach (var option in Options("Speakers")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>کد لامپ اضطراری</span><select @bind="panel.EmergencyLightId" @bind:after="Recalculate">@foreach (var option in Options("EmergencyLights")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>شماره ورق</span><input type="number" min="0" @bind="panel.SheetNumber" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>متن برش لیزری</span><input type="text" maxlength="255" @bind="panel.LaserCuttingText" @bind:event="oninput"  /></label>
-                                <label class="order-field"><span>متن حک لیزری</span><input type="text" maxlength="255" @bind="panel.LaserEngravingText" @bind:event="oninput"  /></label> }
-                                @if (panel.Kind == "Hall") { <label class="order-field"><span>آسانسور</span><select @bind="panel.ElevatorTypeId" @bind:after="Recalculate">@foreach (var option in Options("ElevatorCounts")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>تعداد شاسی</span><select @bind="panel.PushButtonCountId" @bind:after="Recalculate">@foreach (var option in Options("HallPushButtonCounts")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>پوش باتون</span><select @bind="panel.PushButtonId" @bind:after="Recalculate">@foreach (var option in Options("PushButtons")) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="order-field"><span>تعداد طبقات</span><input type="number" min="0" max="200" @bind="panel.FloorCount" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>تعداد طبقات زیرین</span><input type="number" min="0" max="200" @bind="panel.UGFloorCount" @bind:after="Recalculate" /></label>
-                                <label class="order-field"><span>نام گذاری و ترتیب طبقات</span><input type="text" maxlength="50" @bind="panel.FloorNames" @bind:event="oninput"  /></label>
-                                <label class="order-field"><span>نام گذاری و ترتیب طبقات زیرین</span><input type="text" maxlength="50" @bind="panel.UGFloorNames" @bind:event="oninput"  /></label> }
-                                <label class="order-field order-full"><span>توضیحات</span><textarea maxlength="255" @bind="panel.Comment" @bind:event="oninput"></textarea></label>
+                                @if (panel.Kind == "Cabin")
+                                {
+                                    <OrderChoiceAutocomplete @bind-Value="panel.ModelId" @bind-Value:after="Recalculate" Label="مدل پنل" Options='@Options("CabinPanels")' />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.PushButtonId" @bind-Value:after="Recalculate" Label="پوش باتون" Options='@Options("PushButtons")' />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.MonitorId" @bind-Value:after="Recalculate" Label="نمایشگر" Options='@Options("Monitors")' />
+                                    <MudNumericField T="int" @bind-Value="panel.Count" @bind-Value:after="Recalculate" Label="تعداد" Min="1" Max="10000" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.SurfaceMetalId" @bind-Value:after="Recalculate" Label="فلز رویه" Options='@Options("CabinSurfaceMetals")' />
+                                    <MudNumericField T="int" @bind-Value="panel.FloorCount" @bind-Value:after="Recalculate" Label="تعداد طبقات" Min="0" Max="200" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudNumericField T="int" @bind-Value="panel.UGFloorCount" @bind-Value:after="Recalculate" Label="تعداد طبقات زیرین" Min="0" Max="200" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudTextField T="string" @bind-Value="panel.FloorNames" Label="نام‌گذاری و ترتیب طبقات" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudTextField T="string" @bind-Value="panel.UGFloorNames" Label="نام‌گذاری و ترتیب طبقات زیرین" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudCheckBox T="bool" @bind-Value="panel.PhoneCallButton" @bind-Value:after="Recalculate" Label="کلید آیفون" Color="Color.Success" Class="order-field order-checkbox" />
+                                    <MudCheckBox T="bool" @bind-Value="panel.DO" @bind-Value:after="Recalculate" Label="DO" Color="Color.Success" Class="order-field order-checkbox" />
+                                    <MudCheckBox T="bool" @bind-Value="panel.DC" @bind-Value:after="Recalculate" Label="DC" Color="Color.Success" Class="order-field order-checkbox" />
+                                    <MudSelect T="short" @bind-Value="panel.InstallationTypeId" @bind-Value:after="Recalculate" Label="نحوه نصب" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("InstallationTypes")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }</MudSelect>
+                                    <OrderChoiceAutocomplete Value="@(panel.SurfaceMetalId2 ?? 0)" ValueChanged="value => SetSecondarySurfaceMetal(panel, value)" Label="فلز رویه دوم" Options='@Options("CabinSurfaceMetals")' Clearable="true" />
+                                    <MudSelect T="short" @bind-Value="panel.SpeakerId" @bind-Value:after="Recalculate" Label="کد بلندگو" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("Speakers")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudSelect T="short" @bind-Value="panel.EmergencyLightId" @bind-Value:after="Recalculate" Label="کد لامپ اضطراری" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("EmergencyLights")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudTextField T="string" @bind-Value="panel.LaserCuttingText" Label="متن برش لیزری" Immediate="true" MaxLength="255" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-full" />
+                                    <MudTextField T="string" @bind-Value="panel.LaserEngravingText" Label="متن حک لیزری" Immediate="true" MaxLength="255" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-full" />
+                                }
+                                else if (panel.Kind == "Hall")
+                                {
+                                    <MudSelect T="short" @bind-Value="panel.ElevatorTypeId" @bind-Value:after="Recalculate" Label="آسانسور" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("ElevatorCounts")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudSelect T="short" @bind-Value="panel.PushButtonCountId" @bind-Value:after="Recalculate" Label="تعداد شاسی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("HallPushButtonCounts")) { <MudSelectItem T="short" Value="@((short)option.Id)">@option.Name</MudSelectItem> }</MudSelect>
+                                    <OrderChoiceAutocomplete @bind-Value="panel.ModelId" @bind-Value:after="Recalculate" Label="مدل پنل" Options='@Options("HallPanels")' />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.PushButtonId" @bind-Value:after="Recalculate" Label="پوش باتون" Options='@Options("PushButtons")' />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.MonitorId" @bind-Value:after="Recalculate" Label="نمایشگر" Options='@Options("Monitors")' />
+                                    <OrderChoiceAutocomplete @bind-Value="panel.SurfaceMetalId" @bind-Value:after="Recalculate" Label="فلز رویه" Options='@Options("HallSurfaceMetals")' />
+                                    <MudNumericField T="int" @bind-Value="panel.Count" @bind-Value:after="Recalculate" Label="تعداد" Min="1" Max="10000" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                }
+                                else
+                                {
+                                    <MudSelect T="int" @bind-Value="panel.ModelId" @bind-Value:after="Recalculate" Label="مدل پنل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options(panel.Kind + "Panels")) { <MudSelectItem T="int" Value="@option.Id">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudSelect T="int" @bind-Value="panel.MonitorId" @bind-Value:after="Recalculate" Label="نمایشگر" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options("Monitors")) { <MudSelectItem T="int" Value="@option.Id">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudSelect T="int" @bind-Value="panel.SurfaceMetalId" @bind-Value:after="Recalculate" Label="فلز رویه" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field">@foreach (var option in Options(panel.Kind == "DoorTop" ? "SurfaceMetals" : panel.Kind + "SurfaceMetals")) { <MudSelectItem T="int" Value="@option.Id">@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudNumericField T="int" @bind-Value="panel.Count" @bind-Value:after="Recalculate" Label="تعداد" Min="1" Max="10000" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                }
+                                @if (panel.Kind == "Hall")
+                                {
+                                    <MudNumericField T="int" @bind-Value="panel.FloorCount" @bind-Value:after="Recalculate" Label="تعداد طبقات" Min="0" Max="200" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudNumericField T="int" @bind-Value="panel.UGFloorCount" @bind-Value:after="Recalculate" Label="تعداد طبقات زیرین" Min="0" Max="200" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudTextField T="string" @bind-Value="panel.FloorNames" Label="نام‌گذاری و ترتیب طبقات" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                    <MudTextField T="string" @bind-Value="panel.UGFloorNames" Label="نام‌گذاری و ترتیب طبقات زیرین" Immediate="true" MaxLength="50" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field" />
+                                }
+                                <MudTextField T="string" @bind-Value="panel.Comment" Label="توضیحات پنل" Immediate="true" Lines="2" MaxLength="255" Variant="Variant.Outlined" Margin="Margin.Normal" Class="order-field order-full" />
                             </div>
                             <div class="order-extras">
                                 <OrderExtrasEditor Title="ملحقات" Items="panel.Attachments" Options='@Options("Attachments")' Attachments="true" ReadOnly="ReadOnly" OnChanged="Recalculate" />
@@ -133,44 +157,30 @@
                             </div>
                             <div class="order-panel-footer">
                                 <span>بارکد: @(panel.DocumentNumber == 0 ? "پس از ثبت" : panel.DocumentNumber.ToString()) · مبلغ کل پنل: @panel.Amount.ToString("N0") ریال</span>
-                                @if (!ReadOnly) { <button type="button" class="order-remove" @onclick="() => RemovePanel(panel)">حذف پنل</button> }
                             </div>
                         </div>
                     </section>
                 }
+                <div class="order-bottom">
+                    <section class="order-deductions" aria-label="کسورات">
+                        <OrderExtrasEditor Title="کسورات" Items="form.Deductions" Options='@Options("Deductions")' ReadOnly="ReadOnly" OnChanged="Recalculate" />
+                    </section>
+                </div>
                 @if (!ReadOnly)
                 {
-                    <div class="order-panel-actions">
-                        <button type="button" class="order-add" @onclick='() => AddPanel("Cabin")'>افزودن پنل کابین</button>
-                        <button type="button" class="order-add" @onclick='() => AddPanel("Hall")'>افزودن پنل طبقات</button>
-                        <button type="button" class="order-add" @onclick='() => AddPanel("DoorTop")'>افزودن پنل سردرب</button>
+                    <div class="order-save-actions">
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت سفارش")</MudButton>
+                        <MudButton OnClick="ReloadAsync" Disabled="saving">بازنشانی تغییرات</MudButton>
                     </div>
                 }
-                <section class="order-section">
-                    <h2 class="order-section-title">کسورات</h2>
-                    <div class="order-section-body"><OrderExtrasEditor Title="کسورات" ShowTitle="false" Items="form.Deductions" Options='@Options("Deductions")' ReadOnly="ReadOnly" OnChanged="Recalculate" /></div>
-                </section>
-                <dl class="order-fields order-customer-fields order-additional">
-                    <OrderValue Label="شماره فاکتور" Value="@editor.Detail.Summary.FactorNumber.ToString()" />
-                    <OrderValue Label="سفارش گیرنده" Value="@editor.Detail.Summary.Receiver" />
-                    <OrderValue Label="تاریخ درخواست تولید" Value="@PersianDates.Format(editor.Detail.ProductionRequestDate)" />
-                </dl>
             </fieldset>
-            @if (!ReadOnly)
-            {
-                <div class="order-save-actions">
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت سفارش")</MudButton>
-                    <MudButton OnClick="ReloadAsync" Disabled="saving">بازنشانی تغییرات</MudButton>
-                </div>
-            }
             </EditForm>
         </div>
         @if (Id > 0 && activeTab == 1)
         {
             <section class="order-tab-panel" aria-label="یادداشت ها">
                 <div class="order-comment-editor">
-                    <label for="order-comment">یادداشت جدید</label>
-                    <textarea id="order-comment" maxlength="4000" @bind="newComment" @bind:event="oninput" placeholder="متن یادداشت را وارد کنید"></textarea>
+                    <MudTextField T="string" @bind-Value="newComment" Label="یادداشت جدید" Placeholder="متن یادداشت را وارد کنید" Immediate="true" Lines="3" MaxLength="4000" Variant="Variant.Outlined" Margin="Margin.Normal" />
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton>
                 </div>
                 @if (activityLoading) { <MudProgressLinear Indeterminate="true" Color="Color.Primary" /> }
@@ -249,7 +259,7 @@
     private OrderForm form => editor!.Form;
     private OrderLookup? customer;
     private OrderActivity? activity;
-    private string? factorDate, customerText, error, success, activityError, newComment;
+    private string? customerText, error, success, activityError, newComment;
     private bool loading = true, saving, activityLoading, savingComment;
     private int activeTab;
     private OrderHistoryItem? selectedHistory;
@@ -285,7 +295,6 @@
             persistedStatusId = form.StatusId;
             customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
             customerText = customer?.Name;
-            factorDate = form.FactorDate.HasValue ? PersianDates.Format(form.FactorDate) : "";
             if (Id == 0)
             {
                 foreach (var kind in new[] { "Cabin", "Hall", "DoorTop" })
@@ -346,7 +355,11 @@
             PushButtonCountId = (short)Default("HallPushButtonCounts") });
         Recalculate();
     }
-    private void RemovePanel(OrderPanelForm panel) { if (ReadOnly) return; form.Panels.Remove(panel); Recalculate(); }
+    private void SetSecondarySurfaceMetal(OrderPanelForm panel, int value)
+    {
+        panel.SurfaceMetalId2 = value == 0 ? null : value;
+        Recalculate();
+    }
     private async Task SaveAsync()
     {
         if (ReadOnly || saving) return;
@@ -354,7 +367,6 @@
         if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
         try
         {
-            form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل");
             var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
             var objects = new List<object> { form };
             objects.AddRange(form.Panels); objects.AddRange(form.Deductions);

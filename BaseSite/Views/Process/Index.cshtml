@@ -13,7 +13,6 @@
                persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
                persianCalendar.GetDayOfMonth(dateTime).ToString("00");
     };
-    var today = toPersianDate(DateTime.Now);
     //var name = this.ViewContext.ViewData.ModelMetadata.PropertyName;
     //var value = Model.HasValue ? toPersianDate(Model.Value) : string.Empty;
 }
@@ -35,7 +34,7 @@
                                 <div class="input-group">
                                     <span class="input-group-addon MySpan">تاریخ </span>
                                     <input type="text" id="ShTime" name="ShTime" class="form-control text-center MyControl" value="@Model.ShTime"
-                                           @*onclick="PersianDatePicker.Show(this,'@today');"*@ readonly="readonly" />
+                                           readonly="readonly" />
                                 </div>
                             </div>
                             <div class="col-md-12 col-sm-12 col-xs-12" style="margin-top:10px;">

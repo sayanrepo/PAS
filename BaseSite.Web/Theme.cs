@@ -4,6 +4,8 @@ namespace BaseSite.Web;
 
 public static class Theme
 {
+    private static readonly string[] AppFontFamily = ["IRANSans", "Tahoma", "Arial", "sans-serif"];
+
     public static MudTheme AppTheme { get; } = new()
     {
         PaletteLight = new PaletteLight
@@ -25,10 +27,20 @@ public static class Theme
         },
         Typography = new Typography
         {
-            Default = new DefaultTypography
-            {
-                FontFamily = ["Vazirmatn", "Tahoma", "Arial", "sans-serif"]
-            }
+            Default = new DefaultTypography { FontFamily = AppFontFamily },
+            H1 = new H1Typography { FontFamily = AppFontFamily },
+            H2 = new H2Typography { FontFamily = AppFontFamily },
+            H3 = new H3Typography { FontFamily = AppFontFamily },
+            H4 = new H4Typography { FontFamily = AppFontFamily },
+            H5 = new H5Typography { FontFamily = AppFontFamily },
+            H6 = new H6Typography { FontFamily = AppFontFamily },
+            Subtitle1 = new Subtitle1Typography { FontFamily = AppFontFamily },
+            Subtitle2 = new Subtitle2Typography { FontFamily = AppFontFamily },
+            Body1 = new Body1Typography { FontFamily = AppFontFamily },
+            Body2 = new Body2Typography { FontFamily = AppFontFamily },
+            Button = new ButtonTypography { FontFamily = AppFontFamily },
+            Caption = new CaptionTypography { FontFamily = AppFontFamily },
+            Overline = new OverlineTypography { FontFamily = AppFontFamily }
         }
     };
 }

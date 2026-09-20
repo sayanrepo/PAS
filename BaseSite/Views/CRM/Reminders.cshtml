@@ -1,22 +1,9 @@
-@using System.Globalization
 @model List<BaseSite.Models.DBModel.CRM_Activity>
 @{
     ViewBag.Title = "یادآوری ها";
     Layout = "~/Views/Shared/LayoutCRM.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 20);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 <div class="row">
@@ -36,8 +23,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تاریخ </span>
                             <input type="text" name="startDate" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.startDate"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.startDate" />
                         </div>
                     </div>
 

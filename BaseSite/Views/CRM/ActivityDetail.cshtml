@@ -1,21 +1,8 @@
 @model BaseSite.Models.DBModel.CRM_Activity
-@using System.Globalization
 @{
     ViewBag.Title = string.Format("ثبت {0}", Model.TypeId > 0 ? BaseSite.Models.Cache.CRM_ActivityTypes[Model.TypeId] : "فعالیت");
     Layout = "~/Views/Shared/LayoutCRM.cshtml";
 }
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
-}
-
 <div class="row" style="margin-top:-19px;">
     @using (Html.BeginForm("ActivityDetail", "CRM", FormMethod.Post))
     {
@@ -82,8 +69,7 @@
                             <div class="col-xs-6">
                                 <div class="input-group">
                                     <span class="input-group-addon MySpan">تاریخ شروع</span>
-                                    <input type="text" id="ShStartDate" name="ShStartDate" class="form-control text-center MyControl" value="@Model.ShStartDate"
-                                           onclick="PersianDatePicker.Show(this,'@today');" />
+                                    <input type="text" id="ShStartDate" name="ShStartDate" class="form-control text-center MyControl" value="@Model.ShStartDate" />
                                 </div>
                             </div>
                             <div class="col-xs-6">
@@ -95,8 +81,7 @@
                             <div class="col-xs-6">
                                 <div class="input-group">
                                     <span class="input-group-addon MySpan">تاریخ پایان</span>
-                                    <input type="text" id="ShEndDate" name="ShEndDate" class="form-control text-center MyControl" value="@Model.ShEndDate"
-                                           onclick="PersianDatePicker.Show(this,'@today');" />
+                                    <input type="text" id="ShEndDate" name="ShEndDate" class="form-control text-center MyControl" value="@Model.ShEndDate" />
                                 </div>
                             </div>
                             <div class="col-xs-6">

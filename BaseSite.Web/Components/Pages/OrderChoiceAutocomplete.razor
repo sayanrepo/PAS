@@ -1,0 +1,36 @@
+<MudAutocomplete T="int"
+                 Value="@Value"
+                 ValueChanged="ChangeValueAsync"
+                 SearchFunc="SearchAsync"
+                 ToStringFunc="OptionName"
+                 Label="@Label"
+                 Variant="Variant.Outlined"
+                 Margin="Margin.Normal"
+                 Class="order-field"
+                 Clearable="@Clearable"
+                 ResetValueOnEmptyText="true"
+                 Strict="false"
+                 OpenOnFocus="true">
+    <NoItemsTemplate>موردی یافت نشد</NoItemsTemplate>
+</MudAutocomplete>
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public EventCallback<int> ValueChanged { get; set; }
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+    [Parameter, EditorRequired] public IReadOnlyList<OrderChoice> Options { get; set; } = [];
+    [Parameter] public bool Clearable { get; set; }
+
+    private string OptionName(int id) => Options.FirstOrDefault(x => x.Id == id)?.Name ?? "";
+
+    private Task<IEnumerable<int>> SearchAsync(string? term, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var matches = string.IsNullOrWhiteSpace(term)
+            ? Options
+            : Options.Where(x => x.Name.Contains(term.Trim(), StringComparison.CurrentCultureIgnoreCase)).ToList();
+        return Task.FromResult(matches.Select(x => x.Id));
+    }
+
+    private Task ChangeValueAsync(int value) => ValueChanged.InvokeAsync(value);
+}

@@ -21,15 +21,15 @@
                                      ToStringFunc="@(x => x?.Name ?? string.Empty)" Clearable="true" ResetValueOnEmptyText="true" CoerceText="false" Strict="false"
                                      Variant="Variant.Outlined" Margin="Margin.Dense" AdornmentIcon="@Icons.Material.Filled.Person" />
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderFrom" Label="تاریخ سند از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderTo" Label="تاریخ سند تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderFrom" Label="تاریخ سند از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderTo" Label="تاریخ سند تا" /></MudItem>
                 <MudItem xs="12" md="4">
                     <MudSelect T="byte?" @bind-Value="typeId" Label="نحوه وصول" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
                         @foreach (var item in lookups.Types) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorFrom" Label="تاریخ سررسید از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorTo" Label="تاریخ سررسید تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorFrom" Label="تاریخ سررسید از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorTo" Label="تاریخ سررسید تا" /></MudItem>
                 <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
                 <MudItem xs="12" md="4"><MudSelect T="byte?" @bind-Value="babatId" Label="بابت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
                     @foreach (var item in lookups.Babats) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
@@ -76,9 +76,10 @@
     private PaymentLookups lookups = new();
     private PaymentSearch applied = new();
     private OrderLookup? selectedCustomer;
-    private string? customerText, orderFrom, orderTo, factorFrom, factorTo, error;
+    private string? customerText, error;
     private byte? statusId, typeId, babatId;
     private int? documentNumber;
+    private DateTime? orderFrom, orderTo, factorFrom, factorTo;
     private bool ready, loading;
     private bool CanRead => Session.User?.Roles.Contains("Payment") == true;
     private bool CanSearch => Session.User?.Roles.Contains("Payment_Search") == true;
@@ -116,8 +117,8 @@
             {
                 DocumentNumber = documentNumber, CustomerId = exactCustomer ? selectedCustomer!.Id : null,
                 Customer = exactCustomer ? null : customerText, StatusId = statusId, PaymentTypeId = typeId, BabatId = babatId,
-                DocumentDateFrom = PersianDates.Parse(orderFrom, "تاریخ سند از"), DocumentDateTo = PersianDates.Parse(orderTo, "تاریخ سند تا"),
-                DueDateFrom = PersianDates.Parse(factorFrom, "تاریخ سررسید از"), DueDateTo = PersianDates.Parse(factorTo, "تاریخ سررسید تا")
+                DocumentDateFrom = orderFrom, DocumentDateTo = orderTo,
+                DueDateFrom = factorFrom, DueDateTo = factorTo
             };
             var errors = new List<ValidationResult>();
             if (!Validator.TryValidateObject(next, new ValidationContext(next), errors, true))
@@ -135,7 +136,8 @@
     private async Task ResetAsync()
     {
         selectedCustomer = null;
-        customerText = orderFrom = orderTo = factorFrom = factorTo = null;
+        customerText = null;
+        orderFrom = orderTo = factorFrom = factorTo = null;
         statusId = typeId = babatId = null;
         documentNumber = null;
         await SearchAsync();

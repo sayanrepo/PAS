@@ -1,19 +1,6 @@
-@using System.Globalization
 @{
     ViewBag.Title = "ضرایب کارکرد";
     Layout = "~/Views/Shared/LayoutBase.cshtml";
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 <div class="row">
@@ -30,7 +17,6 @@
                     <form method="post" action="@Url.Action("AddProductFactorCost", "Information")" id="formItemAdd" class="formAdd">
                         <div class="col-xs-9">
                             <input type="text" class="form-control ListName text-center" id="shApplyDate" name="shApplyDate" placeholder="تاریخ اعمال" required
-                                   onclick="PersianDatePicker.Show(this,'@today');"
                                    oninvalid="this.setCustomValidity('لطفا تاریخ را وارد نمایید')"
                                    oninput="setCustomValidity('')" />
                         </div>
@@ -80,7 +66,6 @@
                     <form method="post" action="@Url.Action("AddCollectiveProducePercent", "Information")" id="formItemAdd" class="formAdd">
                         <div class="col-xs-9">
                             <input type="text" class="form-control ListName text-center" id="shApplyDate" name="shApplyDate" placeholder="تاریخ اعمال" required
-                                   onclick="PersianDatePicker.Show(this,'@today');"
                                    oninvalid="this.setCustomValidity('لطفا تاریخ را وارد نمایید')"
                                    oninput="setCustomValidity('')" />
                         </div>

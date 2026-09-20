@@ -1,22 +1,9 @@
-@using System.Globalization
 @model List<BaseSite.Models.DBModel.Payment_Payment>
 @{
     ViewBag.Title = "لیست اسناد دریافتی";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 20);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 <div class="row">
@@ -50,16 +37,14 @@
                     <div class="input-group">
                         <span class="input-group-addon">تاریخ سند از</span>
                         <input type="text" name="sanadDateFrom" class="form-control text-center text-left" dir="ltr"
-                               value="@ViewBag.sanadDateFrom"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.sanadDateFrom" />
                     </div>
                 </div>
                 <div class="col-md-4 col-xs-12 formdiv">
                     <div class="input-group">
                         <span class="input-group-addon">تا</span>
                         <input type="text" name="sanadDateTo" class="form-control text-center text-left" dir="ltr"
-                               value="@ViewBag.sanadDateTo"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.sanadDateTo" />
                     </div>
                 </div>
             </div>
@@ -88,8 +73,7 @@
                     <div class="input-group">
                         <span class="input-group-addon">تاریخ سررسید از</span>
                         <input type="text" name="sarresidDateFrom" class="form-control text-center text-left" dir="ltr"
-                               value="@ViewBag.sarresidDateFrom"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.sarresidDateFrom" />
                     </div>
                 </div>
                 <div class="col-md-4 col-xs-12 formdiv">
@@ -97,8 +81,7 @@
                         <span class="input-group-addon">تا</span>
                         <input type="text" class="form-control text-center text-left" dir="ltr"
                                name="sarresidDateTo"
-                               value="@ViewBag.sarresidDateTo"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.sarresidDateTo" />
                     </div>
                 </div>
             </div>

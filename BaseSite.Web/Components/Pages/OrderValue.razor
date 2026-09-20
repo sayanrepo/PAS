@@ -1,6 +1,10 @@
-<div class="order-value @Class">
-    <dt>@Label</dt><dd>@(string.IsNullOrWhiteSpace(Value) ? "—" : Value)</dd>
-</div>
+<MudTextField T="string"
+              Value="@(string.IsNullOrWhiteSpace(Value) ? "—" : Value)"
+              Label="@Label"
+              ReadOnly="true"
+              Variant="Variant.Outlined"
+              Margin="Margin.Normal"
+              Class="@($"order-field order-readonly {Class}")" />
 @code {
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string? Value { get; set; }

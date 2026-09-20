@@ -1,21 +1,8 @@
 @model BaseSite.Models.DBModel.Payment_Payment
-@using System.Globalization
 @{
     ViewBag.Title = "ثبت سند";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
 }
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
-}
-
 <div class="row">
     @using (Html.BeginForm("PaymentDetail", "Payment", FormMethod.Post))
     {
@@ -85,15 +72,13 @@
                                 <div class="col-xs-12" style="padding-top:5px;">
                                     <div class="input-group">
                                         <span class="input-group-addon MySpan">تاریخ سند</span>
-                                        <input type="text" id="ShDateSanad" name="ShDateSanad" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSanad"
-                                               onclick="PersianDatePicker.Show(this,'@today');" />
+                                        <input type="text" id="ShDateSanad" name="ShDateSanad" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSanad" />
                                     </div>
                                 </div>
                                 <div class="col-xs-12" style="padding-top:5px;">
                                     <div class="input-group">
                                         <span class="input-group-addon MySpan" id="DeliverDate">سررسید</span>
-                                        <input type="text" id="ShDateSarresid" name="ShDateSarresid" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSarresid"
-                                               onclick="PersianDatePicker.Show(this,'@today');" />
+                                        <input type="text" id="ShDateSarresid" name="ShDateSarresid" class="form-control text-center MyControl" style="direction:ltr;" value="@Model.ShDateSarresid" />
                                     </div>
                                 </div>
                                 <div class="col-xs-12" style="padding-top:5px;">

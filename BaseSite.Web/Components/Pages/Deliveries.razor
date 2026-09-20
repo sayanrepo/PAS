@@ -21,8 +21,8 @@
                                      ToStringFunc="@(x => x?.Name ?? string.Empty)" Clearable="true" ResetValueOnEmptyText="true" CoerceText="false" Strict="false"
                                      Variant="Variant.Outlined" Margin="Margin.Dense" AdornmentIcon="@Icons.Material.Filled.Person" />
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderFrom" Label="تاریخ ثبت از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderTo" Label="تاریخ ثبت تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderFrom" Label="تاریخ ثبت از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderTo" Label="تاریخ ثبت تا" /></MudItem>
 
                 <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
 
@@ -63,9 +63,10 @@
     private DeliveryLookups lookups = new();
     private DeliverySearch applied = new();
     private OrderLookup? selectedCustomer;
-    private string? customerText, orderFrom, orderTo, error;
+    private string? customerText, error;
     private byte? statusId;
     private int? documentNumber;
+    private DateTime? orderFrom, orderTo;
     private bool ready, loading;
     private bool CanRead => Session.User?.Roles.Contains("Delivery") == true;
     private bool CanSearch => Session.User?.Roles.Contains("Delivery_Search") == true;
@@ -103,7 +104,7 @@
             {
                 DocumentNumber = documentNumber, CustomerId = exactCustomer ? selectedCustomer!.Id : null,
                 Customer = exactCustomer ? null : customerText, StatusId = statusId,
-                DateFrom = PersianDates.Parse(orderFrom, "تاریخ ثبت از"), DateTo = PersianDates.Parse(orderTo, "تاریخ ثبت تا"),
+                DateFrom = orderFrom, DateTo = orderTo,
             };
             var errors = new List<ValidationResult>();
             if (!Validator.TryValidateObject(next, new ValidationContext(next), errors, true))
@@ -121,7 +122,8 @@
     private async Task ResetAsync()
     {
         selectedCustomer = null;
-        customerText = orderFrom = orderTo = null;
+        customerText = null;
+        orderFrom = orderTo = null;
         statusId = null;
         documentNumber = null;
         await SearchAsync();

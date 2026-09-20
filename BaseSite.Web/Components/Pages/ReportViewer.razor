@@ -11,8 +11,8 @@
   <MudPaper Class="filter-panel mb-4" Elevation="0"><MudGrid>
    @if(report.CustomerFilter) { <MudItem xs="12" md="4"><MudAutocomplete T="OrderLookup" @bind-Value="customer" Label="مشتری" SearchFunc="FindCustomers" ToStringFunc="@(x=>x?.Name??"")" Clearable="true" Variant="Variant.Outlined" /></MudItem> }
    @if(report.PartFilter) { <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="part" Label="جزء" Variant="Variant.Outlined">@for(var i=0;i<parts.Length;i++) {<MudSelectItem T="int" Value="@i">@parts[i]</MudSelectItem>}</MudSelect></MudItem> }
-   <MudItem xs="12" sm="6" md="3"><PersianDateFilter @bind-Value="dateFrom" Label="از تاریخ" /></MudItem>
-   <MudItem xs="12" sm="6" md="3"><PersianDateFilter @bind-Value="dateTo" Label="تا تاریخ" /></MudItem>
+   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateFrom" Label="از تاریخ" /></MudItem>
+   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateTo" Label="تا تاریخ" /></MudItem>
    <MudItem xs="12" md="2"><MudButton OnClick="Run" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">نمایش گزارش</MudButton></MudItem>
   </MudGrid></MudPaper>
  }
@@ -45,7 +45,8 @@
 </MudRTLProvider>
 @code {
  [Parameter] public string Key {get;set;}="";
- private string? loadedKey,dateFrom,dateTo,error,appliedFrom,appliedTo,appliedCustomer;
+ private string? loadedKey,error,appliedFrom,appliedTo,appliedCustomer;
+ private DateTime? dateFrom,dateTo;
  private ReportInfo? report;
  private ReportResult? result;
  private OrderLookup? customer;
@@ -61,8 +62,8 @@
    report=(await Api.GetReportsAsync())?.SingleOrDefault(x=>x.Key==Key);
    if(report is null) throw new InvalidOperationException("گزارش یافت نشد یا دسترسی مشاهده آن را ندارید.");
    var p=new System.Globalization.PersianCalendar();var year=p.GetYear(DateTime.Today);
-   dateFrom=PersianDates.Format(report.Daily?DateTime.Today:p.ToDateTime(year,1,1,0,0,0,0));
-   dateTo=PersianDates.Format(report.Daily?DateTime.Today:p.ToDateTime(year,12,p.GetDaysInMonth(year,12),0,0,0,0));
+   dateFrom=report.Daily?DateTime.Today:p.ToDateTime(year,1,1,0,0,0,0);
+   dateTo=report.Daily?DateTime.Today:p.ToDateTime(year,12,p.GetDaysInMonth(year,12),0,0,0,0);
   } catch(Exception ex) {error=ex.Message;} finally {busy=false;}
   if(report is not null && !report.CustomerFilter) await Run();
  }
@@ -72,12 +73,12 @@
  private async Task Run() {
   if(busy || report is null)return;busy=true;error=null;result=null;
   try {
-   var filter=new ReportFilter{DateFrom=PersianDates.Parse(dateFrom,"از تاریخ"),DateTo=PersianDates.Parse(dateTo,"تا تاریخ"),CustomerId=customer?.Id??0,Part=part};
+   var filter=new ReportFilter{DateFrom=dateFrom,DateTo=dateTo,CustomerId=customer?.Id??0,Part=part};
    var errors=new List<ValidationResult>();
    if(!Validator.TryValidateObject(filter,new ValidationContext(filter),errors,true)) throw new InvalidOperationException("بازه تاریخ را به‌درستی وارد کنید.");
    if(report.CustomerFilter && customer is null) throw new InvalidOperationException("مشتری را انتخاب کنید.");
    result=await Api.RunReportAsync(report.Key,filter);frameKey++;
-   appliedFrom=dateFrom;appliedTo=dateTo;appliedCustomer=customer is null?"":"— "+customer.Name;
+   appliedFrom=PersianDates.Format(dateFrom);appliedTo=PersianDates.Format(dateTo);appliedCustomer=customer is null?"":"— "+customer.Name;
    if(!Session.IsAuthenticated) Navigation.NavigateTo("/login");
   }catch(Exception ex){error=ex.Message;}finally{busy=false;}
  }

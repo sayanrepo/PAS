@@ -1,4 +1,3 @@
-@using System.Globalization
 @model BaseSite.Models.DBModel.Report_Report
 @{
     ViewBag.Title = Model.ReportDescription;
@@ -10,18 +9,6 @@
     {
         Layout = "~/Views/Shared/LayoutReport.cshtml";
     }
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 @*##################### Search Div #############################*@
@@ -72,16 +59,14 @@
                             <div class="input-group">
                                 <span class="input-group-addon">از</span>
                                 <input type="text" name="reportShDateFrom" class="form-control text-center text-left" dir="ltr"
-                                       value="@Model.ReportShDateFrom"
-                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                                       value="@Model.ReportShDateFrom" />
                             </div>
                         </div>
                         <div class="col-xs-12 formdiv">
                             <div class="input-group">
                                 <span class="input-group-addon">تا</span>
                                 <input type="text" name="reportShDateTo" class="form-control text-center text-left" dir="ltr"
-                                       value="@Model.ReportShDateTo"
-                                       onclick="PersianDatePicker.Show(this,'@today');" />
+                                       value="@Model.ReportShDateTo" />
                             </div>
                         </div>
                         <div class="col-xs-12 text-center">

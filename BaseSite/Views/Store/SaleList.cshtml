@@ -1,22 +1,9 @@
-@using System.Globalization
 @model List<BaseSite.Models.DBModel.Sale_Sale>
 @{
     ViewBag.Title = "لیست فروش کالا";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 20);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 <div class="row">
@@ -51,8 +38,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تاریخ سفارش از</span>
                             <input type="text" name="orderDateFrom" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.orderDateFrom"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.orderDateFrom" />
                         </div>
                     </div>
 
@@ -60,8 +46,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تا</span>
                             <input type="text" name="orderDateTo" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.orderDateTo"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.orderDateTo" />
                         </div>
                     </div>
                 </div>
@@ -90,8 +75,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تاریخ تحویل از</span>
                             <input type="text" name="factorDateFrom" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.factorDateFrom"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.factorDateFrom" />
                         </div>
                     </div>
 
@@ -100,8 +84,7 @@
                             <span class="input-group-addon">تا</span>
                             <input type="text" class="form-control text-center text-left" dir="ltr"
                                    name="factorDateTo"
-                                   value="@ViewBag.factorDateTo"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.factorDateTo" />
                         </div>
                     </div>
                 </div>

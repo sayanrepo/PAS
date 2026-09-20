@@ -1,32 +1,43 @@
 <section class="order-extras-section">
-    @if (ShowTitle) { <h3>@Title</h3> }
-    <table>
-        <thead><tr><th>عنوان</th>@if (Attachments) { <th>تعداد</th> }<th>مبلغ (ریال)</th>@if (!ReadOnly) { <th class="order-actions-cell">حذف</th> }</tr></thead>
-        <tbody>
-            @foreach (var row in Items)
+    <MudTable T="OrderExtraForm" Items="@Items" Hover="true" Bordered="false" Dense="true" Elevation="0" Breakpoint="Breakpoint.None" RowsPerPage="100" Class="order-extras-table">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">@Title</MudText>
+            <MudSpacer />
+            @if (!ReadOnly)
             {
-                <tr @key="row">
-                    <td><select aria-label="@($"عنوان {Title}")" @bind="row.LookupId" @bind:after="Changed">
-                        @foreach (var option in Options) { <option value="@option.Id">@option.Name</option> }
-                    </select></td>
-                    @if (Attachments) { <td><input aria-label="تعداد ملحقات" type="number" min="1" max="10000" @bind="row.Count" @bind:after="Changed" /></td> }
-                    <td><input aria-label="@($"مبلغ {Title}")" type="number" min="0" step="any" readonly="@Attachments" @bind="row.Cost" @bind:after="Changed" /></td>
-                    @if (!ReadOnly) { <td><button type="button" class="order-remove" @onclick="() => Remove(row)" aria-label="@($"حذف {Title}")">×</button></td> }
-                </tr>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Filled.Add" Disabled="@(Options.Count == 0)" OnClick="Add">افزودن @Title</MudButton>
             }
-            @if (Items.Count == 0) { <tr><td colspan="@((Attachments ? 3 : 2) + (ReadOnly ? 0 : 1))">موردی ثبت نشده است.</td></tr> }
-        </tbody>
-    </table>
-    @if (!ReadOnly) { <button type="button" class="order-add" @onclick="Add">افزودن @Title</button> }
+        </ToolBarContent>
+        <HeaderContent>
+            @if (Items.Count > 0)
+            {
+                <MudTh>عنوان</MudTh>
+                @if (Attachments) { <MudTh>تعداد</MudTh> }
+                <MudTh>مبلغ (ریال)</MudTh>
+                @if (!ReadOnly) { <MudTh>حذف</MudTh> }
+            }
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="عنوان" Class="order-extra-title-cell"><MudSelect T="int" @bind-Value="context.LookupId" @bind-Value:after="Changed" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="ReadOnly" aria-label="@($"عنوان {Title}")">
+                    @foreach (var option in Options) { <MudSelectItem T="int" Value="@option.Id">@option.Name</MudSelectItem> }
+                </MudSelect></MudTd>
+            @if (Attachments) { <MudTd DataLabel="تعداد" Class="order-extra-count-cell"><MudNumericField T="int" @bind-Value="context.Count" @bind-Value:after="Changed" Min="1" Max="10000" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="ReadOnly" aria-label="تعداد ملحقات" /></MudTd> }
+            <MudTd DataLabel="مبلغ (ریال)" Class="order-extra-cost-cell"><MudNumericField T="double" @bind-Value="context.Cost" @bind-Value:after="Changed" Min="0" Format="N0" Immediate="true" HideSpinButtons="true" ReadOnly="Attachments" Disabled="ReadOnly" Variant="Variant.Outlined" Margin="Margin.Dense" aria-label="@($"مبلغ {Title}")" /></MudTd>
+            @if (!ReadOnly) { <MudTd DataLabel="حذف" Class="order-actions-cell"><MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" Color="Color.Error" Size="Size.Small" OnClick="() => Remove(context)" aria-label="@($"حذف {Title}")" /></MudTd> }
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText Typo="Typo.body2" Class="order-extras-empty">@EmptyMessage</MudText>
+        </NoRecordsContent>
+    </MudTable>
 </section>
 @code {
     [Parameter] public string Title { get; set; } = "";
-    [Parameter] public bool ShowTitle { get; set; } = true;
     [Parameter] public List<OrderExtraForm> Items { get; set; } = [];
     [Parameter] public List<OrderChoice> Options { get; set; } = [];
     [Parameter] public bool Attachments { get; set; }
     [Parameter] public bool ReadOnly { get; set; }
     [Parameter] public EventCallback OnChanged { get; set; }
+    private string EmptyMessage => Attachments ? "ملحقاتی ثبت نشده است." : Title == "اضافات" ? "اضافاتی ثبت نشده است." : "کسوراتی ثبت نشده است.";
     private Task Changed() => OnChanged.InvokeAsync();
     private async Task Add() { if (ReadOnly || Options.Count == 0) return; Items.Add(new() { LookupId = Options.FirstOrDefault(x => x.Id > 0)?.Id ?? Options[0].Id }); await Changed(); }
     private async Task Remove(OrderExtraForm row) { if (ReadOnly) return; Items.Remove(row); await Changed(); }

@@ -21,15 +21,15 @@
                                      ToStringFunc="@(x => x?.Name ?? string.Empty)" Clearable="true" ResetValueOnEmptyText="true" CoerceText="false" Strict="false"
                                      Variant="Variant.Outlined" Margin="Margin.Dense" AdornmentIcon="@Icons.Material.Filled.Person" />
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderFrom" Label="تاریخ سفارش از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="orderTo" Label="تاریخ سفارش تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderFrom" Label="تاریخ سفارش از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderTo" Label="تاریخ سفارش تا" /></MudItem>
                 <MudItem xs="12" md="4">
                     <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
                         @foreach (var item in lookups.Statuses) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorFrom" Label="تاریخ فاکتور از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDateFilter @bind-Value="factorTo" Label="تاریخ فاکتور تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorFrom" Label="تاریخ فاکتور از" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorTo" Label="تاریخ فاکتور تا" /></MudItem>
                 <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
                 <MudItem xs="12" md="4">
                     <MudSelect T="byte?" @bind-Value="tradeTypeId" Label="نوع معامله" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
@@ -77,9 +77,10 @@
     private OrderLookups lookups = new();
     private OrderSearch applied = new();
     private OrderLookup? selectedCustomer;
-    private string? customerText, projectName, orderFrom, orderTo, factorFrom, factorTo, error;
+    private string? customerText, projectName, error;
     private byte? statusId, tradeTypeId;
     private int? documentNumber;
+    private DateTime? orderFrom, orderTo, factorFrom, factorTo;
     private bool ready, loading;
     private bool CanRead => Session.User?.Roles.Contains("Order") == true;
     private bool CanSearch => Session.User?.Roles.Contains("Order_Search") == true;
@@ -117,8 +118,8 @@
             {
                 DocumentNumber = documentNumber, CustomerId = exactCustomer ? selectedCustomer!.Id : null,
                 Customer = exactCustomer ? null : customerText, StatusId = statusId, TradeTypeId = tradeTypeId, ProjectName = projectName,
-                OrderDateFrom = PersianDates.Parse(orderFrom, "تاریخ سفارش از"), OrderDateTo = PersianDates.Parse(orderTo, "تاریخ سفارش تا"),
-                FactorDateFrom = PersianDates.Parse(factorFrom, "تاریخ فاکتور از"), FactorDateTo = PersianDates.Parse(factorTo, "تاریخ فاکتور تا")
+                OrderDateFrom = orderFrom, OrderDateTo = orderTo,
+                FactorDateFrom = factorFrom, FactorDateTo = factorTo
             };
             var errors = new List<ValidationResult>();
             if (!Validator.TryValidateObject(next, new ValidationContext(next), errors, true))
@@ -136,7 +137,8 @@
     private async Task ResetAsync()
     {
         selectedCustomer = null;
-        customerText = projectName = orderFrom = orderTo = factorFrom = factorTo = null;
+        customerText = projectName = null;
+        orderFrom = orderTo = factorFrom = factorTo = null;
         statusId = tradeTypeId = null;
         documentNumber = null;
         await SearchAsync();

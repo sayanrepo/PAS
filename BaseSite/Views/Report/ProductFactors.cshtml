@@ -1,22 +1,9 @@
-@using System.Globalization
 @model List<BaseSite.Models.ZaribKarkard>
 @{
     ViewBag.Title = "کارکرد";
     Layout = "~/Views/Shared/LayoutMain.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 200);
     grid.Bind(Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 @*##################### Search Div #############################*@
@@ -28,16 +15,14 @@
                     <div class="input-group">
                         <span class="input-group-addon">تاریخ سفارش از</span>
                         <input type="text" name="reportDateFrom" class="form-control text-center text-left" dir="ltr"
-                               value="@ViewBag.reportDateFrom"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.reportDateFrom" />
                     </div>
                 </div>
                 <div class="col-md-4 col-sm-4 col-xs-12 formdiv">
                     <div class="input-group">
                         <span class="input-group-addon">تا</span>
                         <input type="text" name="reportDateTo" class="form-control text-center text-left" dir="ltr"
-                               value="@ViewBag.reportDateTo"
-                               onclick="PersianDatePicker.Show(this,'@today');" />
+                               value="@ViewBag.reportDateTo" />
                     </div>
                 </div>
                 <div class="col-xs-2 col-md-2 col-md-offset-1 col-xs-offset-5">

@@ -1,22 +1,9 @@
-@using System.Globalization
 @model List<BaseSite.Models.DBModel.CRM_Activity>
 @{
     ViewBag.Title = "فعالیت ها";
     Layout = "~/Views/Shared/LayoutCRM.cshtml";
     WebGrid grid = new WebGrid(null, rowsPerPage: 20);
     grid.Bind(@Model, autoSortAndPage: true, rowCount: ViewBag.RowCount);
-}
-
-@{
-    Func<DateTime, string> toPersianDate = date =>
-    {
-        var dateTime = new DateTime(date.Year, date.Month, date.Day, new GregorianCalendar());
-        var persianCalendar = new PersianCalendar();
-        return persianCalendar.GetYear(dateTime) + "/" +
-               persianCalendar.GetMonth(dateTime).ToString("00") + "/" +
-               persianCalendar.GetDayOfMonth(dateTime).ToString("00");
-    };
-    var today = toPersianDate(DateTime.Now);
 }
 
 <div class="row">
@@ -45,8 +32,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تاریخ شروع از</span>
                             <input type="text" name="startDateFrom" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.startDateFrom"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.startDateFrom" />
                         </div>
                     </div>
 
@@ -54,8 +40,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تا</span>
                             <input type="text" name="startDateTo" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.startDateTo"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.startDateTo" />
                         </div>
                     </div>
                 </div>
@@ -72,8 +57,7 @@
                         <div class="input-group">
                             <span class="input-group-addon">تاریخ پایان از</span>
                             <input type="text" name="endDateFrom" class="form-control text-center text-left" dir="ltr"
-                                   value="@ViewBag.endDateFrom"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.endDateFrom" />
                         </div>
                     </div>
 
@@ -82,8 +66,7 @@
                             <span class="input-group-addon">تا</span>
                             <input type="text" class="form-control text-center text-left" dir="ltr"
                                    name="endDateTo"
-                                   value="@ViewBag.endDateTo"
-                                   onclick="PersianDatePicker.Show(this,'@today');" />
+                                   value="@ViewBag.endDateTo" />
                         </div>
                     </div>
                 </div>

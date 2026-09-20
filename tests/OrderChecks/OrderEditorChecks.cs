@@ -35,6 +35,101 @@ internal static class OrderEditorChecks
             .Cast<RouteAttribute>().Select(x => x.Template).ToArray();
         check(routes.Contains("/documents/orders/new") && routes.Contains("/documents/orders/{Id:int}")
             && routes.Contains("/documents/orders/{Id:int}/edit"), "Create, view and edit resolve to one order component");
+        var orderEditorPage = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Pages", "OrderDetailsPage.razor"));
+        var orderExtrasEditor = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Pages", "OrderExtrasEditor.razor"));
+        var orderValue = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Pages", "OrderValue.razor"));
+        var orderChoiceAutocomplete = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Pages", "OrderChoiceAutocomplete.razor"));
+        var orderEditorStyles = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Pages", "OrderDetailsPage.razor.css"));
+        var applicationStyles = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "wwwroot", "app.css"));
+        check(!orderEditorPage.Contains("form.Comment", StringComparison.Ordinal)
+            && !System.Text.RegularExpressions.Regex.IsMatch(orderEditorPage, "<(input|select|textarea)\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            && !System.Text.RegularExpressions.Regex.IsMatch(orderExtrasEditor, "<(input|select|textarea)\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            && orderEditorPage.Contains("Variant=\"Variant.Outlined\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Variant=\"Variant.Outlined\"", StringComparison.Ordinal)
+            && orderEditorPage.Contains("Margin=\"Margin.Normal\"", StringComparison.Ordinal)
+            && !orderEditorPage.Contains("Margin=\"Margin.Dense\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Margin=\"Margin.Dense\"", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("Margin=\"Margin.Normal\"", StringComparison.Ordinal),
+            "Order editor removes the general comment and uses outlined MudBlazor inputs with compact table rows");
+        check(orderValue.Contains("MudTextField", StringComparison.Ordinal)
+            && orderValue.Contains("ReadOnly=\"true\"", StringComparison.Ordinal)
+            && orderValue.Contains("order-readonly", StringComparison.Ordinal)
+            && orderEditorStyles.Contains("border-radius: 3px", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".order-readonly .mud-input-outlined", StringComparison.Ordinal)
+            && !orderEditorPage.Contains("<div class=\"order-field order-customer\">", StringComparison.Ordinal),
+            "Calculated order values match outlined fields while read-only styling and customer alignment remain distinct");
+        check(applicationStyles.Contains("IRANSansWeb(FaNum).woff", StringComparison.Ordinal)
+            && applicationStyles.Contains("--mud-typography-default-family: \"IRANSans\"", StringComparison.Ordinal),
+            "The web application uses the legacy IranSans font for its default typography");
+        var sharedDatePicker = File.ReadAllText(Path.Combine(FindRepositoryRoot(), "BaseSite.Web", "Components", "Shared", "PersianDatePicker.razor"));
+        check(orderEditorPage.Contains("<PersianDatePicker", StringComparison.Ordinal)
+            && sharedDatePicker.Contains("Culture=\"@PersianCulture\"", StringComparison.Ordinal)
+            && sharedDatePicker.Contains("SelectEmptyAsync()", StringComparison.Ordinal)
+            && !orderEditorPage.Contains("PersianDates.Parse(factorDate", StringComparison.Ordinal),
+            "Order delivery date uses an optional Persian MudBlazor date picker");
+        check(orderEditorStyles.Contains("font-size: 13px", StringComparison.Ordinal)
+            && orderEditorStyles.Contains("font-family: \"IRANSans\"", StringComparison.Ordinal)
+            && !orderEditorStyles.Contains("border-top: 1px solid #ddd", StringComparison.Ordinal),
+            "Order editor uses legacy 13px IranSans typography without the totals separator");
+        var cabinStart = orderEditorPage.IndexOf("@if (panel.Kind == \"Cabin\")", StringComparison.Ordinal);
+        var cabinEnd = orderEditorPage.IndexOf("else", cabinStart, StringComparison.Ordinal);
+        var cabinFields = orderEditorPage[cabinStart..cabinEnd];
+        var cabinFieldOrder = new[] { "مدل پنل", "پوش باتون", "نمایشگر", "تعداد", "فلز رویه" }
+            .Select(label => cabinFields.IndexOf($"Label=\"{label}\"", StringComparison.Ordinal)).ToArray();
+        check(cabinFieldOrder.All(index => index >= 0)
+            && cabinFieldOrder.SequenceEqual(cabinFieldOrder.OrderBy(index => index))
+            && cabinFields.Count(x => x == '<') >= 5
+            && cabinFields.Split("<OrderChoiceAutocomplete", StringSplitOptions.None).Length - 1 == 5
+            && orderChoiceAutocomplete.Contains("<MudAutocomplete T=\"int\"", StringComparison.Ordinal)
+            && orderChoiceAutocomplete.Contains("SearchFunc=\"SearchAsync\"", StringComparison.Ordinal),
+            "Cabin panel searchable choices and initial field order match the requested editor layout");
+        check(!cabinFields.Contains("Label=\"شماره ورق\"", StringComparison.Ordinal)
+            && cabinFields.Contains("Label=\"متن برش لیزری\"", StringComparison.Ordinal)
+            && cabinFields.Contains("Label=\"متن حک لیزری\"", StringComparison.Ordinal)
+            && cabinFields.Split("Class=\"order-field order-full\"", StringSplitOptions.None).Length - 1 >= 2,
+            "Cabin panel hides sheet number and gives each laser text field a full row");
+        check(orderExtrasEditor.Contains("<MudTable T=\"OrderExtraForm\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("RowsPerPage=\"100\"", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("<MudTablePager", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("ملحقاتی ثبت نشده است.", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("اضافاتی ثبت نشده است.", StringComparison.Ordinal)
+            && !System.Text.RegularExpressions.Regex.IsMatch(orderExtrasEditor, "<(table|thead|tbody|tr|th|td)\\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase),
+            "Order extras use an unpaged MudBlazor table and a dedicated empty state");
+        check(orderExtrasEditor.Contains("<ToolBarContent>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudText Typo=\"Typo.h6\">@Title</MudText>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudSpacer />", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<HeaderContent>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudTh>عنوان</MudTh>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudTh>تعداد</MudTh>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudTh>مبلغ (ریال)</MudTh>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("<MudTh>حذف</MudTh>", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("CustomHeader=\"true\"", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("CustomFooter=\"true\"", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("<MudTHeadRow>", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("<MudTFootRow>", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("مورد ثبت شده", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("<h3>", StringComparison.Ordinal)
+            && !orderEditorPage.Contains("<h2 class=\"order-section-title\">کسورات</h2>", StringComparison.Ordinal),
+            "Order extras put their title and add action in ToolBarContent and column names in the standard HeaderContent");
+        check(orderExtrasEditor.Contains("Class=\"order-extras-table\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Dense=\"true\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Bordered=\"false\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Margin=\"Margin.Dense\"", StringComparison.Ordinal)
+            && !orderExtrasEditor.Contains("<ColGroup>", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Class=\"order-actions-cell\"", StringComparison.Ordinal)
+            && orderExtrasEditor.Contains("Format=\"N0\"", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".order-extras-table { width: 100%; max-width: 100%; overflow: hidden; border: 1px solid", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".order-extras-table .mud-table-container { width: 100%; max-width: 100%; overflow-x: auto;", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".order-extras-table .mud-table-root { width: 100%; max-width: 100%; table-layout: auto;", StringComparison.Ordinal)
+            && !orderEditorStyles.Contains(".order-extra-title-cell { width:", StringComparison.Ordinal)
+            && !orderEditorStyles.Contains(".order-extra-count-cell", StringComparison.Ordinal)
+            && !orderEditorStyles.Contains(".order-extra-cost-cell", StringComparison.Ordinal)
+            && !orderEditorStyles.Contains(".order-actions-cell { width:", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".mud-input-control { width: 100%; min-width: 0; margin-top: 0; margin-bottom: 0;", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".mud-table-cell { border: 0 !important;", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".mud-table-head .mud-table-cell { border-bottom: 1px solid", StringComparison.Ordinal)
+            && orderEditorStyles.Contains(".order-extras { display: grid; width: 100%; max-width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr));", StringComparison.Ordinal),
+            "Order extras tables stay within equal desktop columns, use default column widths, and format costs");
 
         for (byte status = 0; status <= 11; status++)
         {
