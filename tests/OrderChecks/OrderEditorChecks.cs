@@ -369,24 +369,18 @@ internal static class OrderEditorChecks
     private static bool LegacyPrintAssetsAreUnchanged()
     {
         var root = FindRepositoryRoot();
-        var assets = new[]
+        // Preserve the migration baseline without retaining unused API static assets.
+        var expected = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(
+            File.ReadAllText(Path.Combine(root, "tests", "OrderChecks", "LegacyPrintAssetHashes.json")))!;
+        return expected.Count > 0 && expected.All(item =>
         {
-            "css/bootstrap.css", "css/bootstrap-rtl.css", "css/MyStyle/PrintPA4.css",
-            "css/MyStyle/PrintBill.css", "css/MyStyle/PrintLA5.css", "css/MyStyle/PrintLabel.css", "css/MyStyle/Fonts.css", "js/jquery-3.1.1.js",
-            "js/printThis.js", "js/autoNumeric.js"
-        };
-        bool Same(string relative)
-        {
-            var source = Path.Combine(root, "BaseSite", "Contents", relative.Replace('/', Path.DirectorySeparatorChar));
-            var target = Path.Combine(root, "BaseSite.Web", "wwwroot", "Contents", relative.Replace('/', Path.DirectorySeparatorChar));
-            return File.Exists(target) && File.ReadAllBytes(source).AsSpan().SequenceEqual(File.ReadAllBytes(target));
-        }
-        if (!assets.All(Same)) return false;
-
-        var fontsRoot = Path.Combine(root, "BaseSite", "Contents", "fonts");
-        return Directory.EnumerateFiles(fontsRoot, "*", SearchOption.AllDirectories)
-            .Select(path => Path.GetRelativePath(Path.Combine(root, "BaseSite", "Contents"), path).Replace('\\', '/'))
-            .All(Same);
+            var target = Path.Combine(root, "BaseSite.Web", "wwwroot", "Contents", item.Key.Replace('/', Path.DirectorySeparatorChar));
+            if (!File.Exists(target)) return false;
+            var bytes = Path.GetExtension(target) is ".css" or ".js" or ".svg"
+                ? Encoding.UTF8.GetBytes(File.ReadAllText(target).Replace("\r\n", "\n"))
+                : File.ReadAllBytes(target);
+            return Convert.ToHexString(SHA256.HashData(bytes)) == item.Value;
+        });
     }
 
     private static bool LegacySalePrintBodiesArePreserved()

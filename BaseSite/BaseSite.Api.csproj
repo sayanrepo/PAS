@@ -18,7 +18,6 @@
   <ItemGroup>
     <Compile Remove="App_Start\**\*.cs" />
     <Compile Remove="Controllers\**\*.cs" />
-    <Compile Remove="Global.asax.cs" />
     <Compile Remove="Infrastructure\AuthenticationClaims.cs" />
     <Compile Remove="Infrastructure\MvcViewCompat.cs" />
     <Compile Remove="Infrastructure\WebGridCompat.cs" />
@@ -27,7 +26,6 @@
     <Compile Remove="Reports\ReportTemplate.aspx.designer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Contents\**\*" />
     <Content Remove="GuideBook\**\*" />
     <Content Remove="Reports\**\*" />
     <Content Remove="Views\**\*" />
