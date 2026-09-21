@@ -18,24 +18,24 @@
 
     @if (ready)
     {
-        <MudPaper Class="filter-panel system-user-filters" Elevation="0">
+        <MudPaper Class="filter-panel app-form system-user-filters" Elevation="0">
             <MudGrid Spacing="2">
                 <MudItem xs="12" md="3">
                     <MudTextField Immediate="true" @bind-Value="term" Label="نام فرد/شرکت" Clearable="true"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                                Variant="Variant.Outlined" Margin="Margin.Normal" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
                 </MudItem>
                 <MudItem xs="12" md="3">
-                    <MudSelect T="int?" @bind-Value="roleId" Label="مسئولیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="int?" @bind-Value="roleId" Label="مسئولیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.Roles) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="3">
-                    <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.Statuses) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="3">
-                    <MudSelect T="byte?" @bind-Value="departmentId" Label="بخش" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="byte?" @bind-Value="departmentId" Label="بخش" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.Departments) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>

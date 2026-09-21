@@ -6,6 +6,7 @@
 
 <PageTitle>@(Id == 0 ? "افزودن شخص جدید" : "ویرایش اطلاعات شخص") | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
+<div class="app-form person-detail">
     <div class="page-heading">
         <MudText Typo="Typo.h5">@(Id == 0 ? "افزودن شخص جدید" : "ویرایش اطلاعات شخص")</MudText>
         <MudButton Href="/customers" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به اشخاص و سازمان‌ها</MudButton>
@@ -32,29 +33,28 @@
                     <div class="legacy-panel-body">
                         <div class="legacy-main-columns">
                             <div class="legacy-column">
-                                <label class="legacy-field"><span>نوع شخص</span><select @bind="person.PersonTypeId">@foreach (var item in lookups.PersonTypes) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                <label class="legacy-field"><span>نام</span><input maxlength="255" required lang="fa-IR" @bind="person.Name" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>نام خانوادگی</span><input maxlength="255" lang="fa-IR" @bind="person.LastName" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>شماره ملی/ثبت</span><input maxlength="15" dir="ltr" @bind="person.NationalNumber" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>شماره شناسنامه/اقتصادی</span><input maxlength="15" dir="ltr" @bind="person.EconomicalNumber" @bind:event="oninput" /></label>
-                                <label class="legacy-field legacy-field-textarea"><span>توضیحات</span><textarea rows="4" @bind="person.Comment" @bind:event="oninput"></textarea></label>
+                                <MudSelect T="byte" @bind-Value="person.PersonTypeId" Label="نوع شخص" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)">@foreach (var item in lookups.PersonTypes) { <MudSelectItem T="byte" Value='@((byte)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                <MudTextField T="string" @bind-Value="person.Name" Immediate="true" Label="نام" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" MaxLength="255" Required="true" />
+                                <MudTextField T="string" @bind-Value="person.LastName" Immediate="true" Label="نام خانوادگی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" MaxLength="255" />
+                                <MudTextField T="string" @bind-Value="person.NationalNumber" Immediate="true" Label="شماره ملی/ثبت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="15" />
+                                <MudTextField T="string" @bind-Value="person.EconomicalNumber" Immediate="true" Label="شماره شناسنامه/اقتصادی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="15" />
+                                <MudTextField T="string" @bind-Value="person.Comment" Immediate="true" Label="توضیحات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-field-textarea" Disabled="@(!CanSave || saving)" Lines="4" />
                             </div>
 
                             <div class="legacy-column">
-                                <label class="legacy-field"><span>تلفن ۱</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Phone1" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>تلفن ۲</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Phone2" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>موبایل ۱</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Mobile1" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>موبایل ۲</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Mobile2" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>فکس</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.Fax" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>نحوه آشنایی</span><input required list="findout-ways" placeholder="انتخاب کن یا بنویس" @bind="person.FindoutWay" @bind:event="oninput" /></label>
-                                <datalist id="findout-ways">@foreach (var item in lookups.FindoutWays) { <option value="@item.Name"></option> }</datalist>
+                                <MudTextField T="string" @bind-Value="person.Phone1" Immediate="true" Label="تلفن ۱" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
+                                <MudTextField T="string" @bind-Value="person.Phone2" Immediate="true" Label="تلفن ۲" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
+                                <MudTextField T="string" @bind-Value="person.Mobile1" Immediate="true" Label="موبایل ۱" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
+                                <MudTextField T="string" @bind-Value="person.Mobile2" Immediate="true" Label="موبایل ۲" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
+                                <MudTextField T="string" @bind-Value="person.Fax" Immediate="true" Label="فکس" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
+                                <MudAutocomplete T="string" @bind-Value="person.FindoutWay" SearchFunc="FindFindoutWays" CoerceValue="true" CoerceText="false" Strict="false" Label="نحوه آشنایی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" Placeholder="انتخاب کن یا بنویس" Required="true" />
                             </div>
 
                             <div class="legacy-column legacy-account-free-column">
-                                <label class="legacy-field"><span>نوع همکاری</span><select @bind="person.PartnerTypeId">@foreach (var item in lookups.PartnerTypes) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                <label class="legacy-field"><span>بخش</span><select @bind="person.DepartmentId">@foreach (var item in DepartmentOptions) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                <label class="legacy-field"><span>ایمیل</span><input maxlength="255" type="email" dir="ltr" placeholder="لطفا ایمیل را وارد فرمائید" @bind="person.Email" @bind:event="oninput" /></label>
-                                <label class="legacy-field"><span>سایت</span><input maxlength="255" dir="ltr" placeholder="لطفا آدرس سایت را وارد فرمائید" @bind="person.Website" @bind:event="oninput" /></label>
+                                <MudSelect T="byte" @bind-Value="person.PartnerTypeId" Label="نوع همکاری" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)">@foreach (var item in lookups.PartnerTypes) { <MudSelectItem T="byte" Value='@((byte)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                <MudSelect T="byte?" @bind-Value="person.DepartmentId" Label="بخش" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)">@foreach (var item in DepartmentOptions) { <MudSelectItem T="byte?" Value='@((byte?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                <MudTextField T="string" @bind-Value="person.Email" Immediate="true" Label="ایمیل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="255" Placeholder="لطفا ایمیل را وارد فرمائید" InputType="InputType.Email" />
+                                <MudTextField T="string" @bind-Value="person.Website" Immediate="true" Label="سایت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="255" Placeholder="لطفا آدرس سایت را وارد فرمائید" />
                             </div>
                         </div>
 
@@ -62,16 +62,16 @@
                             <h3>افراد مرتبط</h3>
                             <div class="legacy-panel-body legacy-related-grid">
                                 <div class="legacy-column">
-                                    <label class="legacy-field"><span>نام مدیر عامل</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible1" @bind:event="oninput" /></label>
-                                    <label class="legacy-field"><span>شماره تماس مدیرعامل</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone1" @bind:event="oninput" /></label>
+                                    <MudTextField T="string" @bind-Value="person.Responsible1" Immediate="true" Label="نام مدیر عامل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="person.ResponsiblePhone1" Immediate="true" Label="شماره تماس مدیرعامل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
                                 </div>
                                 <div class="legacy-column">
-                                    <label class="legacy-field"><span>نام مسئول سفارشات</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible2" @bind:event="oninput" /></label>
-                                    <label class="legacy-field"><span>شماره تماس سفارشات</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone2" @bind:event="oninput" /></label>
+                                    <MudTextField T="string" @bind-Value="person.Responsible2" Immediate="true" Label="نام مسئول سفارشات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="person.ResponsiblePhone2" Immediate="true" Label="شماره تماس سفارشات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
                                 </div>
                                 <div class="legacy-column">
-                                    <label class="legacy-field"><span>نام مسئول فنی</span><input maxlength="50" lang="fa-IR" @bind="person.Responsible3" @bind:event="oninput" /></label>
-                                    <label class="legacy-field"><span>شماره تماس مسئول فنی</span><input maxlength="50" dir="ltr" placeholder="با کد و بدون خط تیره و فاصله" @bind="person.ResponsiblePhone3" @bind:event="oninput" /></label>
+                                    <MudTextField T="string" @bind-Value="person.Responsible3" Immediate="true" Label="نام مسئول فنی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="person.ResponsiblePhone3" Immediate="true" Label="شماره تماس مسئول فنی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="50" Placeholder="با کد و بدون خط تیره و فاصله" />
                                 </div>
                             </div>
                         </section>
@@ -81,12 +81,12 @@
                                 <h3>آدرس منزل / دفتر مرکزی</h3>
                                 <div class="legacy-panel-body">
                                     <div class="legacy-location-grid">
-                                        <label class="legacy-field"><span>کشور</span><select value="@homeCountryId" @onchange="HomeCountryChanged"><option value="">-انتخاب کشور-</option>@foreach (var item in lookups.Countries) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                        <label class="legacy-field"><span>استان</span><select value="@homeProvinceId" @onchange="HomeProvinceChanged" disabled="@(!homeCountryId.HasValue)"><option value="">-انتخاب استان-</option>@foreach (var item in HomeProvinces) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                        <label class="legacy-field"><span>شهر</span><select @bind="person.CityId1" disabled="@(!homeProvinceId.HasValue)"><option value="">-انتخاب شهر-</option>@foreach (var item in HomeCities) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <MudSelect T="int?" Value="homeCountryId" ValueChanged="@(v => HomeCountryChanged(new ChangeEventArgs { Value = v }))" Label="کشور" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب کشور-</MudSelectItem>@foreach (var item in lookups.Countries) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                        <MudSelect T="int?" Value="homeProvinceId" ValueChanged="@(v => HomeProvinceChanged(new ChangeEventArgs { Value = v }))" Label="استان" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@((!CanSave || saving) || (!homeCountryId.HasValue))"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب استان-</MudSelectItem>@foreach (var item in HomeProvinces) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                        <MudSelect T="int?" @bind-Value="person.CityId1" Label="شهر" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@((!CanSave || saving) || (!homeProvinceId.HasValue))"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب شهر-</MudSelectItem>@foreach (var item in HomeCities) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
                                     </div>
-                                    <label class="legacy-field legacy-field-textarea"><span>آدرس</span><textarea rows="5" lang="fa-IR" @bind="person.Address1" @bind:event="oninput"></textarea></label>
-                                    <label class="legacy-field"><span>کدپستی</span><input maxlength="15" dir="ltr" @bind="person.PostalCode1" @bind:event="oninput" /></label>
+                                    <MudTextField T="string" @bind-Value="person.Address1" Immediate="true" Label="آدرس" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-field-textarea" Disabled="@(!CanSave || saving)" Lines="5" />
+                                    <MudTextField T="string" @bind-Value="person.PostalCode1" Immediate="true" Label="کدپستی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="15" />
                                 </div>
                             </section>
 
@@ -94,12 +94,12 @@
                                 <h3>آدرس محل کار / کارخانه</h3>
                                 <div class="legacy-panel-body">
                                     <div class="legacy-location-grid">
-                                        <label class="legacy-field"><span>کشور</span><select value="@workCountryId" @onchange="WorkCountryChanged"><option value="">-انتخاب کشور-</option>@foreach (var item in lookups.Countries) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                        <label class="legacy-field"><span>استان</span><select value="@workProvinceId" @onchange="WorkProvinceChanged" disabled="@(!workCountryId.HasValue)"><option value="">-انتخاب استان-</option>@foreach (var item in WorkProvinces) { <option value="@item.Id">@item.Name</option> }</select></label>
-                                        <label class="legacy-field"><span>شهر</span><select @bind="person.CityId2" disabled="@(!workProvinceId.HasValue)"><option value="">-انتخاب شهر-</option>@foreach (var item in WorkCities) { <option value="@item.Id">@item.Name</option> }</select></label>
+                                        <MudSelect T="int?" Value="workCountryId" ValueChanged="@(v => WorkCountryChanged(new ChangeEventArgs { Value = v }))" Label="کشور" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(!CanSave || saving)"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب کشور-</MudSelectItem>@foreach (var item in lookups.Countries) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                        <MudSelect T="int?" Value="workProvinceId" ValueChanged="@(v => WorkProvinceChanged(new ChangeEventArgs { Value = v }))" Label="استان" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@((!CanSave || saving) || (!workCountryId.HasValue))"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب استان-</MudSelectItem>@foreach (var item in WorkProvinces) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
+                                        <MudSelect T="int?" @bind-Value="person.CityId2" Label="شهر" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@((!CanSave || saving) || (!workProvinceId.HasValue))"><MudSelectItem T="int?" Value='@((int?)null)'>-انتخاب شهر-</MudSelectItem>@foreach (var item in WorkCities) { <MudSelectItem T="int?" Value='@((int?)item.Id)'>@item.Name</MudSelectItem> }</MudSelect>
                                     </div>
-                                    <label class="legacy-field legacy-field-textarea"><span>آدرس</span><textarea rows="5" lang="fa-IR" @bind="person.Address2" @bind:event="oninput"></textarea></label>
-                                    <label class="legacy-field"><span>کدپستی</span><input maxlength="15" dir="ltr" @bind="person.PostalCode2" @bind:event="oninput" /></label>
+                                    <MudTextField T="string" @bind-Value="person.Address2" Immediate="true" Label="آدرس" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-field-textarea" Disabled="@(!CanSave || saving)" Lines="5" />
+                                    <MudTextField T="string" @bind-Value="person.PostalCode2" Immediate="true" Label="کدپستی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(!CanSave || saving)" MaxLength="15" />
                                 </div>
                             </section>
                         </div>
@@ -110,11 +110,12 @@
             @if (CanSave)
             {
                 <div class="legacy-person-actions">
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Warning" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت اطلاعات")</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Success" Disabled="saving">@(saving ? "در حال ثبت…" : "ثبت اطلاعات")</MudButton>
                 </div>
             }
         </EditForm>
     }
+</div>
 </MudRTLProvider>
 
 @code {
@@ -206,6 +207,9 @@
     private void WorkProvinceChanged(ChangeEventArgs args) { workProvinceId = ParseNullableInt(args.Value); if (person is not null) person.CityId2 = null; }
     private static int? ParseNullableInt(object? value) => int.TryParse(value?.ToString(), out var parsed) ? parsed : null;
     private static string DepartmentName(int id) => id switch { 1 => "فروش", 2 => "تولید", _ => "نامعلوم" };
+
+    private Task<IEnumerable<string>> FindFindoutWays(string text, CancellationToken token) =>
+        Task.FromResult((lookups?.FindoutWays.Select(x => x.Name) ?? []).Where(x => string.IsNullOrWhiteSpace(text) || x.Contains(text, StringComparison.OrdinalIgnoreCase)));
 
     private async Task SaveAsync()
     {

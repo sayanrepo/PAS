@@ -7,7 +7,7 @@
 
 <PageTitle>خدمات | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
-<div class="service-detail">
+<div class="service-detail app-form">
     <div class="page-heading">
         <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد خدمات" : $"خدمات {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/services" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به خدمات</MudButton>
@@ -39,25 +39,25 @@
                         <h2 class="service-section-title">خدمات</h2>
                         <div class="service-section-body">
                             <div class="service-fields service-top-fields">
-                                <label class="service-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
-                                <label class="service-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
-                                <label class="service-field"><span>نوع سفارش</span><select @bind="form.OrderTypeId">@foreach (var option in editor.OrderTypes) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="service-field"><span>تاریخ سفارش</span><input dir="ltr" @bind="orderDate" @bind:event="oninput" /></label>
-                                <label class="service-field"><span>تاریخ تحویل</span><input dir="ltr" @bind="factorDate" @bind:event="oninput" /></label>
+                                <MudTextField T="string" Value='@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())' ReadOnly="true" Label="شماره سند" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@editor.Detail.Summary.Status' ReadOnly="true" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudSelect T="byte" @bind-Value="form.OrderTypeId" Label="نوع سفارش" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)">@foreach (var option in editor.OrderTypes) { <MudSelectItem T="byte" Value='@((byte)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                <PersianDatePicker @bind-Date="form.OrderDate" Label="تاریخ سفارش" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" />
+                                <PersianDatePicker @bind-Date="form.FactorDate" Label="تاریخ تحویل" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" />
                             </div>
                             <div class="service-fields service-totals">
-                                <label class="service-field"><span>خدمات</span><input type="number" min="0" step="any" @bind="form.ServiceCost" /></label>
-                                <label class="service-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" /></label>
-                                <label class="service-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" /></label>
+                                <MudNumericField T="double" @bind-Value="form.ServiceCost" Immediate="true" Label="خدمات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" HideSpinButtons="true" />
+                                <MudNumericField T="double" @bind-Value="form.DeliveryCost" Immediate="true" Label="کرایه حمل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" HideSpinButtons="true" />
+                                <MudNumericField T="double" @bind-Value="form.Tax" Immediate="true" Label="عوارض (درصد)" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" Max="100" HideSpinButtons="true" />
                                 <ServiceValue Label="مبلغ عوارض" Value="@form.TaxTotal.ToString("N0")" />
-                                <label class="service-field"><span>تخفیف</span><input type="number" min="0" step="any" @bind="form.Discount" /></label>
+                                <MudNumericField T="double" @bind-Value="form.Discount" Immediate="true" Label="تخفیف" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" HideSpinButtons="true" />
                                 <ServiceValue Label="جمع کل" Value="@form.Total.ToString("N0")" Class="service-grand-total" />
                             </div>
                             <div class="service-fields service-customer-fields">
-                                <div class="service-field service-customer"><span>مشتری</span><MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" /></div>
-                                <label class="service-field"><span>سفارش دهنده</span><input maxlength="50" @bind="form.ClienteleName" @bind:event="oninput" /></label>
-                                <label class="service-field service-address"><span>محل ارسال</span><input maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput" /></label>
-                                <label class="service-field service-full"><span>شرح خدمات</span><textarea maxlength="255" @bind="form.Comment" @bind:event="oninput"></textarea></label>
+                                <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Label="مشتری" Class="app-field" Variant="Variant.Outlined" Margin="Margin.Normal" />
+                                <MudTextField T="string" @bind-Value="form.ClienteleName" Immediate="true" Label="سفارش دهنده" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                                <MudTextField T="string" @bind-Value="form.DeliveryAddress" Immediate="true" Label="محل ارسال" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field service-address" Disabled="@(ReadOnly || saving)" MaxLength="255" />
+                                <MudTextField T="string" @bind-Value="form.Comment" Immediate="true" Label="شرح خدمات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field service-full" Disabled="@(ReadOnly || saving)" MaxLength="255" Lines="3" />
                             </div>
                         </div>
                     </section>
@@ -68,7 +68,7 @@
         @if (Id > 0 && activeTab == 1)
         {
             <section class="service-tab-panel">
-                <div class="service-comment-editor"><label for="service-comment">یادداشت جدید</label><textarea id="service-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                <div class="service-comment-editor"><MudTextField T="string" @bind-Value="newComment" Label="یادداشت جدید" Lines="3" MaxLength="4000" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Normal" /><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
                 @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
                 else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
                 else if (activity?.Comments.Count is null or 0) { <div class="service-tab-empty">یادداشتی برای این سند خدمات ثبت نشده است.</div> }
@@ -98,7 +98,7 @@
     [Parameter] public int Id { get; set; }
     private ServiceEditor? editor; private ServiceForm form => editor!.Form;
     private OrderLookup? customer; private OrderActivity? activity; private OrderHistoryItem? selectedHistory;
-    private string? orderDate, factorDate, customerText, error, success, activityError, newComment;
+    private string? customerText, error, success, activityError, newComment;
     private bool loading = true, saving, activityLoading, savingComment; private int activeTab; private int? loadedId;
     private bool ReadOnly => editor?.CanEdit != true || !ServiceForm.IsEditable(form.StatusId);
     private bool CanPrint => Session.User?.Roles.Contains("Service_Print") == true;
@@ -110,7 +110,7 @@
     {
         if (!Session.IsAuthenticated) { Navigation.NavigateTo("/login"); return; }
         loading = true; editor = null; error = success = activityError = null; activity = null; selectedHistory = null; loadedId = Id; activeTab = 0;
-        try { editor = await Api.GetServiceEditorAsync(Id) ?? throw new InvalidOperationException("سند خدمات یافت نشد."); customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null; customerText = customer?.Name; orderDate = PersianDates.Format(form.OrderDate); factorDate = PersianDates.Format(form.FactorDate); if (Id > 0) await LoadActivityAsync(); }
+        try { editor = await Api.GetServiceEditorAsync(Id) ?? throw new InvalidOperationException("سند خدمات یافت نشد."); customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null; customerText = customer?.Name; if (Id > 0) await LoadActivityAsync(); }
         catch (Exception ex) { error = ex.Message; } finally { loading = false; }
     }
     private async Task LoadActivityAsync() { activityLoading = true; try { activity = await Api.GetServiceActivityAsync(Id) ?? new(); } catch (Exception ex) { activityError = ex.Message; } finally { activityLoading = false; } }
@@ -122,7 +122,7 @@
     {
         if (ReadOnly || saving) return; error = success = null;
         if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
-        try { form.OrderDate = PersianDates.Parse(orderDate, "تاریخ سفارش"); form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل"); var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>(); if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(form, new(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست."); if (form.Discount > form.ServiceCost + form.DeliveryCost + form.TaxTotal) throw new InvalidOperationException("تخفیف از مبلغ خدمات بیشتر است."); saving = true; var saved = await Api.SaveServiceAsync(Id, form); if (Id == 0) Navigation.NavigateTo($"/documents/services/{saved.Id}"); else await LoadAsync(); success = "خدمات ثبت شد."; }
+        try { var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>(); if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(form, new(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست."); if (form.Discount > form.ServiceCost + form.DeliveryCost + form.TaxTotal) throw new InvalidOperationException("تخفیف از مبلغ خدمات بیشتر است."); saving = true; var saved = await Api.SaveServiceAsync(Id, form); if (Id == 0) Navigation.NavigateTo($"/documents/services/{saved.Id}"); else await LoadAsync(); success = "خدمات ثبت شد."; }
         catch (Exception ex) { error = ex.Message; } finally { saving = false; }
     }
     private static string FormatDateTime(DateTime value) => $"{PersianDates.Format(value)} {value:HH:mm}";

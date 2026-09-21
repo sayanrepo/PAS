@@ -6,7 +6,6 @@ public sealed class ConfirmedDatePicker : MudDatePicker
 {
     private bool confirming;
     private bool clearPending;
-    private bool choosingDate;
 
     public async Task SelectTodayAsync()
     {
@@ -41,16 +40,8 @@ public sealed class ConfirmedDatePicker : MudDatePicker
         }
     }
 
-    public Task CancelAsync()
-    {
-        choosingDate = false;
-        clearPending = false;
-        return CloseAsync(submit: false);
-    }
-
     protected override Task OnOpenedAsync()
     {
-        choosingDate = true;
         clearPending = false;
         return base.OnOpenedAsync();
     }
@@ -68,14 +59,7 @@ public sealed class ConfirmedDatePicker : MudDatePicker
 
     protected override Task OnClosedAsync()
     {
-        if (confirming || !choosingDate)
-        {
-            choosingDate = false;
-            return base.OnClosedAsync();
-        }
-        // Ignore overlay, Escape, Tab and input-icon close requests without losing the draft.
-        Open = true;
-        StateHasChanged();
-        return Task.CompletedTask;
+        clearPending = false;
+        return base.OnClosedAsync();
     }
 }

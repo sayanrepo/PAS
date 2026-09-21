@@ -1,26 +1,16 @@
 .legacy-person-form { margin: 0; padding: 0; border: 0; }
-.legacy-panel { overflow: hidden; border: 1px solid #d4dde9; border-radius: 10px; background: #fff; }
-.legacy-panel-main { border-color: #ead59b; }
-.legacy-panel h2, .legacy-panel h3 { margin: 0; padding: 11px 16px; font-size: .95rem; font-weight: 700; }
-.legacy-panel h2 { color: #6f5310; background: #fff3cd; }
-.legacy-panel h3 { color: #1c5267; background: #d9edf7; }
+.legacy-panel { overflow: hidden; border: 1px solid #bce8f1; border-radius: var(--panta-panel-radius); background: #fff; }
+.legacy-panel-main { border-color: #d6e9c6; }
+.legacy-panel h2, .legacy-panel h3 { margin: 0; padding: 10px 14px; font-size: 15px; font-weight: 700; text-align: center; }
+.legacy-panel h2 { color: #3c763d; background: #dff0d8; }
+.legacy-panel h3 { color: #31708f; background: #d9edf7; }
 .legacy-panel-body { padding: 16px; }
 .legacy-main-columns, .legacy-related-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.legacy-column { display: grid; align-content: start; gap: 8px; min-width: 0; }
+.legacy-column { display: grid; align-content: start; gap: 12px; min-width: 0; }
 .legacy-account-free-column { padding-top: 0; }
-.legacy-field { display: flex; min-width: 0; min-height: 40px; margin: 0; color: #253750; font-size: .78rem; }
-.legacy-field > span { display: flex; flex: 0 0 128px; align-items: center; justify-content: center; padding: 7px 8px; border: 1px solid #c8d1dd; border-inline-end: 0; border-radius: 0 7px 7px 0; background: #eef2f6; text-align: center; box-sizing: border-box; }
-.legacy-field input, .legacy-field select, .legacy-field textarea { min-width: 0; width: 100%; padding: 8px 10px; border: 1px solid #c8d1dd; border-radius: 7px 0 0 7px; background: #fff; color: #17263d; font: inherit; box-sizing: border-box; }
-.legacy-field input:focus, .legacy-field select:focus, .legacy-field textarea:focus { position: relative; z-index: 1; outline: 2px solid rgba(54, 92, 155, .2); border-color: #5578ad; }
-.legacy-field textarea { resize: vertical; }
-.legacy-field-textarea > span { align-items: flex-start; padding-top: 11px; }
 .legacy-subpanel { margin-top: 16px; border-color: #bcdce9; }
-.legacy-related-grid { padding: 0; }
 .legacy-address-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.legacy-location-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 8px; }
-.legacy-location-grid .legacy-field { display: grid; }
-.legacy-location-grid .legacy-field > span { min-height: 36px; border-inline-end: 1px solid #c8d1dd; border-bottom: 0; border-radius: 7px 7px 0 0; }
-.legacy-location-grid .legacy-field select { min-height: 40px; border-radius: 0 0 7px 7px; }
+.legacy-location-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 8px; }
 .legacy-address-grid .legacy-panel-body { display: grid; gap: 8px; }
 .legacy-person-actions { display: flex; justify-content: center; margin-top: 18px; }
 .legacy-person-form:disabled { opacity: .92; }
@@ -29,7 +19,4 @@
 @media (max-width: 600px) {
     .legacy-panel-body { padding: 10px; }
     .legacy-location-grid { grid-template-columns: 1fr; }
-    .legacy-field { display: grid; }
-    .legacy-field > span { min-height: 34px; border-inline-end: 1px solid #c8d1dd; border-bottom: 0; border-radius: 7px 7px 0 0; }
-    .legacy-field input, .legacy-field select, .legacy-field textarea { border-radius: 0 0 7px 7px; }
 }

@@ -4,17 +4,18 @@
 @inject NavigationManager Navigation
 <PageTitle>جداول سازگاری | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
+<div class="app-form">
  <div class="page-heading"><MudText Typo="Typo.h5">جداول سازگاری</MudText></div>
- <MudPaper Class="filter-panel mb-4" Elevation="0"><MudGrid>
-  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="primary" Label="نوع پنل" Variant="Variant.Outlined" Disabled="busy"><MudSelectItem Value="3">داخل کابین</MudSelectItem><MudSelectItem Value="7">طبقات</MudSelectItem><MudSelectItem Value="10">سردرب</MudSelectItem></MudSelect></MudItem>
-  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="secondary" Label="نوع جزء" Variant="Variant.Outlined" Disabled="busy"><MudSelectItem Value="4">پوش باتون</MudSelectItem><MudSelectItem Value="6">نمایشگر</MudSelectItem></MudSelect></MudItem>
+ <MudPaper Class="filter-panel app-form mb-4" Elevation="0"><MudGrid>
+  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="primary" Label="نوع پنل" Variant="Variant.Outlined" Disabled="busy" Margin="Margin.Normal"><MudSelectItem Value="3">داخل کابین</MudSelectItem><MudSelectItem Value="7">طبقات</MudSelectItem><MudSelectItem Value="10">سردرب</MudSelectItem></MudSelect></MudItem>
+  <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="secondary" Label="نوع جزء" Variant="Variant.Outlined" Disabled="busy" Margin="Margin.Normal"><MudSelectItem Value="4">پوش باتون</MudSelectItem><MudSelectItem Value="6">نمایشگر</MudSelectItem></MudSelect></MudItem>
   <MudItem xs="12" md="4"><MudButton OnClick="Load" Disabled="@(busy||!ready)" Variant="Variant.Filled" Color="Color.Primary">نمایش جدول</MudButton></MudItem>
  </MudGrid></MudPaper>
  <MudText Class="mb-4">سازگار: قابل نصب · مشروط: نصب با رعایت شرایط · نامناسب: قابل نصب ولی انتخاب نامناسب · ناسازگار: غیرقابل نصب</MudText>
  @if(error is not null){<MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert>}
  @if(busy){<MudProgressLinear Indeterminate="true" />}
  @if(grid is not null) {
-  <MudTextField @bind-Value="search" Label="جستجوی مدل پنل" Immediate="true" Clearable="true" Variant="Variant.Outlined" Class="mb-4" />
+  <MudTextField @bind-Value="search" Label="جستجوی مدل پنل" Immediate="true" Clearable="true" Variant="Variant.Outlined" Class="mb-4" Margin="Margin.Normal" />
   <div class="compatibility-scroll"><table class="compatibility-table">
    <caption>@(loadedPrimary==3?"پنل داخل کابین":loadedPrimary==7?"پنل طبقات":"پنل سردرب") / @(loadedSecondary==4?"پوش باتون":"نمایشگر")</caption>
    <thead><tr><th>مدل پنل / جزء</th>@foreach(var part in grid.Parts){<th>@part.Name</th>}</tr></thead>
@@ -22,7 +23,7 @@
     <tr><th>@panel.Name</th>@foreach(var part in grid.Parts){
      var panelId=panel.Id;var partId=part.Id;var value=CellValue(panelId,partId);
      <td @key="(panelId,partId,revision)" class="@CellClass(value)">
-      @if(grid.CanEdit){<select value="@value.ToString(System.Globalization.CultureInfo.InvariantCulture)" disabled="@busy" aria-label="@($"{panel.Name} / {part.Name}")" @onchange="@(e=>SaveCell(panelId,partId,e.Value?.ToString()))"><option value="1">سازگار</option><option value="0.75">نامناسب</option><option value="0.5">مشروط</option><option value="0">ناسازگار</option></select>}
+      @if(grid.CanEdit){<MudSelect T="double" Value="value" ValueChanged="@(v => SaveCell(panelId, partId, v.ToString(System.Globalization.CultureInfo.InvariantCulture)))" Disabled="busy" Variant="Variant.Outlined" Margin="Margin.Dense" aria-label="@($"{panel.Name} / {part.Name}")"><MudSelectItem T="double" Value="1d">سازگار</MudSelectItem><MudSelectItem T="double" Value="0.75d">نامناسب</MudSelectItem><MudSelectItem T="double" Value="0.5d">مشروط</MudSelectItem><MudSelectItem T="double" Value="0d">ناسازگار</MudSelectItem></MudSelect>}
       else {<span>@CellText(value)</span>}
      </td>
     }</tr>
@@ -30,6 +31,7 @@
   </table></div>
   @if(grid.Panels.Count==0||grid.Parts.Count==0){<MudAlert Severity="Severity.Info">مدل یا جزئی برای این جدول ثبت نشده است.</MudAlert>}
  }
+</div>
 </MudRTLProvider>
 @code {
  private int primary=3,secondary=4,loadedPrimary,loadedSecondary;

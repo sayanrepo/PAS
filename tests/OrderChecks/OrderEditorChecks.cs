@@ -54,7 +54,8 @@ internal static class OrderEditorChecks
         check(orderValue.Contains("MudTextField", StringComparison.Ordinal)
             && orderValue.Contains("ReadOnly=\"true\"", StringComparison.Ordinal)
             && orderValue.Contains("order-readonly", StringComparison.Ordinal)
-            && orderEditorStyles.Contains("border-radius: 3px", StringComparison.Ordinal)
+            && orderEditorStyles.Contains("border-radius: var(--panta-field-radius)", StringComparison.Ordinal)
+            && applicationStyles.Contains("--panta-field-radius: 6px", StringComparison.Ordinal)
             && orderEditorStyles.Contains(".order-readonly .mud-input-outlined", StringComparison.Ordinal)
             && !orderEditorPage.Contains("<div class=\"order-field order-customer\">", StringComparison.Ordinal),
             "Calculated order values match outlined fields while read-only styling and customer alignment remain distinct");

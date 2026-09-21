@@ -5,12 +5,11 @@
                          Culture="@PersianCulture" DateFormat="yyyy/MM/dd" Editable="false" Clearable="false" AutoClose="false"
                          FirstDayOfWeek="DayOfWeek.Saturday" Disabled="Disabled" ReadOnly="ReadOnly"
                          PreviousIcon="@Icons.Material.Filled.ChevronRight" NextIcon="@Icons.Material.Filled.ChevronLeft"
-                         Variant="Variant.Outlined" Margin="Margin" Class="@($"persian-date-picker {Class}")"
+                       Variant="Variant.Outlined" Margin="Margin" Class="@($"persian-date-picker {Class}")"
                          ActionsClass="persian-date-picker-actions">
         <PickerActions Context="pickerActions">
             <MudButton Color="Color.Primary" OnClick="() => picker!.SelectTodayAsync()">امروز</MudButton>
             <MudButton OnClick="() => picker!.SelectEmptyAsync()">پاک کردن</MudButton>
-            <MudButton OnClick="() => picker!.CancelAsync()">بستن</MudButton>
             <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="() => picker!.ConfirmAsync()">تأیید</MudButton>
         </PickerActions>
     </ConfirmedDatePicker>

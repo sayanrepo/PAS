@@ -12,36 +12,36 @@
         @if (Kind == "orders") { <MudAlert Severity="Severity.Info" Class="mb-4">این فرم برای ثبت اطلاعات اولیه پیش‌فاکتور سفارش است. اقلام و مشخصات پنل‌ها در این مرحله ثبت نمی‌شوند.</MudAlert> }
         <EditForm Model="model" OnValidSubmit="Save">
             <DataAnnotationsValidator /><ValidationSummary />
-            <MudPaper Class="filter-panel" Elevation="0">
+            <MudPaper Class="filter-panel app-form" Elevation="0">
                 <MudGrid>
-                    <MudItem xs="12" md="6"><MudAutocomplete T="OrderLookup" Label="مشتری" Value="customer" ValueChanged="SelectCustomer" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? "")" Required="true" Clearable="true" Variant="Variant.Outlined" /></MudItem>
-                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ClienteleName" Label="سفارش دهنده" Immediate="true" Variant="Variant.Outlined" MaxLength="50" /></MudItem>
-                    @if (Kind == "orders") { <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ProjectName" Label="نام پروژه" Immediate="true" Variant="Variant.Outlined" MaxLength="100" /></MudItem> }
-                    <MudItem xs="12" md="6"><PersianDatePicker @bind-Date="model.FactorDate" Label="تاریخ تحویل" /></MudItem>
-                    <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع سفارش" @bind-Value="model.OrderTypeId" Variant="Variant.Outlined">
+                    <MudItem xs="12" md="6"><MudAutocomplete T="OrderLookup" Label="مشتری" Value="customer" ValueChanged="SelectCustomer" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? "")" Required="true" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal" /></MudItem>
+                    <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ClienteleName" Label="سفارش دهنده" Immediate="true" Variant="Variant.Outlined" MaxLength="50" Margin="Margin.Normal" /></MudItem>
+                    @if (Kind == "orders") { <MudItem xs="12" md="6"><MudTextField @bind-Value="model.ProjectName" Label="نام پروژه" Immediate="true" Variant="Variant.Outlined" MaxLength="100" Margin="Margin.Normal" /></MudItem> }
+                    <MudItem xs="12" md="6"><PersianDatePicker @bind-Date="model.FactorDate" Label="تاریخ تحویل" Margin="Margin.Normal" /></MudItem>
+                    <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع سفارش" @bind-Value="model.OrderTypeId" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in options.OrderTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect></MudItem>
-                    @if (Kind != "services") { <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع معامله" @bind-Value="model.TradeTypeId" Variant="Variant.Outlined">
+                    @if (Kind != "services") { <MudItem xs="12" md="6"><MudSelect T="byte?" Label="نوع معامله" @bind-Value="model.TradeTypeId" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in options.TradeTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect></MudItem> }
-                    <MudItem xs="12"><MudTextField @bind-Value="model.DeliveryAddress" Label="محل ارسال" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
-                    <MudItem xs="12"><MudTextField @bind-Value="model.Comment" Label="@(Kind == "services" ? "شرح خدمات" : "توضیحات")" Lines="3" Immediate="true" Variant="Variant.Outlined" MaxLength="255" /></MudItem>
-                    @if (Kind == "services") { <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.ServiceCost" Label="مبلغ خدمات (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem> }
+                    <MudItem xs="12"><MudTextField @bind-Value="model.DeliveryAddress" Label="محل ارسال" Immediate="true" Variant="Variant.Outlined" MaxLength="255" Margin="Margin.Normal" /></MudItem>
+                    <MudItem xs="12"><MudTextField @bind-Value="model.Comment" Label="@(Kind == "services" ? "شرح خدمات" : "توضیحات")" Lines="3" Immediate="true" Variant="Variant.Outlined" MaxLength="255" Margin="Margin.Normal" /></MudItem>
+                    @if (Kind == "services") { <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.ServiceCost" Label="مبلغ خدمات (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem> }
                     @if (Kind != "orders") {
-                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.DeliveryCost" Label="کرایه حمل (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Tax" Label="عوارض (درصد)" Min="0" Max="100" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Discount" Label="تخفیف (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.DeliveryCost" Label="کرایه حمل (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem>
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Tax" Label="عوارض (درصد)" Min="0" Max="100" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem>
+                        <MudItem xs="12" md="4"><MudNumericField @bind-Value="model.Discount" Label="تخفیف (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem>
                     }
                 </MudGrid>
             </MudPaper>
             @if (Kind == "sales") {
-                <MudPaper Class="filter-panel mt-4" Elevation="0">
+                <MudPaper Class="filter-panel app-form mt-4" Elevation="0">
                     <MudText Typo="Typo.h6" Class="mb-3">اقلام فروش کالا</MudText>
                     @foreach (var item in model.Items) {
                         <MudGrid @key="item" Class="mb-3">
-                            <MudItem xs="12" md="5"><MudTextField @bind-Value="item.Name" Label="شرح کالا" Immediate="true" Variant="Variant.Outlined" MaxLength="100" /></MudItem>
-                            <MudItem xs="6" md="2"><MudNumericField @bind-Value="item.Count" Label="تعداد" Min="1" Immediate="true" Variant="Variant.Outlined" /></MudItem>
-                            <MudItem xs="6" md="4"><MudNumericField @bind-Value="item.UnitPrice" Label="قیمت واحد (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined" /></MudItem>
+                            <MudItem xs="12" md="5"><MudTextField @bind-Value="item.Name" Label="شرح کالا" Immediate="true" Variant="Variant.Outlined" MaxLength="100" Margin="Margin.Normal" /></MudItem>
+                            <MudItem xs="6" md="2"><MudNumericField @bind-Value="item.Count" Label="تعداد" Min="1" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem>
+                            <MudItem xs="6" md="4"><MudNumericField @bind-Value="item.UnitPrice" Label="قیمت واحد (ریال)" Min="0" Immediate="true" Variant="Variant.Outlined"  HideSpinButtons="true" Margin="Margin.Normal" /></MudItem>
                             <MudItem xs="12" md="1"><MudIconButton Icon="@Icons.Material.Filled.DeleteOutline" OnClick="() => model.Items.Remove(item)" aria-label="حذف ردیف کالا" /></MudItem>
                         </MudGrid>
                     }

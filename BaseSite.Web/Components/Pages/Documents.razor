@@ -13,13 +13,13 @@
     </div>
 </div>
 
-<MudPaper Class="filter-panel" Elevation="0">
+<MudPaper Class="filter-panel app-form" Elevation="0">
     <MudGrid Spacing="2">
         <MudItem xs="12" sm="4">
-            <MudNumericField T="int?" @bind-Value="documentNumber" Label="شماره سند" Variant="Variant.Outlined" Clearable="true" />
+            <MudNumericField T="int?" @bind-Value="documentNumber" Label="شماره سند" Variant="Variant.Outlined" Clearable="true"  HideSpinButtons="true" Margin="Margin.Normal" />
         </MudItem>
         <MudItem xs="12" sm="5">
-            <MudTextField T="string" @bind-Value="customer" Label="نام مشتری" Variant="Variant.Outlined" Clearable="true" />
+            <MudTextField T="string" @bind-Value="customer" Label="نام مشتری" Variant="Variant.Outlined" Clearable="true" Margin="Margin.Normal" />
         </MudItem>
         <MudItem xs="12" sm="3">
             <MudButton FullWidth="true" Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary"

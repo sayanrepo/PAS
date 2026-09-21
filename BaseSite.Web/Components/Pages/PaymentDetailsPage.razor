@@ -8,7 +8,7 @@
 
 <PageTitle>سند دریافتی | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
-<div class="payment-detail">
+<div class="payment-detail app-form">
     <div class="page-heading">
         <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد سند دریافتی" : $"سند دریافتی {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/payments" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به اسناد دریافتی</MudButton>
@@ -44,28 +44,28 @@
                         <h2 class="payment-section-title">سند دریافتی</h2>
                         <div class="payment-section-body">
                             <div class="payment-fields payment-top-fields">
-                                <label class="payment-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
-                                <div class="payment-field payment-customer"><span>مشتری</span><MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" /></div>
-                                <label class="payment-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                <MudTextField T="string" Value='@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())' ReadOnly="true" Label="شماره سند" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText" SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)" Clearable="true" ResetValueOnEmptyText="true" Label="مشتری" Class="app-field" Variant="Variant.Outlined" Margin="Margin.Normal" />
+                                <MudTextField T="string" Value='@editor.Detail.Summary.Status' ReadOnly="true" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
                             </div>
                             <div class="payment-columns">
                                 <div class="payment-fields">
-                                    <label class="payment-field"><span>نحوه وصول</span><select @bind="form.PaymentTypeId"><option value="">انتخاب کنید</option>@foreach (var option in editor.Lookups.Types) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                    <label class="payment-field"><span>بابت</span><select @bind="form.BabatId"><option value="">انتخاب کنید</option>@foreach (var option in editor.Lookups.Babats) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                    <label class="payment-field"><span>تاریخ سند</span><input dir="ltr" @bind="documentDate" @bind:event="oninput" /></label>
-                                    <label class="payment-field"><span>سررسید</span><input dir="ltr" @bind="dueDate" @bind:event="oninput" /></label>
-                                    <label class="payment-field"><span>مبلغ</span><input dir="ltr" type="number" min="1" step="any" @bind="form.Amount" /></label>
+                                    <MudSelect T="byte?" @bind-Value="form.PaymentTypeId" Label="نحوه وصول" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)"><MudSelectItem T="byte?" Value='@((byte?)null)'>انتخاب کنید</MudSelectItem>@foreach (var option in editor.Lookups.Types) { <MudSelectItem T="byte?" Value='@((byte?)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudSelect T="byte?" @bind-Value="form.BabatId" Label="بابت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)"><MudSelectItem T="byte?" Value='@((byte?)null)'>انتخاب کنید</MudSelectItem>@foreach (var option in editor.Lookups.Babats) { <MudSelectItem T="byte?" Value='@((byte?)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                    <PersianDatePicker @bind-Date="form.DocumentDate" Label="تاریخ سند" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" />
+                                    <PersianDatePicker @bind-Date="form.DueDate" Label="سررسید" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" />
+                                    <MudNumericField T="double" @bind-Value="form.Amount" Immediate="true" Label="مبلغ" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" Min="1" HideSpinButtons="true" />
                                 </div>
                                 <div class="payment-fields">
-                                    <label class="payment-field"><span>بانک</span><select @bind="form.BankId"><option value="">بدون بانک</option>@foreach (var option in editor.Lookups.Banks) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                    <label class="payment-field"><span>کد شعبه</span><input dir="ltr" maxlength="50" @bind="form.BankBranchCode" @bind:event="oninput" /></label>
-                                    <label class="payment-field"><span>شماره حساب</span><input dir="ltr" maxlength="50" @bind="form.AccountNumber" @bind:event="oninput" /></label>
-                                    <label class="payment-field"><span>شماره چک/حواله</span><input dir="ltr" maxlength="50" @bind="form.ReferenceNumber" @bind:event="oninput" /></label>
-                                    <label class="payment-field"><span>شناسه صیاد</span><input dir="ltr" maxlength="50" @bind="form.ProjectName" @bind:event="oninput" /></label>
+                                    <MudSelect T="short?" @bind-Value="form.BankId" Label="بانک" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)"><MudSelectItem T="short?" Value='@((short?)null)'>بدون بانک</MudSelectItem>@foreach (var option in editor.Lookups.Banks) { <MudSelectItem T="short?" Value='@((short?)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                    <MudTextField T="string" @bind-Value="form.BankBranchCode" Immediate="true" Label="کد شعبه" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="form.AccountNumber" Immediate="true" Label="شماره حساب" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="form.ReferenceNumber" Immediate="true" Label="شماره چک/حواله" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                                    <MudTextField T="string" @bind-Value="form.ProjectName" Immediate="true" Label="شناسه صیاد" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" MaxLength="50" />
                                 </div>
                                 <div class="payment-fields payment-description-fields">
-                                    <label class="payment-field payment-description"><span>توضیحات</span><textarea maxlength="255" @bind="form.Comment" @bind:event="oninput"></textarea></label>
-                                    <label class="payment-returned"><input type="checkbox" @bind="form.Returned" /><span>برگشتی</span></label>
+                                    <MudTextField T="string" @bind-Value="form.Comment" Immediate="true" Label="توضیحات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field payment-description" Disabled="@(ReadOnly || saving)" MaxLength="255" Lines="3" />
+                                    <MudCheckBox T="bool" @bind-Value="form.Returned" Label="برگشتی" Class="app-checkbox" Disabled="@(ReadOnly || saving)" />
                                 </div>
                             </div>
                         </div>
@@ -91,7 +91,7 @@
         @if (Id > 0 && activeTab == 1)
         {
             <section class="payment-tab-panel">
-                <div class="payment-comment-editor"><label for="payment-comment">یادداشت جدید</label><textarea id="payment-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                <div class="payment-comment-editor"><MudTextField T="string" @bind-Value="newComment" Label="یادداشت جدید" Lines="3" MaxLength="4000" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Normal" /><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
                 @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
                 else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
                 else if (activity?.Comments.Count is null or 0) { <div class="payment-tab-empty">یادداشتی برای این سند دریافتی ثبت نشده است.</div> }
@@ -126,7 +126,7 @@
     [Parameter] public int Id { get; set; }
     private PaymentEditor? editor; private PaymentForm form => editor!.Form;
     private OrderLookup? customer; private OrderActivity? activity; private OrderHistoryItem? selectedHistory;
-    private string? documentDate, dueDate, customerText, error, success, activityError, newComment;
+    private string? customerText, error, success, activityError, newComment;
     private bool loading = true, saving, activityLoading, savingComment, showDelete; private int activeTab; private int? loadedId;
     private bool ReadOnly => editor?.CanEdit != true;
     private bool HasStageActions => editor is not null && (editor.CanSalesConfirm || editor.CanFinancialConfirm || editor.CanFinancialReject || editor.CanDelete);
@@ -145,8 +145,6 @@
             editor = await Api.GetPaymentEditorAsync(Id) ?? throw new InvalidOperationException("سند دریافتی یافت نشد.");
             customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
             customerText = customer?.Name;
-            documentDate = PersianDates.Format(form.DocumentDate);
-            dueDate = PersianDates.Format(form.DueDate);
             if (Id > 0) await LoadActivityAsync();
         }
         catch (Exception ex) { error = ex.Message; }
@@ -161,8 +159,6 @@
     private void PrepareForm()
     {
         if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) throw new InvalidOperationException("مشتری معتبر انتخاب کنید.");
-        form.DocumentDate = PersianDates.Parse(documentDate, "تاریخ سند");
-        form.DueDate = PersianDates.Parse(dueDate, "تاریخ سررسید");
         var validation = new List<ValidationResult>();
         if (!Validator.TryValidateObject(form, new ValidationContext(form), validation, true)) throw new InvalidOperationException(validation.FirstOrDefault()?.ErrorMessage ?? "مقادیر فرم معتبر نیست.");
     }

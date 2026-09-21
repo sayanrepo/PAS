@@ -1,16 +1,16 @@
 @inject BaseSiteApiClient Api
-<MudPaper Class="filter-panel mb-5" Elevation="0">
+<MudPaper Class="filter-panel app-form mb-5" Elevation="0">
  @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-3">@error</MudAlert> }
  @if(table is null) { @if(loading){<MudProgressLinear Indeterminate="true" />} }
  else {
   <div class="page-heading"><MudText Typo="Typo.h6">@table.Title</MudText><div class="d-flex gap-2"><MudButton OnClick="Reload" Disabled="busy" StartIcon="@Icons.Material.Filled.Refresh">تازه‌سازی</MudButton>@if(table.CanAdd){<MudButton OnClick="New" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add">افزودن</MudButton>}</div></div>
   <MudGrid Class="mb-4">
-   @if(table.ParentKey is not null) { <MudItem xs="12" md="6"><MudSelect T="int?" Value="table.ParentId" ValueChanged="ChangeParent" Label="@(table.ParentKey=="countries"?"کشور":"استان")" Variant="Variant.Outlined" Disabled="busy">@foreach(var p in table.Parents){<MudSelectItem T="int?" Value="@((int?)p.Id)">@p.Name</MudSelectItem>}</MudSelect></MudItem> }
-   <MudItem xs="12" md="6"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجو" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.Search" /></MudItem>
+   @if(table.ParentKey is not null) { <MudItem xs="12" md="6"><MudSelect T="int?" Value="table.ParentId" ValueChanged="ChangeParent" Label="@(table.ParentKey=="countries"?"کشور":"استان")" Variant="Variant.Outlined" Disabled="busy" Margin="Margin.Normal">@foreach(var p in table.Parents){<MudSelectItem T="int?" Value="@((int?)p.Id)">@p.Name</MudSelectItem>}</MudSelect></MudItem> }
+   <MudItem xs="12" md="6"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجو" Variant="Variant.Outlined" AdornmentIcon="@Icons.Material.Filled.Search" Margin="Margin.Normal" /></MudItem>
   </MudGrid>
   @if(table.CanEdit && table.Fields.Any(f=>f.Key=="Cost"&&f.CanEdit)) {
    <MudExpansionPanels Class="mb-4"><MudExpansionPanel Text="تغییر گروهی قیمت‌ها">
-    <MudGrid><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="pricePercent" Label="تغییر درصدی" Immediate="true" /></MudItem><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="priceAmount" Label="تغییر ریالی" Immediate="true" /></MudItem><MudItem xs="12" md="4"><MudButton OnClick="PreviewPrices" Disabled="busy">پیش‌نمایش تغییرات</MudButton></MudItem></MudGrid>
+    <MudGrid><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="pricePercent" Label="تغییر درصدی" Immediate="true" Variant="Variant.Outlined" HideSpinButtons="true" Margin="Margin.Normal" /></MudItem><MudItem xs="12" md="4"><MudNumericField T="double" @bind-Value="priceAmount" Label="تغییر ریالی" Immediate="true" Variant="Variant.Outlined" HideSpinButtons="true" Margin="Margin.Normal" /></MudItem><MudItem xs="12" md="4"><MudButton OnClick="PreviewPrices" Disabled="busy">پیش‌نمایش تغییرات</MudButton></MudItem></MudGrid>
     @if(pricePreview is not null) {
      <MudText Class="my-3">تغییر قیمت @pricePreview.Rows.Count مورد مطابق فهرست هنگام پیش‌نمایش:</MudText>
      <MudTable T="BasicPriceRow" Items="pricePreview.Rows" Dense="true" RowsPerPage="5">
@@ -24,18 +24,20 @@
   }
   @if(edit is not null) {
    <EditForm Model="edit" OnSubmit="Save" Context="editContext">
-    <MudText Typo="Typo.subtitle1" Class="mb-3">@(editId==0?"افزودن مورد جدید":"ویرایش اطلاعات")</MudText>
+    <section class="form-section"><h2 class="form-section-title">@(editId==0?"افزودن مورد جدید":"ویرایش اطلاعات")</h2><div class="form-section-body">
     <MudGrid>
      @foreach(var field in table.Fields) {
       var f=field;
       <MudItem xs="12" md="4">
-       @if(f.Kind=="bool") {<MudCheckBox T="bool" Value="@Bool(f.Key)" ValueChanged="@(v=>Set(f.Key,v.ToString()))" Label="@f.Label" Disabled="@(busy || !Editable(f))" />}
-       else if(f.Kind=="choice") {<MudSelect T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Label="@f.Label" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined">@foreach(var c in f.Choices){<MudSelectItem T="string" Value="@c.Id.ToString()">@c.Name</MudSelectItem>}</MudSelect>}
-       else {<MudTextField T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Immediate="true" Label="@f.Label" MaxLength="@f.MaxLength" InputType="@(f.Kind=="number"?InputType.Number:InputType.Text)" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined" />}
+       @if(f.Kind=="bool") {<MudCheckBox Class="app-checkbox" T="bool" Value="@Bool(f.Key)" ValueChanged="@(v=>Set(f.Key,v.ToString()))" Label="@f.Label" Disabled="@(busy || !Editable(f))" />}
+       else if(f.Kind=="choice") {<MudSelect T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Label="@f.Label" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined" Margin="Margin.Normal">@foreach(var c in f.Choices){<MudSelectItem T="string" Value="@c.Id.ToString()">@c.Name</MudSelectItem>}</MudSelect>}
+       else if(f.Kind=="number") {<MudNumericField T="double?" Value="@Number(f.Key)" ValueChanged="@(v=>Set(f.Key,v?.ToString(System.Globalization.CultureInfo.InvariantCulture)))" Immediate="true" Label="@f.Label" HideSpinButtons="true" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined" Margin="Margin.Normal" />}
+       else {<MudTextField T="string" Value="@Value(f.Key)" ValueChanged="@(v=>Set(f.Key,v))" Immediate="true" Label="@f.Label" MaxLength="@f.MaxLength" Disabled="@(busy || !Editable(f))" Variant="Variant.Outlined" Margin="Margin.Normal" />}
       </MudItem>
      }
     </MudGrid>
-    <div class="d-flex gap-2 my-4"><MudButton ButtonType="ButtonType.Submit" Disabled="busy" Color="Color.Primary" Variant="Variant.Filled">ذخیره</MudButton><MudButton OnClick="Cancel" Disabled="busy">انصراف</MudButton></div>
+    <div class="form-save-actions"><MudButton ButtonType="ButtonType.Submit" Disabled="busy" Color="Color.Success" Variant="Variant.Filled">ذخیره</MudButton><MudButton OnClick="Cancel" Disabled="busy">انصراف</MudButton></div>
+    </div></section>
    </EditForm>
   }
   @if(pendingDelete is not null) {
@@ -72,6 +74,7 @@
  private async Task ApplyPrices(){if(busy||pricePreview is null)return;busy=true;error=null;try{await Api.ChangeBasicPricesAsync(TableKey,pricePreview);Cancel();await Load(table?.ParentId);}catch(Exception ex){error=ex.Message;}finally{busy=false;}}
  private bool Editable(BasicField field)=>editId==0?field.CanAdd:field.CanEdit;
  private string Value(string key)=>edit?.Values.GetValueOrDefault(key)??"";
+ private double? Number(string key)=>double.TryParse(Value(key),System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out var value)?value:null;
  private bool Bool(string key)=>bool.TryParse(Value(key),out var value)&&value;
  private void Set(string key,string? value){if(edit is not null)edit.Values[key]=value??"";}
  private static string Display(BasicRecord row,BasicField f){var value=row.Values.GetValueOrDefault(f.Key)??"";if(f.Kind=="bool")return bool.TryParse(value,out var b)&&b?"بله":"خیر";if(f.Kind=="choice")return f.Choices.FirstOrDefault(x=>x.Id.ToString()==value)?.Name??value;return value;}

@@ -32,7 +32,7 @@ internal static class Preview
             session.SignInAsync(new BaseSite.Web.Models.LoginResponse
             {
                 AccessToken = "preview-only", ExpiresAt = DateTimeOffset.UtcNow.AddHours(1),
-                User = new() { Id = 1, FullName = "کاربر آزمایشی", Roles = ["Order", "Order_Search", "Order_Detail", "Order_Add", "Order_Edit_Factor", "Plan_Print", "Order_Print", "Logs_Detail"] }
+                User = new() { Id = 1, FullName = "کاربر آزمایشی", Roles = ["Order", "Order_Search", "Order_Detail", "Order_Add", "Order_Edit_Factor", "Plan_Print", "Order_Print", "Logs_Detail", "Sale", "Sale_Search", "Sale_Add", "Sale_Edit_Factor", "Service", "Service_Search", "Service_Add", "Payment", "Payment_Search", "Payment_Add", "Delivery", "Delivery_Search", "Delivery_Add", "Setting_Persons", "Setting_Persons_Add", "Setting_Persons_Edit", "Setting_Persons_Customer"] }
             }).GetAwaiter().GetResult();
             return session;
         });
@@ -72,7 +72,8 @@ internal static class Preview
             int? Int(string key) => int.TryParse(Get(key), out var value) ? value : null;
             DateTime? Date(string key) => DateTime.TryParse(Get(key), CultureInfo.InvariantCulture, DateTimeStyles.None, out var value) ? value : null;
             object data;
-            if (path == "/api/orders/editor/customers") data = new[] { new OrderLookup { Id = 1, Name = "مشتری نمونه" } };
+            if (request.Method == HttpMethod.Get && FormPreviewData.Get(path) is { } formData) data = formData;
+            else if (path == "/api/orders/editor/customers") data = new[] { new OrderLookup { Id = 1, Name = "مشتری نمونه" } };
             else if (path == "/api/orders/editor/new") data = SampleOrderEditor.Create(0);
             else if (path == "/api/orders/editor" || path.StartsWith("/api/orders/editor/"))
             {

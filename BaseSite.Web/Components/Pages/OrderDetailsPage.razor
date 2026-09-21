@@ -155,9 +155,6 @@
                                 <OrderExtrasEditor Title="ملحقات" Items="panel.Attachments" Options='@Options("Attachments")' Attachments="true" ReadOnly="ReadOnly" OnChanged="Recalculate" />
                                 <OrderExtrasEditor Title="اضافات" Items="panel.Additions" Options='@Options("Additions")' ReadOnly="ReadOnly" OnChanged="Recalculate" />
                             </div>
-                            <div class="order-panel-footer">
-                                <span>بارکد: @(panel.DocumentNumber == 0 ? "پس از ثبت" : panel.DocumentNumber.ToString()) · مبلغ کل پنل: @panel.Amount.ToString("N0") ریال</span>
-                            </div>
                         </div>
                     </section>
                 }

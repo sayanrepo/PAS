@@ -1,2 +1,2 @@
-<dl class="sale-value @Class"><dt>@Label</dt><dd>@Value</dd></dl>
+<MudTextField T="string" Value="@Value" Label="@Label" ReadOnly="true" Variant="Variant.Outlined" Margin="Margin.Normal" Class="@($"app-field app-readonly {Class}")" />
 @code { [Parameter] public string Label { get; set; } = ""; [Parameter] public string Value { get; set; } = ""; [Parameter] public string? Class { get; set; } }

@@ -18,29 +18,29 @@
 
     @if (ready && CanSearch)
     {
-        <MudPaper Class="filter-panel people-filters" Elevation="0">
+        <MudPaper Class="filter-panel app-form people-filters" Elevation="0">
             <MudGrid Spacing="2">
                 <MudItem xs="12" md="4">
                     <MudTextField Immediate="true" @bind-Value="term" Label="نام فرد/شرکت، مدیرعامل و ..." Clearable="true"
-                                  Variant="Variant.Outlined" Margin="Margin.Dense" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+                                Variant="Variant.Outlined" Margin="Margin.Normal" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="byte?" @bind-Value="partnerTypeId" Label="نوع همکاری" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="byte?" @bind-Value="partnerTypeId" Label="نوع همکاری" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.PartnerTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="int?" Value="countryId" ValueChanged="CountryChanged" Label="کشور" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="int?" Value="countryId" ValueChanged="CountryChanged" Label="کشور" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.Countries) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="int?" Value="provinceId" ValueChanged="ProvinceChanged" Label="استان" Clearable="true" Disabled="@(!countryId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="int?" Value="provinceId" ValueChanged="ProvinceChanged" Label="استان" Clearable="true" Disabled="@(!countryId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in AvailableProvinces) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="int?" @bind-Value="cityId" Label="شهر" Clearable="true" Disabled="@(!provinceId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="int?" @bind-Value="cityId" Label="شهر" Clearable="true" Disabled="@(!provinceId.HasValue)" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in AvailableCities) { <MudSelectItem T="int?" Value="@((int?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>

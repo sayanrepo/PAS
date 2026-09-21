@@ -23,6 +23,10 @@
 }
 
 :root {
+    --panta-form-font: "IRANSans", Tahoma, Arial, sans-serif;
+    --panta-form-font-size: 13px;
+    --panta-field-radius: 6px;
+    --panta-panel-radius: 8px;
     color-scheme: light;
     --panta-border: #dce3ef;
     --panta-muted: #68758b;
@@ -43,8 +47,53 @@ button, input, textarea, select { font-family: inherit; }
 .persian-date-picker input { direction: ltr; }
 
 .mud-picker-popover:has(.persian-date-picker-actions) {
-    --mud-default-borderradius: 4px;
-    border-radius: 4px;
+    --mud-default-borderradius: 7px;
+    border-radius: var(--panta-panel-radius);
+}
+
+/* Shared order-editor appearance for document forms and every filter panel. */
+.app-form {
+    --mud-default-borderradius: 7px;
+    direction: rtl;
+    font-family: var(--panta-form-font);
+    font-size: var(--panta-form-font-size);
+}
+.app-form :is(button, input, textarea, select, .mud-typography, .mud-input, .mud-input-label, .mud-button-root, .mud-table) {
+    font-family: var(--panta-form-font);
+}
+.app-form :is(.mud-input, .mud-input-label, .mud-button-root, .mud-typography-body1, .mud-typography-body2, .mud-table-cell) {
+    font-size: var(--panta-form-font-size);
+}
+.app-form :is(.mud-input-control, .app-field) { min-width: 0; }
+.app-form :is(.mud-input-outlined, .mud-input-outlined-border) { border-radius: var(--panta-field-radius); }
+.app-form .mud-input-slot { text-align: center; }
+.app-form .ltr-input input { direction: ltr; }
+.app-form .app-readonly .mud-input-outlined { background: #f1f4f8; }
+.app-form .app-readonly input { color: #526176; }
+.app-form :is(.sale-grand-total, .service-grand-total) .mud-input-outlined { background: #eaf5e5; }
+.app-form :is(.sale-grand-total, .service-grand-total) input { color: #285c2c; font-weight: 700; }
+.app-form .app-checkbox { min-height: 56px; margin-top: 16px; padding: 0 8px; border: 1px solid #bdbdbd; border-radius: var(--panta-field-radius); }
+.app-form :is(.sale-address, .service-address, .delivery-wide) { grid-column: span 2; }
+.app-form :is(.sale-full, .service-full, .delivery-full) { grid-column: 1 / -1; }
+.app-form :is(.sale-tabs, .service-tabs, .payment-tabs, .delivery-tabs) button { border-radius: 7px 7px 0 0; }
+.app-form :is(.sale-tabs, .service-tabs, .payment-tabs, .delivery-tabs) button:hover { color: #254a7d; background: #f2f6fb; }
+.app-form .mud-table { border-radius: var(--panta-field-radius); }
+.app-form.filter-panel { padding: 16px; border: 1px solid #bce8f1; border-radius: var(--panta-panel-radius); background: #fff; }
+.app-form .form-section { margin-bottom: 18px; border: 1px solid #d6e9c6; border-radius: var(--panta-panel-radius); overflow: hidden; background: #fff; }
+.app-form .form-section-title { margin: 0; padding: 10px 14px; background: #dff0d8; color: #3c763d; text-align: center; font-size: 15px; font-weight: 700; }
+.app-form .form-section-body { padding: 16px; }
+.app-form .form-save-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+/* Popovers render outside their field's DOM subtree. */
+.mud-popover :is(.mud-list-item-text, .mud-typography-body1, .mud-input, .mud-input-label),
+.mud-picker :is(.mud-button-root, .mud-typography, .mud-input) { font-family: var(--panta-form-font); }
+.mud-popover :is(.mud-list-item-text, .mud-typography-body1),
+.mud-picker .mud-button-root { font-size: var(--panta-form-font-size); }
+@media (max-width: 1100px) {
+    .app-form :is(.sale-address, .service-address) { grid-column: 1 / -1; }
+}
+@media (max-width: 650px) {
+    .app-form .delivery-wide { grid-column: 1 / -1; }
+    .app-form.filter-panel, .app-form .form-section-body { padding: 10px; }
 }
 
 .app-content {

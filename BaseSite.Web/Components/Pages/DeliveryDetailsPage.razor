@@ -8,7 +8,7 @@
 
 <PageTitle>تحویل | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
-<div class="delivery-detail">
+<div class="delivery-detail app-form">
     <div class="page-heading">
         <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد تحویل" : $"تحویل {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/deliveries" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به تحویل‌ها</MudButton>
@@ -22,8 +22,8 @@
         <section class="delivery-source">
             <p>نوع و شماره سند سفارش یا فروش کالا را انتخاب کنید تا همان فرم ایجاد، ویرایش و مشاهده تحویل باز شود.</p>
             <div class="delivery-source-fields">
-                <label class="delivery-field"><span>نوع سند</span><select @bind="kind"><option value="orders">سفارش</option><option value="sales">فروش کالا</option></select></label>
-                <label class="delivery-field"><span>شماره سند مبدأ</span><input type="number" min="1" @bind="sourceNumber" /></label>
+                <MudSelect T="string" @bind-Value="kind" Label="نوع سند" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(saving)"><MudSelectItem T="string" Value='@("orders")'>سفارش</MudSelectItem><MudSelectItem T="string" Value='@("sales")'>فروش کالا</MudSelectItem></MudSelect>
+                <MudNumericField T="int?" @bind-Value="sourceNumber" Immediate="true" Label="شماره سند مبدأ" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(saving)" Min="1" HideSpinButtons="true" />
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="saving" OnClick="LoadSourceAsync">دریافت اقلام</MudButton>
             </div>
         </section>
@@ -58,14 +58,14 @@
                         <h2 class="delivery-section-title">اطلاعات سند تحویل</h2>
                         <div class="delivery-section-body">
                             <div class="delivery-fields delivery-header-fields">
-                                <label class="delivery-field"><span>شماره حواله خروج</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
-                                <label class="delivery-field"><span>تاریخ</span><input readonly value="@(Id == 0 ? PersianDates.Format(DateTime.Today) : PersianDates.Format(editor.Detail.Summary.Date))" /></label>
-                                <label class="delivery-field"><span>وضعیت</span><input readonly value="@(Id == 0 ? "صادر شده" : editor.Detail.Summary.Status)" /></label>
-                                <label class="delivery-field"><span>نوع سند مبدأ</span><input readonly value="@(form.Kind == "orders" ? "سفارش" : "فروش کالا")" /></label>
-                                <label class="delivery-field"><span>شماره سند مبدأ</span><input readonly value="@SourceDocumentNumber" /></label>
-                                <label class="delivery-field"><span>شماره فاکتور</span><input readonly value="@editor.Detail.Summary.FactorNumber" /></label>
-                                <label class="delivery-field delivery-wide"><span>مشتری</span><input readonly value="@editor.Detail.Summary.Customer" /></label>
-                                <label class="delivery-field delivery-wide"><span>نام پروژه</span><input readonly value="@ValueOrDash(editor.Detail.Summary.ProjectName)" /></label>
+                                <MudTextField T="string" Value='@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())' ReadOnly="true" Label="شماره حواله خروج" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@(Id == 0 ? PersianDates.Format(DateTime.Today) : PersianDates.Format(editor.Detail.Summary.Date))' ReadOnly="true" Label="تاریخ" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@(Id == 0 ? "صادر شده" : editor.Detail.Summary.Status)' ReadOnly="true" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@(form.Kind == "orders" ? "سفارش" : "فروش کالا")' ReadOnly="true" Label="نوع سند مبدأ" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@(SourceDocumentNumber.ToString())' ReadOnly="true" Label="شماره سند مبدأ" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@(editor.Detail.Summary.FactorNumber.ToString())' ReadOnly="true" Label="شماره فاکتور" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@editor.Detail.Summary.Customer' ReadOnly="true" Label="مشتری" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field delivery-wide app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <MudTextField T="string" Value='@ValueOrDash(editor.Detail.Summary.ProjectName)' ReadOnly="true" Label="نام پروژه" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field delivery-wide app-readonly" Disabled="@(ReadOnly || saving)" />
                             </div>
                         </div>
                     </section>
@@ -74,21 +74,21 @@
                         <section class="delivery-section">
                             <h2 class="delivery-section-title">مشخصات تحویل گیرنده و بسته‌بندی</h2>
                             <div class="delivery-section-body delivery-fields delivery-recipient-fields">
-                                <label class="delivery-field"><span>نوع بسته‌بندی</span><select @bind="form.PackTypeId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Packs) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="delivery-field"><span>مسئول ارسال</span><input maxlength="50" @bind="form.SendResponsible" @bind:event="oninput" /></label>
-                                <label class="delivery-field"><span>مسئول دریافت</span><input maxlength="50" @bind="form.RecieveResponsible" @bind:event="oninput" /></label>
-                                <label class="delivery-field"><span>تحویل گیرنده</span><input maxlength="100" @bind="form.RecieverName" @bind:event="oninput" /></label>
-                                <label class="delivery-field"><span>تلفن</span><input maxlength="100" dir="ltr" @bind="form.RecieverPhone" @bind:event="oninput" /></label>
-                                <label class="delivery-field"><span>موبایل</span><input maxlength="100" dir="ltr" @bind="form.RecieverMobile" @bind:event="oninput" /></label>
-                                <div class="delivery-destination-kind"><span>محل تحویل کالا</span><label><input type="radio" name="destination" value="1" checked="@(form.DestinationType == 1)" @onchange="ChangeDestination" /> آدرس مشتری</label><label><input type="radio" name="destination" value="2" checked="@(form.DestinationType == 2)" @onchange="ChangeDestination" /> آدرس پروژه</label></div>
-                                <label class="delivery-field delivery-full"><span>آدرس دقیق محل تحویل</span><textarea maxlength="500" @bind="form.DestinationAddress" @bind:event="oninput"></textarea></label>
+                                <MudSelect T="short" @bind-Value="form.PackTypeId" Label="نوع بسته‌بندی" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving || !CanEditIssued)"><MudSelectItem T="short" Value='@((short)0)'>انتخاب کنید</MudSelectItem>@foreach (var option in editor.Lookups.Packs) { <MudSelectItem T="short" Value='@((short)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                <MudTextField T="string" @bind-Value="form.SendResponsible" Immediate="true" Label="مسئول ارسال" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="50" />
+                                <MudTextField T="string" @bind-Value="form.RecieveResponsible" Immediate="true" Label="مسئول دریافت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="50" />
+                                <MudTextField T="string" @bind-Value="form.RecieverName" Immediate="true" Label="تحویل گیرنده" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="100" />
+                                <MudTextField T="string" @bind-Value="form.RecieverPhone" Immediate="true" Label="تلفن" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="100" />
+                                <MudTextField T="string" @bind-Value="form.RecieverMobile" Immediate="true" Label="موبایل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="100" />
+                                <div class="delivery-destination-kind"><span>محل تحویل کالا</span><MudRadioGroup T="byte" Value="form.DestinationType" ValueChanged="@(v => ChangeDestination(new ChangeEventArgs { Value = v }))" Disabled="@(ReadOnly || saving || !CanEditIssued)"><MudRadio T="byte" Value="@((byte)1)">آدرس مشتری</MudRadio><MudRadio T="byte" Value="@((byte)2)">آدرس پروژه</MudRadio></MudRadioGroup></div>
+                                <MudTextField T="string" @bind-Value="form.DestinationAddress" Immediate="true" Label="آدرس دقیق محل تحویل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field delivery-full" Disabled="@(ReadOnly || saving || !CanEditIssued)" MaxLength="500" Lines="3" />
                             </div>
                         </section>
 
                         <section class="delivery-section">
                             <h2 class="delivery-section-title">اقلام تحویل</h2>
                             <div class="delivery-section-body delivery-items"><table><thead><tr><th class="delivery-check">انتخاب</th><th>نوع</th><th>شرح کالا</th><th>مدل</th><th class="delivery-count">تعداد</th><th class="delivery-comment">توضیحات</th></tr></thead><tbody>
-                                @foreach (var item in form.Items) { <tr><td><input type="checkbox" @bind="item.Selected" aria-label="@($"انتخاب {item.Name}")" /></td><td>@item.TypeName</td><td>@item.Name</td><td>@item.Model</td><td>@item.Count</td><td><input maxlength="255" @bind="item.Comment" @bind:event="oninput" /></td></tr> }
+                                @foreach (var item in form.Items) { <tr><td><MudCheckBox T="bool" @bind-Value="item.Selected" Disabled="@(ReadOnly || saving || !CanEditIssued)" aria-label="@($"انتخاب {item.Name}")" /></td><td>@item.TypeName</td><td>@item.Name</td><td>@item.Model</td><td>@item.Count</td><td><MudTextField T="string" @bind-Value="item.Comment" MaxLength="255" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving || !CanEditIssued)" aria-label="@($"توضیحات {item.Name}")" /></td></tr> }
                             </tbody></table>@if (form.Items.Count == 0) { <div class="delivery-tab-empty">قلمی برای تحویل وجود ندارد.</div> }</div>
                         </section>
                     </fieldset>
@@ -96,13 +96,13 @@
                     <section class="delivery-section">
                         <h2 class="delivery-section-title">اطلاعات ارسال</h2>
                         <div class="delivery-section-body delivery-fields delivery-shipping-fields">
-                            <label class="delivery-field"><span>ارسال به</span><select @bind="form.DeliveryLocationId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Locations) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="delivery-field"><span>حمل توسط</span><select @bind="form.VehicleTypeId"><option value="0">انتخاب کنید</option>@foreach (var option in editor.Lookups.Vehicles) { <option value="@option.Id">@option.Name</option> }</select></label>
-                            <label class="delivery-field"><span>پیک/آژانس</span><input maxlength="100" @bind="form.CarierAgencyName" @bind:event="oninput" /></label>
-                            <label class="delivery-field"><span>قبض آژانس</span><input maxlength="100" @bind="form.CarierAgencyBill" @bind:event="oninput" /></label>
-                            <label class="delivery-field"><span>شماره ماشین</span><input maxlength="50" @bind="form.VehiclePlaque" @bind:event="oninput" /></label>
-                            <label class="delivery-field"><span>راننده</span><input maxlength="100" @bind="form.DriverName" @bind:event="oninput" /></label>
-                            <label class="delivery-field"><span>تلفن راننده</span><input maxlength="50" dir="ltr" @bind="form.DriverPhone" @bind:event="oninput" /></label>
+                            <MudSelect T="byte" @bind-Value="form.DeliveryLocationId" Label="ارسال به" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)"><MudSelectItem T="byte" Value='@((byte)0)'>انتخاب کنید</MudSelectItem>@foreach (var option in editor.Lookups.Locations) { <MudSelectItem T="byte" Value='@((byte)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                            <MudSelect T="byte" @bind-Value="form.VehicleTypeId" Label="حمل توسط" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)"><MudSelectItem T="byte" Value='@((byte)0)'>انتخاب کنید</MudSelectItem>@foreach (var option in editor.Lookups.Vehicles) { <MudSelectItem T="byte" Value='@((byte)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                            <MudTextField T="string" @bind-Value="form.CarierAgencyName" Immediate="true" Label="پیک/آژانس" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="100" />
+                            <MudTextField T="string" @bind-Value="form.CarierAgencyBill" Immediate="true" Label="قبض آژانس" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="100" />
+                            <MudTextField T="string" @bind-Value="form.VehiclePlaque" Immediate="true" Label="شماره ماشین" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                            <MudTextField T="string" @bind-Value="form.DriverName" Immediate="true" Label="راننده" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="100" />
+                            <MudTextField T="string" @bind-Value="form.DriverPhone" Immediate="true" Label="تلفن راننده" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field ltr-input" Disabled="@(ReadOnly || saving)" MaxLength="50" />
                         </div>
                     </section>
                 </fieldset>
@@ -118,7 +118,7 @@
 
         @if (Id > 0 && activeTab == 1)
         {
-            <section class="delivery-tab-panel"><div class="delivery-comment-editor"><label for="delivery-comment">یادداشت جدید</label><textarea id="delivery-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+            <section class="delivery-tab-panel"><div class="delivery-comment-editor"><MudTextField T="string" @bind-Value="newComment" Label="یادداشت جدید" Lines="3" MaxLength="4000" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Normal" /><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
                 @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> } else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> } else if (activity?.Comments.Count is null or 0) { <div class="delivery-tab-empty">یادداشتی برای این تحویل ثبت نشده است.</div> } else { <div class="delivery-comments">@foreach (var comment in activity.Comments.OrderByDescending(x => x.CreatedAt)) { <article class="delivery-comment"><header><strong>@comment.Owner</strong><time>@FormatDateTime(comment.CreatedAt)</time></header><p>@comment.Comment</p></article> }</div> }
             </section>
         }

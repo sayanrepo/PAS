@@ -7,7 +7,7 @@
 
 <PageTitle>فروش کالا | پنتا</PageTitle>
 <MudRTLProvider RightToLeft="true">
-<div class="sale-detail">
+<div class="sale-detail app-form">
     <div class="page-heading">
         <MudText Typo="Typo.h5">@(Id == 0 ? "ایجاد فروش کالا" : $"فروش کالا {editor?.Detail.Summary.DocumentNumber}")</MudText>
         <MudButton Href="/documents/sales" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به فروش کالا</MudButton>
@@ -42,43 +42,41 @@
                         <h2 class="sale-section-title">فروش کالا</h2>
                         <div class="sale-section-body">
                             <div class="sale-fields sale-top-fields">
-                                <label class="sale-field"><span>شماره سند</span><input readonly value="@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())" /></label>
+                                <MudTextField T="string" Value='@(Id == 0 ? "پس از ثبت" : editor.Detail.Summary.DocumentNumber.ToString())' ReadOnly="true" Label="شماره سند" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
                                 @if (CanChangeStatus)
                                 {
-                                    <label class="sale-field"><span>وضعیت</span><select @bind="form.StatusId">@foreach (var option in StatusOptions) { <option value="@option.Id">@option.Name</option> }</select></label>
+                                    <MudSelect T="byte" @bind-Value="form.StatusId" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)">@foreach (var option in StatusOptions) { <MudSelectItem T="byte" Value='@((byte)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
                                 }
                                 else
                                 {
-                                    <label class="sale-field"><span>وضعیت</span><input readonly value="@editor.Detail.Summary.Status" /></label>
+                                    <MudTextField T="string" Value='@editor.Detail.Summary.Status' ReadOnly="true" Label="وضعیت" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
                                 }
-                                <label class="sale-field"><span>نوع معامله</span><select @bind="form.TradeTypeId">@foreach (var option in editor.TradeTypes) { <option value="@option.Id">@option.Name</option> }</select></label>
-                                <label class="sale-field"><span>تاریخ سفارش</span><input readonly value="@PersianDates.Format(editor.Detail.Summary.OrderDate)" /></label>
-                                <label class="sale-field"><span>تاریخ تحویل</span><input dir="ltr" placeholder="۱۴۰۵/۰۶/۲۵" @bind="factorDate" @bind:event="oninput" /></label>
-                                <label class="sale-field sale-return"><span>مرجوعی</span><input type="checkbox" @bind="form.GiveBack" /></label>
+                                <MudSelect T="byte" @bind-Value="form.TradeTypeId" Label="نوع معامله" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)">@foreach (var option in editor.TradeTypes) { <MudSelectItem T="byte" Value='@((byte)option.Id)'>@option.Name</MudSelectItem> }</MudSelect>
+                                <MudTextField T="string" Value='@PersianDates.Format(editor.Detail.Summary.OrderDate)' ReadOnly="true" Label="تاریخ سفارش" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field app-readonly" Disabled="@(ReadOnly || saving)" />
+                                <PersianDatePicker @bind-Date="form.FactorDate" Label="تاریخ تحویل" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" />
+                                <MudCheckBox T="bool" @bind-Value="form.GiveBack" Label="مرجوعی" Class="app-checkbox app-field sale-return" Disabled="@(ReadOnly || saving)" />
                             </div>
                             <div class="sale-fields sale-totals">
                                 <SaleValue Label="کالاها" Value="@form.Subtotal.ToString("N0")" />
-                                <label class="sale-field"><span>کرایه حمل</span><input type="number" min="0" step="any" @bind="form.DeliveryCost" /></label>
-                                <label class="sale-field"><span>عوارض (درصد)</span><input type="number" min="0" max="100" step="any" @bind="form.Tax" /></label>
+                                <MudNumericField T="double" @bind-Value="form.DeliveryCost" Immediate="true" Label="کرایه حمل" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" HideSpinButtons="true" />
+                                <MudNumericField T="double" @bind-Value="form.Tax" Immediate="true" Label="عوارض (درصد)" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" Max="100" HideSpinButtons="true" />
                                 <SaleValue Label="مبلغ عوارض" Value="@form.TaxTotal.ToString("N0")" />
-                                <label class="sale-field"><span>تخفیف</span><input type="number" min="0" step="any" @bind="form.Discount" /></label>
+                                <MudNumericField T="double" @bind-Value="form.Discount" Immediate="true" Label="تخفیف" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" Min="0" HideSpinButtons="true" />
                                 <SaleValue Label="جمع کل" Value="@form.Total.ToString("N0")" Class="sale-grand-total" />
                             </div>
                             <div class="sale-fields sale-customer-fields">
-                                <div class="sale-field sale-customer"><span>مشتری</span>
-                                    <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText"
+                                <MudAutocomplete T="OrderLookup" Value="customer" ValueChanged="CustomerChanged" @bind-Text="customerText"
                                         SearchFunc="FindCustomers" ToStringFunc="@(x => x?.Name ?? string.Empty)" Disabled="@(ReadOnly || saving)"
-                                        Clearable="true" ResetValueOnEmptyText="true" Variant="Variant.Text" Margin="Margin.Dense" />
-                                </div>
-                                <label class="sale-field"><span>سفارش دهنده</span><input maxlength="50" @bind="form.ClienteleName" @bind:event="oninput" /></label>
-                                <label class="sale-field sale-address"><span>محل ارسال</span><input maxlength="255" @bind="form.DeliveryAddress" @bind:event="oninput" /></label>
-                                <label class="sale-field sale-full"><span>توضیحات</span><input maxlength="255" @bind="form.Comment" @bind:event="oninput" /></label>
+                                        Clearable="true" ResetValueOnEmptyText="true" Label="مشتری" Class="app-field" Variant="Variant.Outlined" Margin="Margin.Normal" />
+                                <MudTextField T="string" @bind-Value="form.ClienteleName" Immediate="true" Label="سفارش دهنده" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field" Disabled="@(ReadOnly || saving)" MaxLength="50" />
+                                <MudTextField T="string" @bind-Value="form.DeliveryAddress" Immediate="true" Label="محل ارسال" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field sale-address" Disabled="@(ReadOnly || saving)" MaxLength="255" />
+                                <MudTextField T="string" @bind-Value="form.Comment" Immediate="true" Label="توضیحات" Variant="Variant.Outlined" Margin="Margin.Normal" Class="app-field sale-full" Disabled="@(ReadOnly || saving)" MaxLength="255" />
                             </div>
                         </div>
                     </section>
                     <section class="sale-section">
                         <header class="sale-section-title sale-items-title">
-                            @if (!ReadOnly) { <button type="button" title="افزودن کالا" aria-label="افزودن کالا" @onclick="AddItem">＋</button> }
+                            @if (!ReadOnly) { <MudIconButton Icon="@Icons.Material.Filled.Add" Color="Color.Primary" Disabled="saving" title="افزودن کالا" aria-label="افزودن کالا" OnClick="AddItem" /> }
                             <h2>کالاها</h2><span></span>
                         </header>
                         <div class="sale-items-table">
@@ -88,13 +86,13 @@
                                     @foreach (var item in form.Items)
                                     {
                                         <tr @key="item">
-                                            <td><select @bind="item.TypeId">@foreach (var option in editor.GoodsTypes) { <option value="@option.Id">@option.Name</option> }</select></td>
-                                            <td><input maxlength="100" @bind="item.Name" @bind:event="oninput" /></td>
-                                            <td><input type="number" min="1" @bind="item.Count" /></td>
-                                            <td><input type="number" min="0" step="any" @bind="item.UnitPrice" /></td>
+                                            <td><MudSelect T="byte" @bind-Value="item.TypeId" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving)" aria-label="نوع کالا">@foreach (var option in editor.GoodsTypes) { <MudSelectItem T="byte" Value="@((byte)option.Id)">@option.Name</MudSelectItem> }</MudSelect></td>
+                                            <td><MudTextField T="string" @bind-Value="item.Name" MaxLength="100" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving)" aria-label="شرح کالا" /></td>
+                                            <td><MudNumericField T="int" @bind-Value="item.Count" Min="1" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving)" aria-label="تعداد" /></td>
+                                            <td><MudNumericField T="double" @bind-Value="item.UnitPrice" Min="0" Immediate="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving)" aria-label="فی" /></td>
                                             <td class="sale-amount">@item.Amount.ToString("N0")</td>
-                                            <td><input maxlength="255" @bind="item.Comment" @bind:event="oninput" /></td>
-                                            @if (!ReadOnly) { <td><button class="sale-remove" type="button" title="حذف کالا" @onclick="() => RemoveItem(item)">×</button></td> }
+                                            <td><MudTextField T="string" @bind-Value="item.Comment" MaxLength="255" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="@(ReadOnly || saving)" aria-label="توضیحات" /></td>
+                                            @if (!ReadOnly) { <td><MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Disabled="saving" title="حذف کالا" aria-label="حذف کالا" OnClick="() => RemoveItem(item)" /></td> }
                                         </tr>
                                     }
                                 </tbody>
@@ -114,7 +112,7 @@
         @if (Id > 0 && activeTab == 1)
         {
             <section class="sale-tab-panel">
-                <div class="sale-comment-editor"><label for="sale-comment">یادداشت جدید</label><textarea id="sale-comment" maxlength="4000" @bind="newComment" @bind:event="oninput"></textarea><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
+                <div class="sale-comment-editor"><MudTextField T="string" @bind-Value="newComment" Label="یادداشت جدید" Lines="3" MaxLength="4000" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Normal" /><MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddCommentAsync" Disabled="@(savingComment || string.IsNullOrWhiteSpace(newComment))">@(savingComment ? "در حال ثبت…" : "ثبت یادداشت")</MudButton></div>
                 @if (activityLoading) { <MudProgressLinear Indeterminate="true" /> }
                 else if (activityError is not null) { <MudAlert Severity="Severity.Error">@activityError</MudAlert> }
                 else if (activity?.Comments.Count is null or 0) { <div class="sale-tab-empty">یادداشتی برای این فروش کالا ثبت نشده است.</div> }
@@ -150,7 +148,7 @@
     private OrderLookup? customer;
     private OrderActivity? activity;
     private OrderHistoryItem? selectedHistory;
-    private string? factorDate, customerText, error, success, activityError, newComment;
+    private string? customerText, error, success, activityError, newComment;
     private bool loading = true, saving, activityLoading, savingComment;
     private int activeTab;
     private int? loadedId;
@@ -175,7 +173,7 @@
             editor = await Api.GetSaleEditorAsync(Id) ?? throw new InvalidOperationException("فروش کالا یافت نشد.");
             persistedStatusId = form.StatusId;
             customer = form.CustomerId > 0 ? new() { Id = form.CustomerId, Name = editor.Detail.Summary.Customer } : null;
-            customerText = customer?.Name; factorDate = form.FactorDate.HasValue ? PersianDates.Format(form.FactorDate) : "";
+            customerText = customer?.Name;
             if (Id > 0) await LoadActivityAsync();
         }
         catch (Exception ex) { error = ex.Message; }
@@ -194,7 +192,6 @@
         if (customer is null || customer.Id != form.CustomerId || customerText != customer.Name) { error = "مشتری معتبر انتخاب کنید."; return; }
         try
         {
-            form.FactorDate = PersianDates.Parse(factorDate, "تاریخ تحویل");
             var validation = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
             if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(form, new(form), validation, true) || form.Items.Any(x => !System.ComponentModel.DataAnnotations.Validator.TryValidateObject(x, new(x), validation, true)))
                 throw new InvalidOperationException("مقادیر فرم معتبر نیست. شرح، تعداد و مبلغ کالاها را بررسی کنید.");

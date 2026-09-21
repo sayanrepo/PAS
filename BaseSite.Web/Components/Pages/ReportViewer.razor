@@ -8,11 +8,11 @@
  <div class="page-heading"><div><MudText Typo="Typo.h5">@(report?.Title??"نمایش گزارش")</MudText><MudText Color="Color.Secondary">@report?.Category</MudText></div><MudButton Href="/reports" StartIcon="@Icons.Material.Filled.ArrowForward">بازگشت به گزارشات</MudButton></div>
  @if(error is not null) { <MudAlert Severity="Severity.Error" Class="mb-4">@error</MudAlert> }
  @if(report is not null && report.Mode!="powerbi") {
-  <MudPaper Class="filter-panel mb-4" Elevation="0"><MudGrid>
-   @if(report.CustomerFilter) { <MudItem xs="12" md="4"><MudAutocomplete T="OrderLookup" @bind-Value="customer" Label="مشتری" SearchFunc="FindCustomers" ToStringFunc="@(x=>x?.Name??"")" Clearable="true" Variant="Variant.Outlined" /></MudItem> }
-   @if(report.PartFilter) { <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="part" Label="جزء" Variant="Variant.Outlined">@for(var i=0;i<parts.Length;i++) {<MudSelectItem T="int" Value="@i">@parts[i]</MudSelectItem>}</MudSelect></MudItem> }
-   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateFrom" Label="از تاریخ" /></MudItem>
-   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateTo" Label="تا تاریخ" /></MudItem>
+  <MudPaper Class="filter-panel app-form mb-4" Elevation="0"><MudGrid>
+   @if(report.CustomerFilter) { <MudItem xs="12" md="4"><MudAutocomplete T="OrderLookup" @bind-Value="customer" Label="مشتری" SearchFunc="FindCustomers" ToStringFunc="@(x=>x?.Name??"")" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal" /></MudItem> }
+   @if(report.PartFilter) { <MudItem xs="12" md="4"><MudSelect T="int" @bind-Value="part" Label="جزء" Variant="Variant.Outlined" Margin="Margin.Normal">@for(var i=0;i<parts.Length;i++) {<MudSelectItem T="int" Value="@i">@parts[i]</MudSelectItem>}</MudSelect></MudItem> }
+   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateFrom" Label="از تاریخ" Margin="Margin.Normal" /></MudItem>
+   <MudItem xs="12" sm="6" md="3"><PersianDatePicker @bind-Date="dateTo" Label="تا تاریخ" Margin="Margin.Normal" /></MudItem>
    <MudItem xs="12" md="2"><MudButton OnClick="Run" Disabled="busy" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">نمایش گزارش</MudButton></MudItem>
   </MudGrid></MudPaper>
  }

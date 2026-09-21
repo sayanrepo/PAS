@@ -14,29 +14,29 @@
     </div>
     @if (ready && CanSearch)
     {
-        <MudPaper Class="filter-panel orders-filters" Elevation="0">
+        <MudPaper Class="filter-panel app-form orders-filters" Elevation="0">
             <MudGrid Spacing="2">
                 <MudItem xs="12" md="4">
                     <MudAutocomplete T="OrderLookup" @bind-Value="selectedCustomer" @bind-Text="customerText" Label="مشتری" SearchFunc="FindCustomersAsync"
                                      ToStringFunc="@(x => x?.Name ?? string.Empty)" Clearable="true" ResetValueOnEmptyText="true" CoerceText="false" Strict="false"
-                                     Variant="Variant.Outlined" Margin="Margin.Dense" AdornmentIcon="@Icons.Material.Filled.Person" />
+                                   Variant="Variant.Outlined" Margin="Margin.Normal" AdornmentIcon="@Icons.Material.Filled.Person" />
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderFrom" Label="تاریخ سفارش از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderTo" Label="تاریخ سفارش تا" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderFrom" Label="تاریخ سفارش از" Margin="Margin.Normal" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="orderTo" Label="تاریخ سفارش تا" Margin="Margin.Normal" /></MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="byte?" @bind-Value="statusId" Label="وضعیت" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.Statuses) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorFrom" Label="تاریخ فاکتور از" /></MudItem>
-                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorTo" Label="تاریخ فاکتور تا" /></MudItem>
-                <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorFrom" Label="تاریخ فاکتور از" Margin="Margin.Normal" /></MudItem>
+                <MudItem xs="12" sm="6" md="4"><PersianDatePicker @bind-Date="factorTo" Label="تاریخ فاکتور تا" Margin="Margin.Normal" /></MudItem>
+                <MudItem xs="12" md="4"><MudNumericField Immediate="true" T="int?" @bind-Value="documentNumber" Label="شماره سند" Clearable="true" HideSpinButtons="true" Variant="Variant.Outlined" Margin="Margin.Normal" /></MudItem>
                 <MudItem xs="12" md="4">
-                    <MudSelect T="byte?" @bind-Value="tradeTypeId" Label="نوع معامله" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    <MudSelect T="byte?" @bind-Value="tradeTypeId" Label="نوع معامله" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal">
                         @foreach (var item in lookups.TradeTypes) { <MudSelectItem T="byte?" Value="@((byte?)item.Id)">@item.Name</MudSelectItem> }
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="12" md="4"><MudTextField Immediate="true" @bind-Value="projectName" Label="نام پروژه" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudItem>
+                <MudItem xs="12" md="4"><MudTextField Immediate="true" @bind-Value="projectName" Label="نام پروژه" Clearable="true" Variant="Variant.Outlined" Margin="Margin.Normal" /></MudItem>
             </MudGrid>
             <div class="d-flex justify-center gap-3 mt-4">
                 <MudButton OnClick="SearchAsync" Disabled="loading" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search">جستجو</MudButton>

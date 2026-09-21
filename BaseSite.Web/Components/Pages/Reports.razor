@@ -8,9 +8,9 @@
  @if(error is not null) { <MudAlert Severity="Severity.Error">@error</MudAlert> }
  @if(loading) { <MudProgressLinear Indeterminate="true" /> }
  else {
-  <MudPaper Class="filter-panel mb-5" Elevation="0"><MudGrid>
-   <MudItem xs="12" md="8"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجوی عنوان گزارش" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" /></MudItem>
-   <MudItem xs="12" md="4"><MudSelect T="string" @bind-Value="category" Label="دسته گزارش" Variant="Variant.Outlined"><MudSelectItem Value="@("")">همه دسته‌ها</MudSelectItem>@foreach(var c in reports.Select(x=>x.Category).Distinct()) { <MudSelectItem Value="@c">@c</MudSelectItem> }</MudSelect></MudItem>
+  <MudPaper Class="filter-panel app-form mb-5" Elevation="0"><MudGrid>
+   <MudItem xs="12" md="8"><MudTextField @bind-Value="search" Immediate="true" Clearable="true" Label="جستجوی عنوان گزارش" Variant="Variant.Outlined" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Margin="Margin.Normal" /></MudItem>
+   <MudItem xs="12" md="4"><MudSelect T="string" @bind-Value="category" Label="دسته گزارش" Variant="Variant.Outlined" Margin="Margin.Normal"><MudSelectItem Value="@("")">همه دسته‌ها</MudSelectItem>@foreach(var c in reports.Select(x=>x.Category).Distinct()) { <MudSelectItem Value="@c">@c</MudSelectItem> }</MudSelect></MudItem>
   </MudGrid></MudPaper>
   @foreach(var group in Filtered.GroupBy(x=>x.Category)) {
    <section class="report-category">
